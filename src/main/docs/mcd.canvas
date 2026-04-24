@@ -1,0 +1,32 @@
+{
+	"nodes":[
+		{"id":"121695b295bd389e","type":"text","text":"## EVENT\n- `id` `uuid` `pk`\n- `title` `varchar(50)` `not null`\n- `description` `text` `not null`\n- `start_date` `datetime` `not null`\n- `end_date` `datetime` `not null`\n- `location` `varchar(50)` `not null`\n-  `created_at` `timestamp` `not null`","x":-100,"y":-720,"width":520,"height":271,"color":"#069171"},
+		{"id":"e8113c9c28fefbe1","type":"text","text":"## CONTAIN","x":-480,"y":-609,"width":158,"height":50},
+		{"id":"805cf399d01a20f0","type":"text","text":"## SESSION\n- `id` `uuid` `pk`\n- `title` `varchar(50)` `not null`\n- `description` `text` `not null`\n- `start_date` `datetime` `not null`\n- `end_date` `datetime` `not null`\n- `room` `varchar(50)` `not null`\n- `capacity` `int` `not null`\n-  `event_id` `uuid` `fk` `references` event(id)\n- `room_id` `uuid` `fk` `references` room(id)","x":-1240,"y":-751,"width":520,"height":334,"color":"#069171"},
+		{"id":"4b7d350c75056011","type":"text","text":"## USER\n- `id` `uuid` `pk`\n- `first_name` `varchar(50)` `not null`\n- `last_name` `varchar(50)` `not null`\n-  `username` `unique`\n- `email` `varchar(50)` `unique` `not null`\n- `password` `varchar(100)`\n- `bio` `text`\n- `created_at` `timestamp` `default now()`\n- `profile_picture` `varchar(255)`\n-  `role` `enum (admin, speaker, participant)`","x":-1240,"y":288,"width":520,"height":360,"color":"#069171"},
+		{"id":"f2c5fd3c1b68a5e0","type":"text","text":"## MANAGE\n\n- `id` `pk` `not null`\n-  `envent_id` `fk` `references` event(id)\n- `user_id` `fk` `references` user(id)","x":-100,"y":372,"width":520,"height":193},
+		{"id":"92282d0c04b2c65a","type":"text","text":"## ASKS","x":-2358,"y":443,"width":116,"height":50},
+		{"id":"fcc4393bb7f959f8","type":"text","text":"## CONTAIN","x":-1056,"y":-1020,"width":153,"height":62},
+		{"id":"0a1ffc360198b9b3","type":"text","text":"## ROOM\n- `id` `uuid` `pk`\n- `name` `varchar(50)` `unique` `not null`","x":-1180,"y":-1320,"width":400,"height":136,"color":"#069171"},
+		{"id":"9aa1b615c87ee93f","type":"text","text":"## CONTAIN","x":-2376,"y":-615,"width":153,"height":62},
+		{"id":"f84025695f85f577","type":"text","text":"## QUESTION\n\n- `id` `uuid` `pk`\n-  `descritpion` `varchar(50)` `not null`\n- `content` `text` `not null`\n- `upvote` `int` `default 0`\n- `email` `varchar(50)` `unique` `not null`\n- `created_at` `datetime` `default now()`\n-  `session_id` `fk` `references` session(id)\n-  `user_id` `fk` `references` user(id)","x":-2499,"y":-268,"width":400,"height":308,"color":"#069171"},
+		{"id":"382c0b00f25387cc","type":"text","text":"## PARTICIPATE\n\n- `id` `uuid` `not null`\n- `user_id` `fk` `not null` `references` speaker(id)\n- `session_id` `fk` `not null` `references` session(id)\n- `at` `timestamp` `default now()`  not null`","x":-643,"y":-199,"width":484,"height":220},
+		{"id":"55b599f261ccf307","type":"text","text":"## INTERVENE\n\n- `id` `uuid` `not null`\n- `speaker_id` `fk` `not null` `references` user(id)\n- `session_id` `fk` `not null` `references` session(id)\n- `start_time` `time with time zone` `not null`\n- `end_time` `time with time zone` `not null`","x":-1820,"y":-199,"width":484,"height":220}
+	],
+	"edges":[
+		{"id":"467610ec40730ae7","fromNode":"f2c5fd3c1b68a5e0","fromSide":"top","toNode":"121695b295bd389e","toSide":"bottom","toEnd":"none","label":"1,N"},
+		{"id":"5be322df028d3da0","fromNode":"805cf399d01a20f0","fromSide":"right","toNode":"e8113c9c28fefbe1","toSide":"left","toEnd":"none","label":"1,1"},
+		{"id":"aa9243f3c7651555","fromNode":"e8113c9c28fefbe1","fromSide":"right","toNode":"121695b295bd389e","toSide":"left","toEnd":"none","label":"1,N"},
+		{"id":"28a0a2abd4380d0b","fromNode":"805cf399d01a20f0","fromSide":"top","toNode":"fcc4393bb7f959f8","toSide":"bottom","toEnd":"none","label":"1,1"},
+		{"id":"2dbe5f283c0de2d2","fromNode":"fcc4393bb7f959f8","fromSide":"top","toNode":"0a1ffc360198b9b3","toSide":"bottom","toEnd":"none","label":"1,1"},
+		{"id":"1a750ee692df788b","fromNode":"4b7d350c75056011","fromSide":"right","toNode":"f2c5fd3c1b68a5e0","toSide":"left","toEnd":"none","label":"0,N"},
+		{"id":"2706d47aaeb4c528","fromNode":"4b7d350c75056011","fromSide":"top","toNode":"55b599f261ccf307","toSide":"bottom","toEnd":"none","label":"1,N"},
+		{"id":"8b52a82c060038e5","fromNode":"55b599f261ccf307","fromSide":"top","toNode":"805cf399d01a20f0","toSide":"bottom","toEnd":"none","label":"1,N"},
+		{"id":"9e518273d8c356e0","fromNode":"9aa1b615c87ee93f","fromSide":"right","toNode":"805cf399d01a20f0","toSide":"left","toEnd":"none","label":"0,N"},
+		{"id":"24d738d85aa4b936","fromNode":"f84025695f85f577","fromSide":"top","toNode":"9aa1b615c87ee93f","toSide":"bottom","toEnd":"none","label":"1,1"},
+		{"id":"53458dcf6b95543a","fromNode":"92282d0c04b2c65a","fromSide":"top","toNode":"f84025695f85f577","toSide":"bottom","toEnd":"none","label":"1,1"},
+		{"id":"1adcbea2654bdf1c","fromNode":"4b7d350c75056011","fromSide":"left","toNode":"92282d0c04b2c65a","toSide":"right","toEnd":"none","label":"0,N"},
+		{"id":"974e16a240bf345d","fromNode":"805cf399d01a20f0","fromSide":"bottom","toNode":"382c0b00f25387cc","toSide":"top","toEnd":"none","label":"N,N"},
+		{"id":"232075ad38775e52","fromNode":"382c0b00f25387cc","fromSide":"bottom","toNode":"4b7d350c75056011","toSide":"top","toEnd":"none","label":"N,N"}
+	]
+}
