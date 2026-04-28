@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -1675.462726268898,
-                  "y": 52.35624651906525,
-                  "zoom": -0.8263955106834574
+                  "x": -1048.4833460426041,
+                  "y": 158.72406727978614,
+                  "zoom": -0.7969727236032489
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -189,6 +189,17 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/main/java/entity/User.java~",
+    "src/main/java/entity/Participant.java~",
+    "src/main/java/entity/Speaker.java~",
+    "src/main/java/entity/Administrator.java~",
+    "src/main/java/entity/Speaker.java",
+    "src/main/java/entity/Participant.java",
+    "src/main/java/entity/Administrator.java",
+    "src/main/java/entity/enums/Role.java~",
+    "src/main/java/entity/enums/Role.java",
+    "src/main/java/entity/enums",
+    "src/main/java/enum",
     "src/main/docs/mcd.canvas"
   ]
 }
