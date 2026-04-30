@@ -1,14 +1,18 @@
-package entity;
+package com.techindna.eventsync.entity;
 
-import entity.enums.Role;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.techindna.eventsync.entity.enums.Role;
 
+import java.util.UUID;
+
+@JsonPropertyOrder({"id", "firstName", "lastName", "email", "role"})
 public abstract class User {
-    private String id;
+    private UUID id;
     private String firstName;
     private String lastName;
     private String email;
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -24,7 +28,7 @@ public abstract class User {
         return email;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -41,4 +45,5 @@ public abstract class User {
     }
 
     public abstract Role getRole();
+
 }

@@ -1,4 +1,4 @@
-package com.example.eventsync;
+package com.techindna.eventsync;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

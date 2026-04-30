@@ -1,4 +1,4 @@
-package entity.enums;
+package com.techindna.eventsync.entity.enums;
 
 public enum Role {
     ADMIN,

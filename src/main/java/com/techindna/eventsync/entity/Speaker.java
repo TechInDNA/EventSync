@@ -1,6 +1,7 @@
-package entity;
+package com.techindna.eventsync.entity;
 
-import entity.enums.Role;
+
+import com.techindna.eventsync.entity.enums.Role;
 
 public class Speaker extends User {
     private String bio;
