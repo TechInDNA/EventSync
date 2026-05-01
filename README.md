@@ -1,47 +1,31 @@
 # EventSync Configuration Guide
 
-This document explains how to configure the `application.properties` file for the EventSync application.
+This document explains how to configure the `.env` file for the EventSync application.
 
 ## Important Notice
 
-The `application.properties` file is included in `.gitignore` and should not be committed to version control. This prevents sensitive information such as database credentials and JWT secrets from being exposed in the repository.
-
-Each developer should create their own local `application.properties` file based on the template below.
+The `.env` file is included in `.gitignore` and should not be committed to version control. This prevents sensitive information such as database credentials and JWT secrets from being exposed in the repository.
 
 ## Configuration Template
 
-Create a file at `src/main/resources/application.properties` with the following configuration:
+Create a file at the project root named `.env` with the following configuration:
 
-```properties
-# Application Name
-spring.application.name=EventSync
-
+```env
 # JWT Secret Key
 # Generate a secure UUID for production use
-security.jwt.token.secret-key=your-secret-key-here
+JWT_TOKEN=your-secret-key-here
 
 # Database Configuration
 # Update these values according to your PostgreSQL setup
-spring.datasource.url=jdbc:postgresql://localhost:5432/your_database_name
-spring.datasource.username=your_database_username
-spring.datasource.password=your_database_password
-spring.datasource.driver-class-name=org.postgresql.Driver
-
-# Logging Configuration (Optional)
-# Uncomment and adjust as needed for debugging
-# logging.level.org.springframework.security=DEBUG
-# logging.level.org.springframework.jdbc=DEBUG
+DB_URL=jdbc:postgresql://localhost:5432/db_name
+DB_USER=db_user
+DB_PASSWORD=db_password
 ```
 
 ## Configuration Details
 
-### Application Name
-- **Property**: `spring.application.name`
-- **Description**: The name of the Spring Boot application
-- **Default**: `EventSync`
-
 ### JWT Token Configuration
-- **Property**: `security.jwt.token.secret-key`
+- **Variable**: `JWT_TOKEN`
 - **Description**: Secret key used for signing JWT tokens
 - **Recommendation**: Use a strong, randomly generated UUID or secure string
 - **Generation**: You can generate a secure key using: `uuidgen` (Linux/Mac) or online UUID generators
@@ -49,34 +33,31 @@ spring.datasource.driver-class-name=org.postgresql.Driver
 ### Database Configuration
 
 #### Database URL
-- **Property**: `spring.datasource.url`
+- **Variable**: `DB_URL`
 - **Format**: `jdbc:postgresql://host:port/database_name`
 - **Default**: `jdbc:postgresql://localhost:5432/eventsync_db`
 - **Note**: Ensure the database exists before running the application
 
 #### Database Credentials
-- **Property**: `spring.datasource.username`
-- **Property**: `spring.datasource.password`
+- **Variable**: `DB_USER`
+- **Variable**: `DB_PASSWORD`
 - **Description**: PostgreSQL username and password with access to the database
 - **Default username**: `eventsync_manager`
 
-#### Database Driver
-- **Property**: `spring.datasource.driver-class-name`
-- **Value**: `org.postgresql.Driver`
-- **Note**: This is automatically configured by Spring Boot when using PostgreSQL starter
-
 ### Logging Configuration
 
-The following logging levels can be configured for debugging:
+The `application.properties` file includes debug logging for Spring Security and JDBC by default. To change logging levels, create or modify `src/main/resources/application.properties` (also gitignored) with:
 
-- **`logging.level.org.springframework.security`**: Controls Spring Security logging (DEBUG, INFO, WARN, ERROR)
-- **`logging.level.org.springframework.jdbc`**: Controls JDBC/SQL logging (DEBUG, INFO, WARN, ERROR)
+```properties
+logging.level.org.springframework.security=DEBUG
+logging.level.org.springframework.jdbc=DEBUG
+```
 
-Uncomment these lines only when debugging is needed, as debug logging may expose sensitive information.
+Change `DEBUG` to `INFO`, `WARN`, or `ERROR` as needed.
 
 ## Setup Instructions
 
-1. Create the file `src/main/resources/application.properties`
+1. Create the file `.env` in the project root directory
 2. Copy the template above
 3. Replace the placeholder values with your actual configuration:
    - Generate a secure JWT secret key
@@ -87,7 +68,7 @@ Uncomment these lines only when debugging is needed, as debug logging may expose
 
 ## Security Reminders
 
-- Never commit `application.properties` to version control
+- Never commit `.env` to version control
 - Use strong, unique secrets for JWT tokens in production
 - Restrict database user permissions to minimum required privileges
 - Consider using environment variables or Spring Cloud Config for production deployments
