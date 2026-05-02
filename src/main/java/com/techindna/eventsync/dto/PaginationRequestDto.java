@@ -1,25 +1,17 @@
 package com.techindna.eventsync.dto;
 
-public class Meta {
-    private int total;
+public class PaginationRequestDto {
     private int page;
     private int size;
 
-    public Meta() {
+    public PaginationRequestDto() {
+        this.page = 1;
+        this.size = 20;
     }
 
-    public Meta(int total, int page, int size) {
-        this.total = total;
+    public PaginationRequestDto(int page, int size) {
         this.page = page;
         this.size = size;
-    }
-
-    public int getTotal() {
-        return total;
-    }
-
-    public void setTotal(int total) {
-        this.total = total;
     }
 
     public int getPage() {
@@ -36,5 +28,13 @@ public class Meta {
 
     public void setSize(int size) {
         this.size = size;
+    }
+
+    public int getOffset() {
+        return (page - 1) * size;
+    }
+
+    public int getLimit() {
+        return size;
     }
 }

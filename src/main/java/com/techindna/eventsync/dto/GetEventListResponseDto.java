@@ -8,9 +8,9 @@ public class GetEventListResponseDto {
     private List<Event> data;
     private Meta meta;
 
-    public GetEventListResponseDto(List<Event> data, int total) {
+    public GetEventListResponseDto(List<Event> data, int total, int page, int size) {
         this.data = data;
-        this.meta = new Meta(total);
+        this.meta = new Meta(total, page, size);
     }
 
     public List<Event> getData() {

@@ -1,6 +1,7 @@
 package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.GetEventListResponseDto;
+import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.PostEventRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.BadRequestException;
@@ -27,13 +28,18 @@ public class EventController {
     }
 
     @GetMapping
-    public ResponseEntity<GetEventListResponseDto> getAllEvents() {
+    public ResponseEntity<?> getAllEvents(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
         try {
-            List<Event> events = eventService.getAllEvents();
-            GetEventListResponseDto response = new GetEventListResponseDto(events, events.size());
+            PaginationRequestDto pagination = new PaginationRequestDto(page, size);
+            List<Event> events = eventService.getAllEvents(pagination);
+            int total = eventService.countEvents();
+            GetEventListResponseDto response = new GetEventListResponseDto(events, total, page, size);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
         }
     }
 

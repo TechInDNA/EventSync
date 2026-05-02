@@ -1,5 +1,6 @@
 package com.techindna.eventsync.service;
 
+import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.repository.EventRepository;
@@ -29,7 +30,11 @@ public class EventService {
         return newEvent;
     }
 
-    public List<Event> getAllEvents() {
-        return eventRepository.findAllEvents();
+    public List<Event> getAllEvents(PaginationRequestDto pagination) {
+        return eventRepository.findAllEvents(pagination.getOffset(), pagination.getLimit());
+    }
+
+    public int countEvents() {
+        return eventRepository.countEvents();
     }
 }
