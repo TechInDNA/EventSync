@@ -47,12 +47,6 @@ paths:
       summary: List all events
       tags:
         - Events
-      parameters:
-        - name: live
-          in: query
-          schema:
-            type: boolean
-          description: Filter for live sessions
       responses:
         '200':
           description: List of events
@@ -162,12 +156,22 @@ paths:
           in: query
           schema:
             type: string
-          description: Filter by room
+          description: Filter by room name
+        - name: speaker
+          in: query
+          schema:
+            type: string
+          description: Filter by speaker name (matches first or last name)
         - name: live
           in: query
           schema:
             type: boolean
-          description: Filtrer les sessions en cours
+          description: Filter sessions currently live
+        - name: event
+          in: query
+          schema:
+            type: string
+          description: Filter by event title
       responses:
         '200':
           description: List of sessions
@@ -216,7 +220,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Session'
+                $ref: '#/components/schemas/SessionDetail'
         '404':
           description: Session not found
     put:
@@ -281,6 +285,13 @@ paths:
           schema:
             type: string
           description: ID of the session
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [upvotes, createdAt]
+            default: upvotes
+          description: Sort order (upvotes descending, or createdAt ascending)
       responses:
         '200':
           description: List of questions
@@ -494,7 +505,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Speaker'
+                $ref: '#/components/schemas/SpeakerDetail'
         '404':
           description: Speaker not found
     put:
@@ -581,6 +592,19 @@ components:
           format: uuid
         title:
           type: string
+    EventRefInput:
+      type: object
+      properties:
+        title:
+          type: string
+    SessionRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
     Event:
       type: object
       properties:
@@ -637,6 +661,9 @@ components:
         createdAt:
           type: string
           format: date-time
+        isLive:
+          type: boolean
+          description: True if at least one session is currently live
         sessions:
           type: array
           items:
@@ -682,6 +709,8 @@ components:
           $ref: '#/components/schemas/Room'
         capacity:
           type: integer
+        event:
+          $ref: '#/components/schemas/EventRef'
         speakers:
           type: array
           items:
@@ -689,6 +718,41 @@ components:
         isLive:
           type: boolean
           description: True if the session is live
+    SessionForSpeaker:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        room:
+          $ref: '#/components/schemas/Room'
+        capacity:
+          type: integer
+        event:
+          $ref: '#/components/schemas/EventRef'
+        isLive:
+          type: boolean
+          description: True if the session is live
+    SessionDetail:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Session'
+        - type: object
+          properties:
+            questions:
+              type: array
+              items:
+                $ref: '#/components/schemas/Question'
     SessionList:
       type: object
       properties:
@@ -725,15 +789,15 @@ components:
           type: string
           format: date-time
         room:
-          $ref: '#/components/schemas/Room'
+          $ref: '#/components/schemas/RoomRefInput'
         capacity:
           type: integer
         event:
-          $ref: '#/components/schemas/EventRef'
+          $ref: '#/components/schemas/EventRefInput'
         speakers:
           type: array
           items:
-            $ref: '#/components/schemas/SpeakerRef'
+            $ref: '#/components/schemas/SpeakerRefInput'
     Room:
       type: object
       properties:
@@ -761,6 +825,14 @@ components:
       properties:
         name:
           type: string
+    RoomRefInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
     Speaker:
       type: object
       properties:
@@ -786,10 +858,16 @@ components:
               url:
                 type: string
                 format: uri
-        sessions:
-          type: array
-          items:
-            $ref: '#/components/schemas/Session'
+    SpeakerDetail:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/Speaker'
+        - type: object
+          properties:
+            sessions:
+              type: array
+              items:
+                $ref: '#/components/schemas/SessionForSpeaker'
     SpeakerRef:
       type: object
       properties:
@@ -803,6 +881,31 @@ components:
         profilePicture:
           type: string
           format: uri
+        bio:
+          type: string
+    SpeakerRefInput:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+          description: Alternative way to reference speaker by email
+    ParticipantRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
     SpeakerList:
       type: object
       properties:
@@ -854,17 +957,16 @@ components:
           type: string
         authorName:
           type: string
-          description: Null if anonymous
+          description: Optional display name (for anonymous or named questions)
+        participant:
+          $ref: '#/components/schemas/ParticipantRef'
         upvotes:
           type: integer
-        isAnonyme:
+        isAnonymous:
           type: boolean
         createdAt:
           type: string
           format: date-time
-        sessionId:
-          type: string
-          format: uuid
     QuestionList:
       type: object
       properties:
@@ -886,7 +988,9 @@ components:
           type: string
         authorName:
           type: string
-          description: Optional - if absent, question is anonymous
-        isAnonyme:
+          description: Optional display name (if omitted and not anonymous, uses participant name)
+        participant:
+          $ref: '#/components/schemas/ParticipantRef'
+        isAnonymous:
           type: boolean
           default: false
