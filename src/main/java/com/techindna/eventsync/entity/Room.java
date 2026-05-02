@@ -1,14 +1,16 @@
 package com.techindna.eventsync.entity;
 
+import java.util.UUID;
+
 public class Room {
-    private String id;
+    private UUID id;
     private String name;
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
