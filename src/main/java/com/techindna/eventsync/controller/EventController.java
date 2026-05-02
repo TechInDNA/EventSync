@@ -1,6 +1,7 @@
 package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.EventRequestDto;
+import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
@@ -36,14 +37,14 @@ public class EventController {
                     request.getLocation()
             );
 
-            String message = eventService.createEvent(
+            Event newEvent = eventService.createEvent(
                     request.getTitle(),
                     request.getDescription(),
                     request.getStartDate(),
                     request.getEndDate(),
                     request.getLocation()
             );
-            return ResponseEntity.status(HttpStatus.OK).body(message);
+            return ResponseEntity.status(HttpStatus.OK).body(newEvent);
         }
         catch (BadRequestException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

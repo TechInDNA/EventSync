@@ -4,17 +4,24 @@ import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
 public class EventValidator {
-    private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9.,'-]+$");
+    private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9.,':-]+$");
 
     private void validate(String data){
         if (data == null || data.isEmpty() || data.isBlank()){
             throw new BadRequestException(String.format("The %s field is required", data));
         }
+
+        final Matcher TEXT_MATCHER = TEXT_PATTERN.matcher(data);
+        if (!TEXT_MATCHER.matches()){
+            throw new BadRequestException(String.format("Invalid input for %s: only a-zA-Z0-9.,'- characters are allowed", data));
+        }
     }
+
     public void  validateEventData(String title, String description, Instant startDate, Instant endDate, String location){
         validate(title);
         validate(description);
