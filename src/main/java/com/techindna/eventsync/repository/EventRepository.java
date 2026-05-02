@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.UUID;
 
 @Repository
 public class EventRepository {
@@ -44,7 +45,7 @@ public class EventRepository {
                 event.setLocation(location);
 
                 while (rs.next()) {
-                    event.setId(rs.getString("id"));
+                    event.setId(UUID.fromString(rs.getString("id")));
                     event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
                 }
                 return event;

@@ -189,13 +189,13 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
-    "AGENTS.md",
-    "src/sql/schema_users.sql",
-    "src/sql/data_users.sql",
-    "src/main/java/com/techindna/eventsync/validator/EventValidator.java~",
-    "target/classes/com/techindna/eventsync/validator/EventValidator.class",
+
     "src/test/java/requests/cookies.txt",
+    "target/classes/com/techindna/eventsync/entity/Session.class",
+    "target/classes/com/techindna/eventsync/dto/EventRequestDto.class",
+    "target/classes/com/techindna/eventsync/validator/EventValidator.class",
     "target/classes/com/techindna/eventsync/controller/EventController.class",
+
     "target/classes/com/techindna/eventsync/entity/Event.class",
     "src/main/java/com/techindna/eventsync/entity/Event.java~",
     "src/main/java/com/techindna/eventsync/controller/EventController.java~",
@@ -224,7 +224,6 @@
     "src/main/gen/docs/Question.md",
     "src/main/gen/docs/EventListMeta.md",
     "src/main/gen/docs/EventList.md",
-    "src/main/gen/docs/EventInput.md",
     "src/main/docs/mcd.canvas"
   ]
 }
