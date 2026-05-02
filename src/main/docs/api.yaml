@@ -99,7 +99,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Event'
+                $ref: '#/components/schemas/EventDetail'
         '404':
           description: Event not found
     put:
@@ -152,30 +152,6 @@ paths:
           description: Unauthorized
         '404':
           description: Event not found
-  /events/{id}/sessions:
-    get:
-      summary: List sessions of an event
-      tags:
-        - Sessions
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-          description: ID of the event
-        - name: live
-          in: query
-          schema:
-            type: boolean
-          description: Filtrer les sessions en cours
-      responses:
-        '200':
-          description: List of sessions
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SessionList'
   /sessions:
     get:
       summary: List all sessions
@@ -597,7 +573,50 @@ components:
             - admin
             - speaker
             - participant
+    EventRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
     Event:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        location:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    EventList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+            page:
+              type: integer
+    EventDetail:
       type: object
       properties:
         id:
@@ -622,20 +641,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Session'
-    EventList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Event'
-        meta:
-          type: object
-          properties:
-            total:
-              type: integer
-            page:
-              type: integer
     EventInput:
       type: object
       required:
@@ -677,13 +682,10 @@ components:
           $ref: '#/components/schemas/Room'
         capacity:
           type: integer
-        eventId:
-          type: string
-          format: uuid
         speakers:
           type: array
           items:
-            $ref: '#/components/schemas/Speaker'
+            $ref: '#/components/schemas/SpeakerRef'
         isLive:
           type: boolean
           description: True if the session is live
@@ -708,9 +710,9 @@ components:
         - description
         - startDate
         - endDate
-        - roomId
-        - eventId
-        - speakerIds
+        - room
+        - event
+        - speakers
       properties:
         title:
           type: string
@@ -722,19 +724,16 @@ components:
         endDate:
           type: string
           format: date-time
-        roomId:
-          type: string
-          format: uuid
+        room:
+          $ref: '#/components/schemas/Room'
         capacity:
           type: integer
-        eventId:
-          type: string
-          format: uuid
-        speakerIds:
+        event:
+          $ref: '#/components/schemas/EventRef'
+        speakers:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: '#/components/schemas/SpeakerRef'
     Room:
       type: object
       properties:
@@ -791,6 +790,19 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Session'
+    SpeakerRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        profilePicture:
+          type: string
+          format: uri
     SpeakerList:
       type: object
       properties:
