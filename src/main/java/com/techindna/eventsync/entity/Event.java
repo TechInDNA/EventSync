@@ -1,7 +1,10 @@
 package com.techindna.eventsync.entity;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.time.Instant;
 
+@JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "location", "createdAt"})
 public class Event {
     private String id;
     private String title;
