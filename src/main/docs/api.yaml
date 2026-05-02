@@ -581,6 +581,19 @@ components:
           format: uuid
         title:
           type: string
+    EventRefInput:
+      type: object
+      properties:
+        title:
+          type: string
+    SessionRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
     Event:
       type: object
       properties:
@@ -725,15 +738,15 @@ components:
           type: string
           format: date-time
         room:
-          $ref: '#/components/schemas/Room'
+          $ref: '#/components/schemas/RoomInput'
         capacity:
           type: integer
         event:
-          $ref: '#/components/schemas/EventRef'
+          $ref: '#/components/schemas/EventRefInput'
         speakers:
           type: array
           items:
-            $ref: '#/components/schemas/SpeakerRef'
+            $ref: '#/components/schemas/SpeakerRefInput'
     Room:
       type: object
       properties:
@@ -803,6 +816,33 @@ components:
         profilePicture:
           type: string
           format: uri
+        bio:
+          type: string
+    SpeakerRefInput:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        profilePicture:
+          type: string
+          format: uri
+        bio:
+          type: string
+    ParticipantRef:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
     SpeakerList:
       type: object
       properties:
@@ -850,11 +890,12 @@ components:
         id:
           type: string
           format: uuid
+        title:
+          type: string
         content:
           type: string
-        authorName:
-          type: string
-          description: Null if anonymous
+        participant:
+          $ref: '#/components/schemas/ParticipantRef'
         upvotes:
           type: integer
         isAnonyme:
@@ -862,9 +903,8 @@ components:
         createdAt:
           type: string
           format: date-time
-        sessionId:
-          type: string
-          format: uuid
+        session:
+          $ref: '#/components/schemas/SessionRef'
     QuestionList:
       type: object
       properties:
@@ -880,13 +920,15 @@ components:
     QuestionInput:
       type: object
       required:
+        - title
         - content
       properties:
+        title:
+          type: string
         content:
           type: string
-        authorName:
-          type: string
-          description: Optional - if absent, question is anonymous
+        participant:
+          $ref: '#/components/schemas/ParticipantRef'
         isAnonyme:
           type: boolean
           default: false

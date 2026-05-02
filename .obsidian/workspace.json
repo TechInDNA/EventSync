@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -1120.6328074666399,
-                  "y": -141.96948000694005,
-                  "zoom": -1.1682379957238833
+                  "x": -1506.5465470005306,
+                  "y": 73.73831001904912,
+                  "zoom": -0.8054246205786857
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -189,6 +189,7 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "AGENTS.md",
     "src/sql/schema_users.sql",
     "src/sql/data_users.sql",
     "src/main/java/com/techindna/eventsync/validator/EventValidator.java~",
@@ -199,7 +200,6 @@
     "src/main/java/com/techindna/eventsync/entity/Event.java~",
     "src/main/java/com/techindna/eventsync/controller/EventController.java~",
     "target/classes/com/techindna/eventsync/service/EventService.class",
-    "src/test/java/requests/post_events.sh",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
     "src/main/gen/docs/SessionsApi.md",
