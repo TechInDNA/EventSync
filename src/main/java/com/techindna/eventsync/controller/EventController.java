@@ -44,7 +44,7 @@ public class EventController {
                     request.getEndDate(),
                     request.getLocation()
             );
-            return ResponseEntity.status(HttpStatus.OK).body(newEvent);
+            return ResponseEntity.status(HttpStatus.CREATED).body(newEvent);
         }
         catch (BadRequestException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
