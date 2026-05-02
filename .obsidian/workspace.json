@@ -189,6 +189,7 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/test/java/requests/post_events.sh",
     "src/main/java/com/techindna/eventsync/validator/EventValidator.java~",
     "src/main/java/com/techindna/eventsync/service/EventService.java~",
     "src/main/java/com/techindna/eventsync/controller/EventController.java~",
@@ -199,7 +200,6 @@
     "target/classes/com/techindna/eventsync/config/TokenProvider.class",
     "target/classes/com/techindna/eventsync/config/JwtAuthenticationFilter.class",
     "target/classes/com/techindna/eventsync/config",
-    "target/classes/com/techindna/eventsync/repository/EventRepository.class",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
     "src/main/gen/docs/SessionsApi.md",

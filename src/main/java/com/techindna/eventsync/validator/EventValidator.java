@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 @Component
 public class EventValidator {
-    private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9.,':-]+$");
+    private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9 .,':-]+$");
 
     private void validate(String data){
         if (data == null || data.isEmpty() || data.isBlank()){
@@ -18,7 +18,7 @@ public class EventValidator {
 
         final Matcher TEXT_MATCHER = TEXT_PATTERN.matcher(data);
         if (!TEXT_MATCHER.matches()){
-            throw new BadRequestException(String.format("Invalid input for %s: only a-zA-Z0-9.,'- characters are allowed", data));
+            throw new BadRequestException(String.format("Invalid input for %s: only a-zA-Z0-9 .,':- characters are allowed", data));
         }
     }
 
