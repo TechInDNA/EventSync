@@ -11,9 +11,9 @@ import java.util.regex.Pattern;
 public class EventValidator {
     private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9 .,':-]+$");
 
-    private void validate(String data){
+    private void validate(String fieldName, String data){
         if (data == null || data.isEmpty() || data.isBlank()){
-            throw new BadRequestException(String.format("The %s field is required", data));
+            throw new BadRequestException(String.format("The field %s is required and cannot be blank", fieldName));
         }
 
         final Matcher TEXT_MATCHER = TEXT_PATTERN.matcher(data);
@@ -23,10 +23,10 @@ public class EventValidator {
     }
 
     public void  validateEventData(String title, String description, Instant startDate, Instant endDate, String location){
-        validate(title);
-        validate(description);
-        validate(String.valueOf(startDate));
-        validate(String.valueOf(endDate));
-        validate(location);
+        validate("title", title);
+        validate("description", description);
+        validate("startDate", String.valueOf(startDate));
+        validate("endDate", String.valueOf(endDate));
+        validate("location", location);
     }
 }

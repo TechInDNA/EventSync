@@ -189,6 +189,7 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/main/java/com/techindna/eventsync/validator/EventValidator.java~",
     "src/main/java/com/techindna/eventsync/entity/Event.java~",
     "src/main/java/com/techindna/eventsync/controller/EventController.java~",
     "src/test/java/requests/cookies.txt",
@@ -196,7 +197,6 @@
     "target/classes/com/techindna/eventsync/validator/EventValidator.class",
     "target/classes/com/techindna/eventsync/service/EventService.class",
     "src/test/java/requests/post_events.sh",
-    "src/main/java/com/techindna/eventsync/validator/EventValidator.java~",
     "src/main/java/com/techindna/eventsync/service/EventService.java~",
     "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
     "target/classes/com/techindna/eventsync/config/TokenProvider.class",
