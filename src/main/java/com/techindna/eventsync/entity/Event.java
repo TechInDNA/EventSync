@@ -3,10 +3,11 @@ package com.techindna.eventsync.entity;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "location", "createdAt"})
 public class Event {
-    private String id;
+    private UUID id;
     private String title;
     private String description;
     private Instant startDate;
@@ -14,11 +15,11 @@ public class Event {
     private String location;
     private Instant createdAt;
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
