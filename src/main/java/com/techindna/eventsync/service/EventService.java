@@ -6,6 +6,7 @@ import com.techindna.eventsync.repository.EventRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class EventService {
@@ -16,15 +17,19 @@ public class EventService {
     }
 
     public Event createEvent(String title,
-                              String description,
-                              Instant startDate,
-                              Instant endDate,
-                              String location){
+                               String description,
+                               Instant startDate,
+                               Instant endDate,
+                               String location){
 
         Event newEvent = eventRepository.saveEvent(title, description, startDate, endDate, location);
         if (newEvent.getId() == null){
             throw new ConflictException(String.format("Event %s already exist", title));
         }
         return newEvent;
+    }
+
+    public List<Event> getAllEvents() {
+        return eventRepository.findAllEvents();
     }
 }
