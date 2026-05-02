@@ -11,3 +11,13 @@ create table eventsync_app.users(
     profile_picture varchar(255),
     "role" eventsync_app."role" not null
 );
+
+create table eventsync_app.events(
+    id uuid default gen_random_uuid() primary key,
+    title varchar(50) unique not null,
+    description text not null,
+    start_date timestamp not null,
+    end_date timestamp not null,
+    location varchar(50) not null,
+    created_at timestamp default now() not null
+);

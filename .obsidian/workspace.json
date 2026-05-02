@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -777.0074163766249,
-                  "y": -243.55145447096334,
-                  "zoom": -0.33070279063781133
+                  "x": -1118.4947123561885,
+                  "y": -392.96886597457865,
+                  "zoom": -0.8743252152403199
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -189,17 +189,17 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
-    "src/main/java/com/techindna/eventsync/controller/AuthController.java~",
-    "src/main/java/com/techindna/eventsync/exception/GlobalExceptionHandler.java",
-    "src/main/java/com/techindna/eventsync/EventSyncApplication.java~",
-    "src/main/resources/application.properties~",
-    "src/main/java/com/techindna/eventsync/repository/AuthRepository.java~",
-    "src/test/java/com/techindna/eventsync/EventSyncApplicationTests.java",
-    "src/test/java/com/techindna/eventsync",
-    "src/test/java/com/techindna",
-    "target/surefire-reports/TEST-com.example.eventsync.EventSyncApplicationTests.xml",
-    "target/surefire-reports/com.example.eventsync.EventSyncApplicationTests.txt",
-    "target/surefire-reports",
+    "target/classes/com/techindna/eventsync/controller/EventController.class",
+    "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
+    "target/classes/com/techindna/eventsync/validator/EventValidator.class",
+    "target/classes/com/techindna/eventsync/service/EventService.class",
+    "target/classes/com/techindna/eventsync/config/TokenProvider.class",
+    "target/classes/com/techindna/eventsync/config/JwtAuthenticationFilter.class",
+    "target/classes/com/techindna/eventsync/config",
+    "target/classes/com/techindna/eventsync/repository/EventRepository.class",
+    "src/main/java/com/techindna/eventsync/repository/EventRepository.java~",
+    "src/main/java/com/techindna/eventsync/service/EventService.java~",
+    "target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
     "src/main/gen/docs/SessionsApi.md",

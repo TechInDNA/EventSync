@@ -1,0 +1,66 @@
+package com.techindna.eventsync.controller;
+
+import com.techindna.eventsync.dto.EventRequestDto;
+import com.techindna.eventsync.exception.BadRequestException;
+import com.techindna.eventsync.exception.ConflictException;
+import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.exception.UnauthorizedException;
+import com.techindna.eventsync.service.EventService;
+import com.techindna.eventsync.validator.EventValidator;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/events")
+public class EventController {
+    private final EventService eventService;
+    private final EventValidator eventValidator;
+
+    public EventController(EventService eventService, EventValidator eventValidator){
+        this.eventService = eventService;
+        this.eventValidator = eventValidator;
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createEvent(@RequestBody EventRequestDto request){
+        try{
+            eventValidator.validateEventData(
+                    request.getTitle(),
+                    request.getDescription(),
+                    request.getStartDate(),
+                    request.getEndDate(),
+                    request.getLocation()
+            );
+
+            String message = eventService.createEvent(
+                    request.getTitle(),
+                    request.getDescription(),
+                    request.getStartDate(),
+                    request.getEndDate(),
+                    request.getLocation()
+            );
+            return ResponseEntity.status(HttpStatus.OK).body(message);
+        }
+        catch (BadRequestException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
+        catch (ConflictException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        }
+        catch (UnauthorizedException e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
+        }
+        catch (InternalServerErrorException e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
+    }
+
+}

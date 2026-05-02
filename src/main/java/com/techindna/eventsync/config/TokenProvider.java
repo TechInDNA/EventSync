@@ -20,12 +20,17 @@ public class TokenProvider {
         JWT_SECRET = jwtSecret;
     }
 
+    public String getSecret() {
+        return JWT_SECRET;
+    }
+
     public String generateAccessToken(User user) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(JWT_SECRET);
             return JWT.create()
                     .withSubject(user.getId().toString())
                     .withClaim("id", user.getId().toString())
+                    .withClaim("role", user.getRole().name())
                     .withExpiresAt(genAccessExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
