@@ -8,7 +8,7 @@ import java.util.List;
 public class Speaker extends User {
     private String bio;
     private String profilePicture;
-    private List<ExternalLinks> urls;
+    private List<ExternalLinks> externalLinks;
 
     @Override
     public Role getRole() {
@@ -31,11 +31,11 @@ public class Speaker extends User {
         this.profilePicture = profilePicture;
     }
 
-    public List<ExternalLinks> getUrls() {
-        return urls;
+    public List<ExternalLinks> getExternalLinks() {
+        return externalLinks;
     }
 
-    public void setUrls(List<ExternalLinks> urls) {
-        this.urls = urls;
+    public void setExternalLinks(List<ExternalLinks> externalLinks) {
+        this.externalLinks = externalLinks;
     }
 }

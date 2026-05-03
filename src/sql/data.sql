@@ -33,3 +33,19 @@ values
 insert into eventsync_app.events (id, title, description, start_date, end_date, location)
 values
     ('a7cc7aac-50db-44cd-b8ae-cac7737a4052','Event to Delete', 'Test event for DELETE endpoint', '2026-12-15 10:00:00', '2026-12-15 17:00:00', 'Delete Test Location');
+
+-- Speakers for testing GET /speakers endpoint
+insert into eventsync_app.users (id, first_name, last_name, email, bio, "role")
+values
+    ('af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', 'John', 'Doe', 'john.speaker@eventsync.com', 'Senior software engineer specializing in backend development with 10+ years of experience.', 'speaker'),
+    ('4f17fb62-25cc-4758-a747-8f7df562d425', 'Jane', 'Smith', 'jane.speaker@eventsync.com', 'UX/UI designer focused on creating intuitive user experiences for web and mobile apps.', 'speaker'),
+    ('0a635d21-c174-4525-9031-19848bed99a4', 'Bob', 'Johnson', 'bob.speaker@eventsync.com', 'Full-stack developer and tech enthusiast sharing knowledge through blogs and workshops.', 'speaker');
+
+-- External links for testing GET /speakers endpoint
+insert into eventsync_app.external_link (name, url, user_id)
+values
+    ('Personal Website', 'https://johndoe.dev', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e'),
+    ('GitHub', 'https://github.com/johndoe', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e'),
+    ('LinkedIn', 'https://linkedin.com/in/janesmith', '4f17fb62-25cc-4758-a747-8f7df562d425'),
+    ('Portfolio', 'https://janesmith.design', '4f17fb62-25cc-4758-a747-8f7df562d425'),
+    ('Twitter', 'https://twitter.com/bobJohnson', '0a635d21-c174-4525-9031-19848bed99a4');
