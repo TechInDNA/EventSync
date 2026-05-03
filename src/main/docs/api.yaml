@@ -47,6 +47,19 @@ paths:
       summary: List all events
       tags:
         - Events
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number (starts at 1)
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Number of items per page
       responses:
         '200':
           description: List of events
@@ -172,6 +185,18 @@ paths:
           schema:
             type: string
           description: Filter by event title
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number (starts at 1)
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Number of items per page
       responses:
         '200':
           description: List of sessions
@@ -292,6 +317,18 @@ paths:
             enum: [upvotes, createdAt]
             default: upvotes
           description: Sort order (upvotes descending, or createdAt ascending)
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number (starts at 1)
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Number of items per page
       responses:
         '200':
           description: List of questions
@@ -355,6 +392,19 @@ paths:
       summary: List all rooms
       tags:
         - Rooms
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number (starts at 1)
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Number of items per page
       responses:
         '200':
           description: List of rooms
@@ -459,6 +509,19 @@ paths:
       summary: List all speakers
       tags:
         - Speakers
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: Page number (starts at 1)
+        - name: size
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: Number of items per page
       responses:
         '200':
           description: List of speakers
@@ -640,6 +703,8 @@ components:
               type: integer
             page:
               type: integer
+            size:
+              type: integer
     EventDetail:
       type: object
       properties:
@@ -767,6 +832,8 @@ components:
               type: integer
             page:
               type: integer
+            size:
+              type: integer
     SessionInput:
       type: object
       required:
@@ -817,6 +884,10 @@ components:
           type: object
           properties:
             total:
+              type: integer
+            page:
+              type: integer
+            size:
               type: integer
     RoomInput:
       type: object
@@ -918,6 +989,10 @@ components:
           properties:
             total:
               type: integer
+            page:
+              type: integer
+            size:
+              type: integer
     SpeakerInput:
       type: object
       required:
@@ -978,6 +1053,10 @@ components:
           type: object
           properties:
             total:
+              type: integer
+            page:
+              type: integer
+            size:
               type: integer
     QuestionInput:
       type: object

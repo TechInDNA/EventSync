@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -52,6 +54,59 @@ public class EventRepository {
             }
         }
         catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Event> findAllEvents(int offset, int limit) {
+        String query = """
+            select id, title, description, start_date, end_date, location, created_at
+            from eventsync_app.events
+            order by created_at desc
+            limit ? offset ?
+            """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Event> events = new ArrayList<>();
+                while (rs.next()) {
+                    Event event = new Event();
+                    event.setId(UUID.fromString(rs.getString("id")));
+                    event.setTitle(rs.getString("title"));
+                    event.setDescription(rs.getString("description"));
+                    event.setStartDate(rs.getTimestamp("start_date").toInstant());
+                    event.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    event.setLocation(rs.getString("location"));
+                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+                    events.add(event);
+                }
+                return events;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int countEvents() {
+        String query = """
+            select count(id) as total
+            from eventsync_app.events
+            """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
+                return 0;
+            }
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
