@@ -43,4 +43,7 @@ public class StringValidator {
         validateDate("endDate", endDate);
         validate("location", location);
     }
+    public void validateRoomData(String name){
+        validate("name",name);
+    }
 }
