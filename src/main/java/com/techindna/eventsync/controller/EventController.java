@@ -10,7 +10,7 @@ import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.EventService;
-import com.techindna.eventsync.validator.EventValidator;
+import com.techindna.eventsync.validator.StringValidator;
 import com.techindna.eventsync.validator.PaginationValidator;
 import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
@@ -24,13 +24,13 @@ import java.util.UUID;
 @RequestMapping("/events")
 public class EventController {
     private final EventService eventService;
-    private final EventValidator eventValidator;
+    private final StringValidator stringValidator;
     private final PaginationValidator paginationValidator;
     private final UUIDValidator UuidValidator;
 
-    public EventController(EventService eventService, EventValidator eventValidator, PaginationValidator paginationValidator, UUIDValidator UuidValidator){
+    public EventController(EventService eventService, StringValidator eventValidator, PaginationValidator paginationValidator, UUIDValidator UuidValidator){
         this.eventService = eventService;
-        this.eventValidator = eventValidator;
+        this.stringValidator = eventValidator;
         this.paginationValidator = paginationValidator;
         this.UuidValidator = UuidValidator;
     }
@@ -63,7 +63,7 @@ public class EventController {
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody EventRequestDto request) {
         try {
-            eventValidator.validateEventData(
+            stringValidator.validateEventData(
                     request.getTitle(),
                     request.getDescription(),
                     request.getStartDate(),
@@ -100,7 +100,7 @@ public class EventController {
             @RequestBody EventRequestDto request) {
         try {
             UuidValidator.validateUUID(id);
-            eventValidator.validateEventData(
+            stringValidator.validateEventData(
                     request.getTitle(),
                     request.getDescription(),
                     request.getStartDate(),
