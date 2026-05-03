@@ -183,7 +183,7 @@ public class EventRepository {
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
-            ps.setString(1, String.valueOf(id));
+            ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return UUID.fromString(rs.getString("id"));

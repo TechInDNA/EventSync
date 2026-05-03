@@ -32,4 +32,4 @@ values
 -- Test event for DELETE /events endpoint (use this ID to test deletion)
 insert into eventsync_app.events (id, title, description, start_date, end_date, location)
 values
-    ('d2c068bd-cee8-592b-c9g8-747e54815g93','Event to Delete', 'Test event for DELETE endpoint', '2026-12-15 10:00:00', '2026-12-15 17:00:00', 'Delete Test Location');
+    ('a7cc7aac-50db-44cd-b8ae-cac7737a4052','Event to Delete', 'Test event for DELETE endpoint', '2026-12-15 10:00:00', '2026-12-15 17:00:00', 'Delete Test Location');
