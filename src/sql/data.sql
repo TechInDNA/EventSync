@@ -28,3 +28,8 @@ values
 insert into eventsync_app.events (id, title, description, start_date, end_date, location)
 values
     ('c1b957ac-bdd7-481a-b8f7-636d43794f82','Event to Update', 'Original description for testing PUT endpoint', '2026-12-01 09:00:00', '2026-12-01 18:00:00', 'Test Location');
+
+-- Test event for DELETE /events endpoint (use this ID to test deletion)
+insert into eventsync_app.events (id, title, description, start_date, end_date, location)
+values
+    ('d2c068bd-cee8-592b-c9g8-747e54815g93','Event to Delete', 'Test event for DELETE endpoint', '2026-12-15 10:00:00', '2026-12-15 17:00:00', 'Delete Test Location');
