@@ -4,11 +4,6 @@ public class PaginationRequestDto {
     private int page;
     private int size;
 
-    public PaginationRequestDto() {
-        this.page = 1;
-        this.size = 20;
-    }
-
     public PaginationRequestDto(int page, int size) {
         this.page = page;
         this.size = size;
