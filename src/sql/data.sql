@@ -25,6 +25,6 @@ values
     ('Python Coding Bootcamp', 'Intensive Python programming bootcamp', '2026-09-05 10:00:00', '2026-09-07 16:00:00', 'Code Academy');
 
 -- Test event for PUT /events endpoint (use this ID to test update)
-insert into eventsync_app.events (title, description, start_date, end_date, location)
+insert into eventsync_app.events (id, title, description, start_date, end_date, location)
 values
-    ('Event to Update', 'Original description for testing PUT endpoint', '2026-12-01 09:00:00', '2026-12-01 18:00:00', 'Test Location');
+    ('c1b957ac-bdd7-481a-b8f7-636d43794f82','Event to Update', 'Original description for testing PUT endpoint', '2026-12-01 09:00:00', '2026-12-01 18:00:00', 'Test Location');

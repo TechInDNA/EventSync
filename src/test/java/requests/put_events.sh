@@ -2,7 +2,7 @@
 
 echo "Testing PUT /events/{id}"
 
-EVENT_ID="97e52967-0e33-486e-a45e-dc53f3a12df1"
+EVENT_ID="c1b957ac-bdd7-481a-b8f7-636d43794f82"
 INVALID_UUID="00000000-0000-0000-0000-000000000000"
 MALFORMED_UUID="not-a-valid-uuid"
 
@@ -19,7 +19,7 @@ curlie -H "Content-Type: application/json" -d '{"title":"UpdatedEvent","descript
 # Step 3: Valid update (should return 200)
 echo ""
 echo "--- Test 2: Valid update (should return 200) ---"
-curlie -X PUT -H "Content-Type: application/json" -d '{"title":"UpdatedEvent","description":"UpdatedDesc","startDate":"2026-12-02T10:00:00Z","endDate":"2026-12-02T18:00:00Z","location":"UpdatedLoc"}' http://localhost:8080/events/$EVENT_ID
+curlie -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"UpdatedEvent","description":"UpdatedDesc","startDate":"2026-12-02T10:00:00Z","endDate":"2026-12-02T18:00:00Z","location":"UpdatedLoc"}' http://localhost:8080/events/$EVENT_ID
 
 # Step 4: Duplicate title (another event already has this title, should return 409)
 echo ""
