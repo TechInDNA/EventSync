@@ -11,6 +11,9 @@ public class UUIDValidator {
     private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
     public void validateUUID(String uuid){
+        if (uuid == null || uuid.isEmpty() || uuid.isBlank()){
+            throw new BadRequestException("UUID path variable cannot be null or blank.");
+        }
         final Matcher UUID_MATCHER = UUID_PATTERN.matcher(uuid);
 
         if (!UUID_MATCHER.matches()){
