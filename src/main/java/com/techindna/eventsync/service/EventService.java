@@ -50,4 +50,8 @@ public class EventService {
 
         return eventRepository.updateEvent(id, title, description, startDate, endDate, location);
     }
+
+    public UUID deleteEvent(UUID id) {
+        return eventRepository.deleteEvent(id);
+    }
 }
