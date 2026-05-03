@@ -96,6 +96,7 @@ public class EventController {
             @PathVariable UUID id,
             @RequestBody EventRequestDto request) {
         try {
+            eventValidator.validateUUID(id);
             eventValidator.validateEventData(
                     request.getTitle(),
                     request.getDescription(),
