@@ -189,6 +189,7 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/test/java/requests/put_events.sh",
     "src/main/java/com/techindna/eventsync/controller/EventController.java~",
     "src/main/java/com/techindna/eventsync/dto/EventRequestDto.java~",
     "src/main/java/com/techindna/eventsync/service/EventService.java~",
@@ -200,7 +201,6 @@
     "target/classes/com/techindna/eventsync/entity/Session.class",
     "target/classes/com/techindna/eventsync/dto/EventRequestDto.class",
     "target/classes/com/techindna/eventsync/validator/EventValidator.class",
-    "target/classes/com/techindna/eventsync/controller/EventController.class",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
     "src/main/gen/docs/SessionsApi.md",
