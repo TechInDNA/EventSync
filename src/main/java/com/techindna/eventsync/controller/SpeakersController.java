@@ -8,17 +8,17 @@ import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.service.EventService;
 import com.techindna.eventsync.service.SpeakerService;
 import com.techindna.eventsync.validator.PaginationValidator;
-import com.techindna.eventsync.validator.StringValidator;
-import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@RestController("/speakers")
+@RestController
+@RequestMapping("/speakers")
 public class SpeakersController {
     private final PaginationValidator paginationValidator;
     private final SpeakerService speakerService;
