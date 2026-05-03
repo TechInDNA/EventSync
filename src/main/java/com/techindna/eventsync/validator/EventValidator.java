@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 @Component
 public class EventValidator {
     private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9 .,':-]+$");
-    private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
     private void validate(String fieldName, String data){
         if (data == null || data.isEmpty() || data.isBlank()){
@@ -35,14 +34,6 @@ public class EventValidator {
             throw new BadRequestException(String.format("The field %s contain forbidden character or is invalid.", fieldName));
         }
          */
-    }
-
-    public void validateUUID(String uuid){
-        final Matcher UUID_MATCHER = UUID_PATTERN.matcher(uuid);
-
-        if (!UUID_MATCHER.matches()){
-            throw new BadRequestException("Invalid UUID format.");
-        }
     }
 
     public void  validateEventData(String title, String description, Instant startDate, Instant endDate, String location){

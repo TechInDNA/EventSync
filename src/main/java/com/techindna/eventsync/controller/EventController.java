@@ -12,6 +12,7 @@ import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.EventService;
 import com.techindna.eventsync.validator.EventValidator;
 import com.techindna.eventsync.validator.PaginationValidator;
+import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +26,13 @@ public class EventController {
     private final EventService eventService;
     private final EventValidator eventValidator;
     private final PaginationValidator paginationValidator;
+    private final UUIDValidator UuidValidator;
 
-    public EventController(EventService eventService, EventValidator eventValidator, PaginationValidator paginationValidator){
+    public EventController(EventService eventService, EventValidator eventValidator, PaginationValidator paginationValidator, UUIDValidator UuidValidator){
         this.eventService = eventService;
         this.eventValidator = eventValidator;
         this.paginationValidator = paginationValidator;
+        this.UuidValidator = UuidValidator;
     }
 
     @GetMapping
@@ -96,7 +99,7 @@ public class EventController {
             @PathVariable String id,
             @RequestBody EventRequestDto request) {
         try {
-            eventValidator.validateUUID(id);
+            UuidValidator.validateUUID(id);
             eventValidator.validateEventData(
                     request.getTitle(),
                     request.getDescription(),
