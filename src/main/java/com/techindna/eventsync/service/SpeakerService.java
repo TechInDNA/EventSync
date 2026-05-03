@@ -1,7 +1,7 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.entity.Speaker;
+import com.techindna.eventsync.dto.SpeakerResponseDto;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ public class SpeakerService {
         this.speakerRepository = speakerRepository;
     }
 
-    public List<Speaker> getAllSpeakers(PaginationRequestDto paginationRequestDto){
+    public List<SpeakerResponseDto> getAllSpeakers(PaginationRequestDto paginationRequestDto){
         return speakerRepository.getAllSpeakers(paginationRequestDto.getOffset(), paginationRequestDto.getLimit());
     }
 

@@ -1,7 +1,7 @@
 package com.techindna.eventsync.repository;
 
-import com.techindna.eventsync.entity.ExternalLinks;
-import com.techindna.eventsync.entity.Speaker;
+import com.techindna.eventsync.dto.ExternalLinkResponseDto;
+import com.techindna.eventsync.dto.SpeakerResponseDto;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -20,7 +20,7 @@ public class SpeakerRepository {
         this.dataSource = dataSource;
     }
 
-    private List<ExternalLinks> getExternalLinksByUserId(UUID userId){
+    private List<ExternalLinkResponseDto> getExternalLinksByUserId(UUID userId){
         final String query =
                 """
                 select external_link.name, external_link.url from eventsync_app.external_link where user_id = ?
@@ -29,10 +29,11 @@ public class SpeakerRepository {
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ){
-            List<ExternalLinks> results = new ArrayList<>();
+            ps.setObject(1, userId);
+            List<ExternalLinkResponseDto> results = new ArrayList<>();
             try(ResultSet rs = ps.executeQuery()){
                 while(rs.next()){
-                    ExternalLinks externalLinks = new ExternalLinks();
+                    ExternalLinkResponseDto externalLinks = new ExternalLinkResponseDto();
                     externalLinks.setName(rs.getString("name"));
                     externalLinks.setUrl(rs.getString("url"));
                     results.add(externalLinks);
@@ -44,7 +45,7 @@ public class SpeakerRepository {
         }
     }
 
-    public List<Speaker> getAllSpeakers(int offset, int limit){
+    public List<SpeakerResponseDto> getAllSpeakers(int offset, int limit){
         final String query =
                 """
                 select
@@ -52,7 +53,7 @@ public class SpeakerRepository {
                     users.first_name,
                     users.last_name,
                     users.profile_picture,
-                    users.bio,
+                    users.bio
                 from
                     eventsync_app.users
                 where
@@ -64,20 +65,20 @@ public class SpeakerRepository {
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
                 ){
-            ps.setInt(1, offset);
-            ps.setInt(2, limit);
-            List<Speaker> speakers = new ArrayList<>();
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            List<SpeakerResponseDto> speakers = new ArrayList<>();
 
             try(ResultSet rs = ps.executeQuery()){
                 while (rs.next()){
-                    Speaker speaker = new Speaker();
+                    SpeakerResponseDto speaker = new SpeakerResponseDto();
                     UUID userId = UUID.fromString(rs.getString("id"));
                     speaker.setId(userId);
                     speaker.setFirstName(rs.getString("first_name"));
                     speaker.setLastName(rs.getString("last_name"));
                     speaker.setProfilePicture(rs.getString("profile_picture"));
                     speaker.setBio(rs.getString("bio"));
-                    List<ExternalLinks> externalLinks = getExternalLinksByUserId(userId);
+                    List<ExternalLinkResponseDto> externalLinks = getExternalLinksByUserId(userId);
                     speaker.setExternalLinks(externalLinks);
                     speakers.add(speaker);
                 }
@@ -90,7 +91,8 @@ public class SpeakerRepository {
     }
 
     public int countSpeakers() {
-        String query = """
+        String query =
+            """
             select count(id) as total
             from eventsync_app.users where users."role" = 'speaker'
             """;

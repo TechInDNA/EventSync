@@ -2,10 +2,9 @@ package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.GetSpeakerListResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.entity.Speaker;
+import com.techindna.eventsync.dto.SpeakerResponseDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
-import com.techindna.eventsync.service.EventService;
 import com.techindna.eventsync.service.SpeakerService;
 import com.techindna.eventsync.validator.PaginationValidator;
 import org.springframework.http.HttpStatus;
@@ -37,7 +36,7 @@ public class SpeakersController {
             int sizeVal = Integer.parseInt(size);
 
             PaginationRequestDto pagination = new PaginationRequestDto(pageVal, sizeVal);
-            List<Speaker> speakers = speakerService.getAllSpeakers(pagination);
+            List<SpeakerResponseDto> speakers = speakerService.getAllSpeakers(pagination);
             int total = speakerService.countSpeaker();
             GetSpeakerListResponseDto response = new GetSpeakerListResponseDto(speakers, total, pageVal, sizeVal);
 
