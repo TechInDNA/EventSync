@@ -189,6 +189,7 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/main/java/com/techindna/eventsync/config/SecurityConfig.java~",
     "src/test/java/requests/get_speakers.sh~",
     "src/test/java/requests/post_speakers.sh",
     "src/test/java/requests/get_speakers.sh",
@@ -199,7 +200,6 @@
     "src/main/java/com/techindna/eventsync/dto/GetSpeakerListResponseDto.java",
     "src/main/java/com/techindna/eventsync/entity/Speaker.java~",
     "src/main/java/com/techindna/eventsync/dto/PaginationRequestDto.java~",
-    "src/main/java/com/techindna/eventsync/service/SpeakerService.java",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
