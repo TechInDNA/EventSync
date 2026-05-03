@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 @Component
 public class PaginationValidator {
-    private static final Pattern VALID_INPUT = Pattern.compile("^[0-9]+$");
+    private static final Pattern VALID_INPUT = Pattern.compile("^[1-9]+$");
 
     public void validatePageAndSize(String page, String size){
         if (page == null || page.isEmpty() || size == null || size.isEmpty()) {
