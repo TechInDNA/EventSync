@@ -189,6 +189,7 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/main/java/com/techindna/eventsync/repository/EventRepository.java~",
     "AGENTS.md",
     "src/test/java/requests/cookies.txt",
     "target/classes/com/techindna/eventsync/entity/Session.class",

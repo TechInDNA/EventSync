@@ -23,3 +23,8 @@ values
     ('UX/UI Design Summit', 'Summit for user experience and interface designers', '2026-07-22 10:00:00', '2026-07-23 17:00:00', 'Design Studio'),
     ('IoT Conference', 'Internet of Things conference and exhibition', '2026-08-20 09:00:00', '2026-08-21 18:00:00', 'Smart City Hall'),
     ('Python Coding Bootcamp', 'Intensive Python programming bootcamp', '2026-09-05 10:00:00', '2026-09-07 16:00:00', 'Code Academy');
+
+-- Test event for PUT /events endpoint (use this ID to test update)
+insert into eventsync_app.events (title, description, start_date, end_date, location)
+values
+    ('Event to Update', 'Original description for testing PUT endpoint', '2026-12-01 09:00:00', '2026-12-01 18:00:00', 'Test Location');
