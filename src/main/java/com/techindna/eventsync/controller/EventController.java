@@ -16,8 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/events")
@@ -106,7 +106,7 @@ public class EventController {
             );
 
             Event updatedEvent = eventService.updateEvent(
-                    id,
+                    UUID.fromString(id),
                     request.getTitle(),
                     request.getDescription(),
                     request.getStartDate(),
