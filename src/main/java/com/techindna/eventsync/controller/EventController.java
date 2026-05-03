@@ -10,6 +10,7 @@ import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.EventService;
 import com.techindna.eventsync.validator.EventValidator;
+import com.techindna.eventsync.validator.PaginationValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,22 +22,33 @@ import java.util.List;
 public class EventController {
     private final EventService eventService;
     private final EventValidator eventValidator;
+    private final PaginationValidator paginationValidator;
 
-    public EventController(EventService eventService, EventValidator eventValidator){
+    public EventController(EventService eventService, EventValidator eventValidator, PaginationValidator paginationValidator){
         this.eventService = eventService;
         this.eventValidator = eventValidator;
+        this.paginationValidator = paginationValidator;
     }
 
     @GetMapping
     public ResponseEntity<?> getAllEvents(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(required = false, defaultValue = "1") String page,
+            @RequestParam(required = false, defaultValue = "5") String size) {
         try {
-            PaginationRequestDto pagination = new PaginationRequestDto(page, size);
+            paginationValidator.validatePageAndSize(page, size);
+
+            int pageVal = Integer.parseInt(page);
+            int sizeVal = Integer.parseInt(size);
+
+            PaginationRequestDto pagination = new PaginationRequestDto(pageVal, sizeVal);
             List<Event> events = eventService.getAllEvents(pagination);
             int total = eventService.countEvents();
-            GetEventListResponseDto response = new GetEventListResponseDto(events, total, page, size);
+            GetEventListResponseDto response = new GetEventListResponseDto(events, total, pageVal, sizeVal);
+
             return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
