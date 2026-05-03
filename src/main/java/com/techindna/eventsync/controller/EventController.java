@@ -93,7 +93,7 @@ public class EventController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(
-            @PathVariable UUID id,
+            @PathVariable String id,
             @RequestBody EventRequestDto request) {
         try {
             eventValidator.validateUUID(id);

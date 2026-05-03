@@ -3,9 +3,7 @@ package com.techindna.eventsync.validator;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
-import java.time.DateTimeException;
 import java.time.Instant;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,8 +37,8 @@ public class EventValidator {
          */
     }
 
-    public void validateUUID(UUID uuid){
-        final Matcher UUID_MATCHER = UUID_PATTERN.matcher(uuid.toString());
+    public void validateUUID(String uuid){
+        final Matcher UUID_MATCHER = UUID_PATTERN.matcher(uuid);
 
         if (!UUID_MATCHER.matches()){
             throw new BadRequestException("Invalid UUID format.");

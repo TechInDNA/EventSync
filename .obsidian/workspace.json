@@ -189,8 +189,8 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
-    "src/main/java/com/techindna/eventsync/controller/EventController.java~",
     "src/main/java/com/techindna/eventsync/validator/EventValidator.java~",
+    "src/main/java/com/techindna/eventsync/controller/EventController.java~",
     "src/test/java/requests/cookies.txt",
     "src/test/java/requests/put_events.sh~",
     "src/sql/data.sql~",
