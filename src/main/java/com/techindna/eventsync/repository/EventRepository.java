@@ -1,6 +1,7 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Event;
+import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -85,6 +86,71 @@ public class EventRepository {
                     events.add(event);
                 }
                 return events;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Event findEventByTitle(String title) {
+        String query = """
+            select id, title, description, start_date, end_date, location, created_at
+            from eventsync_app.events
+            where title = ?
+            """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setString(1, title);
+            try (ResultSet rs = ps.executeQuery()) {
+                Event event = new Event();
+
+                if (rs.next()) {
+                    event.setId(UUID.fromString(rs.getString("id")));
+                    event.setTitle(rs.getString("title"));
+                    event.setDescription(rs.getString("description"));
+                    event.setStartDate(rs.getTimestamp("start_date").toInstant());
+                    event.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    event.setLocation(rs.getString("location"));
+                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+                }
+                return event;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Event updateEvent(UUID id, String title, String description, Instant startDate, Instant endDate, String location) {
+        String query = """
+            update eventsync_app.events
+            set title = ?, description = ?, start_date = ?, end_date = ?, location = ?, created_at = now()
+            where id = ? returning id, created_at
+            """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setString(1, title);
+            ps.setString(2, description);
+            ps.setTimestamp(3, Timestamp.from(startDate));
+            ps.setTimestamp(4, Timestamp.from(endDate));
+            ps.setString(5, location);
+            ps.setObject(6, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Event event = new Event();
+                    event.setId(id);
+                    event.setTitle(title);
+                    event.setDescription(description);
+                    event.setStartDate(startDate);
+                    event.setEndDate(endDate);
+                    event.setLocation(location);
+                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+                    return event;
+                }
+                throw new NotFoundException(String.format("Event %s not found", id));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

@@ -2,7 +2,7 @@ package com.techindna.eventsync.dto;
 
 import java.time.Instant;
 
-public class PostEventRequestDto {
+public class EventRequestDto {
     private String id;
     private String title;
     private String description;
