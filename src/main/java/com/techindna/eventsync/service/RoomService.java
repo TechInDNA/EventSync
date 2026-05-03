@@ -1,9 +1,13 @@
 package com.techindna.eventsync.service;
 
+import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.repository.RoomRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class RoomService {
@@ -20,5 +24,16 @@ public class RoomService {
             throw new ConflictException(String.format("Room '%s' already exists", name));
         }
         return newRoom;
+    }
+    public List<Room> getAllRooms(PaginationRequestDto pagination) {
+        return roomRepository.findAllRooms(pagination.getOffset(), pagination.getLimit());
+    }
+
+    public int countRooms() {
+        return roomRepository.countRooms();
+    }
+
+    public Room getRoomById(UUID id) {
+        return roomRepository.findRoomById(id);
     }
 }

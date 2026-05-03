@@ -32,6 +32,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/events/**").permitAll()
 
                     .requestMatchers(HttpMethod.POST, "/rooms/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
+
 
                     .requestMatchers("/auth/login").permitAll()
                 .anyRequest().authenticated()

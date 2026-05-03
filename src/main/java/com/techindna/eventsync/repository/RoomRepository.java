@@ -1,6 +1,7 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Room;
+import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -32,6 +33,65 @@ public class RoomRepository {
                     room.setId(UUID.fromString(rs.getString("id")));
                 }
                 return room;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
+    }
+
+    public List<Room> findAllRooms(int offset, int limit) {
+        String query = """
+        SELECT id, name 
+        FROM eventsync_app.rooms 
+        ORDER BY name ASC 
+        LIMIT ? OFFSET ?
+        """;
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setInt(1, limit);
+            ps.setInt(2, offset);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Room> rooms = new ArrayList<>();
+                while (rs.next()) {
+                    Room room = new Room();
+                    room.setId(UUID.fromString(rs.getString("id")));
+                    room.setName(rs.getString("name"));
+                    rooms.add(room);
+                }
+                return rooms;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching rooms", e);
+        }
+    }
+
+    public int countRooms() {
+        String query = "SELECT count(id) as total FROM eventsync_app.rooms";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
+            return rs.next() ? rs.getInt("total") : 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error counting rooms", e);
+        }
+    }
+
+    public Room findRoomById(UUID id) {
+        String query = "SELECT id, name FROM eventsync_app.rooms WHERE id = ?";
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Room room = new Room();
+                    room.setId(UUID.fromString(rs.getString("id")));
+                    room.setName(rs.getString("name"));
+                    return room;
+                }
+                throw new NotFoundException(String.format("Room with ID %s not found", id));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
