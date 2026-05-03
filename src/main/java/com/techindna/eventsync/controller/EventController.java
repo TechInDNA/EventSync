@@ -137,7 +137,7 @@ public class EventController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEvent(@PathVariable String id) {
+    public ResponseEntity<?> deleteEvent(@PathVariable(required = false) String id) {
         try {
             UuidValidator.validateUUID(id);
             UUID deletedId = eventService.deleteEvent(UUID.fromString(id));

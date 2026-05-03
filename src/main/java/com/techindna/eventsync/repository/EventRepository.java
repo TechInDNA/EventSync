@@ -188,7 +188,7 @@ public class EventRepository {
                 if (rs.next()) {
                     return UUID.fromString(rs.getString("id"));
                 }
-                throw new NotFoundException(String.format("Event %s not found", id));
+                throw new NotFoundException(String.format("Event %s not found.", id));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
