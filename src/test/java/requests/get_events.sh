@@ -1,37 +1,78 @@
 #!/bin/bash
 
 echo "Testing GET /events"
+echo "===================="
 
-# Step 1: Get all events (should return 200 with event list)
+# Test 1: Get all events (should return 200 with event list)
 echo ""
-echo "--- Test 1: Get all events (should return 200 with event list) ---"
-curlie -H "Content-Type: application/json" http://localhost:8080/events
+echo "--- Test 1: Get all events (default pagination) ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" http://localhost:8080/events
 
-# Step 2: Verify response structure - check for data array and meta object
+# Test 2: Get events with custom page and size
 echo ""
-echo "--- Test 2: Verify response structure (should have data array and meta object) ---"
-curlie -s http://localhost:8080/events | grep -o '"data":\[' | head -1
-curlie -s http://localhost:8080/events | grep -o '"meta":{' | head -1
+echo "--- Test 2: Get events with page=2&size=5 ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/events?page=2&size=5"
 
-# Step 3: Verify individual event structure in response
+# Test 3: Get events with page=1&size=1 (first event only)
 echo ""
-echo "--- Test 3: Verify event structure in response (should have id, title, description, startDate, endDate, location, createdAt) ---"
-curlie -s http://localhost:8080/events | grep -o '"id":"[^"]*"' | head -1
-curlie -s http://localhost:8080/events | grep -o '"title":"[^"]*"' | head -1
-curlie -s http://localhost:8080/events | grep -o '"location":"[^"]*"' | head -1
+echo "--- Test 3: Get events with page=1&size=1 (first event only) ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/events?page=1&size=1"
 
-# Step 4: Check meta total matches number of events in data array
+# Test 4: Test with invalid page (negative)
 echo ""
-echo "--- Test 4: Verify meta total matches events count ---"
-echo "Response body:"
-curlie -s http://localhost:8080/events
+echo "--- Test 4: Invalid page (negative) - should return 400 Bad request error ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/events?page=-1&size=10"
 
-# Step 5: Test with invalid HTTP method (POST without auth should return 401)
+# Test 5: Test with invalid size (zero)
 echo ""
-echo "--- Test 5: POST without auth should return 401 ---"
-curlie -X POST -H "Content-Type: application/json" -d '{"title":"Test","description":"Test","startDate":"2026-06-01T10:00:00Z","endDate":"2026-06-01T18:00:00Z","location":"Test"}' -i http://localhost:8080/events
+echo "--- Test 5: Invalid size (zero) - should return 400 Bad request error ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/events?page=1&size=0"
 
-# Step 6: Test with malformed parameters (should return 200 with empty or all results)
+# Test 6: Test with invalid size (negative)
 echo ""
-echo "--- Test 6: GET with malformed parameters (should return 200 with empty or all results) ---"
-curlie -H "Content-Type: application/json" "http://localhost:8080/events?invalid=param"
+echo "--- Test 6: Invalid size (negative) - should return 400 Bad request error ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/events?page=1&size=-5"
+
+# Test 7: Test with very large page (beyond total)
+echo ""
+echo "--- Test 7: Page beyond total (should return empty data array) ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/events?page=9999&size=10"
+
+# Test 8: Test with very large size
+echo ""
+echo "--- Test 8: Very large size (should return all events) ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/events?page=1&size=9999"
+
+# Test 9: Test with non-numeric page parameter
+echo ""
+echo "--- Test 9: Non-numeric page parameter - should return 400 or 200 with default ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/events?page=abc&size=10"
+
+# Test 10: Test with non-numeric size parameter
+echo ""
+echo "--- Test 10: Non-numeric size parameter - should return 400 or 200 with default ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/events?page=1&size=abc"
+
+# Test 11: Test with additional unknown parameters (should be ignored)
+echo ""
+echo "--- Test 11: Unknown parameters (should be ignored) ---"
+curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/events?page=1&size=10&unknown=param"
+
+# Test 12: Test with POST method (should fail - 403)
+echo ""
+echo "--- Test 12: POST method (should return 403) ---"
+curlie -X POST -H "Content-Type: application/json" -d '{}' -s -w "\nHTTP Status: %{http_code}\n" http://localhost:8080/events
+
+# Test 13: Test with PUT method (should fail - 403)
+echo ""
+echo "--- Test 13: PUT method (should return 403) ---"
+curlie -X PUT -H "Content-Type: application/json" -d '{}' -s -w "\nHTTP Status: %{http_code}\n" http://localhost:8080/events
+
+# Test 14: Test with DELETE method (should fail - 403)
+echo ""
+echo "--- Test 14: DELETE method (should return 403) ---"
+curlie -X DELETE -s -w "\nHTTP Status: %{http_code}\n" http://localhost:8080/events
+
+echo ""
+echo "===================="
+echo "All tests completed!"
