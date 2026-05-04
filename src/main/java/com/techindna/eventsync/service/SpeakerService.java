@@ -1,6 +1,6 @@
 package com.techindna.eventsync.service;
 
-import com.techindna.eventsync.dto.ExternalLinkRequestDto;
+import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.SpeakerResponseDto;
 import com.techindna.eventsync.exception.ConflictException;
@@ -27,8 +27,7 @@ public class SpeakerService {
 
     public SpeakerResponseDto createSpeaker(String firstName, String lastName, String email,
                                             String profilePicture, String bio,
-                                            List<ExternalLinkRequestDto> externalLinks){
-
+                                            List<ExternalLinkDto> externalLinks){
         SpeakerResponseDto speaker = speakerRepository.createSpeaker(firstName, lastName, email, profilePicture, bio, externalLinks);
         if (speaker == null){
             throw new ConflictException(String.format("Speaker with email %s already exists", email));

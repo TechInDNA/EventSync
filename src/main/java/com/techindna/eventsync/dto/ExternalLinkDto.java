@@ -1,6 +1,6 @@
 package com.techindna.eventsync.dto;
 
-public class ExternalLinkResponseDto {
+public class ExternalLinkDto {
     private String name;
     private String url;
 

@@ -8,7 +8,7 @@ public class SpeakerRequestDto {
     private String email;
     private String profilePicture;
     private String bio;
-    private List<ExternalLinkRequestDto> externalLinks;
+    private List<ExternalLinkDto> externalLinks;
 
     public String getFirstName() {
         return firstName;
@@ -50,11 +50,11 @@ public class SpeakerRequestDto {
         this.bio = bio;
     }
 
-    public List<ExternalLinkRequestDto> getExternalLinks() {
+    public List<ExternalLinkDto> getExternalLinks() {
         return externalLinks;
     }
 
-    public void setExternalLinks(List<ExternalLinkRequestDto> externalLinks) {
+    public void setExternalLinks(List<ExternalLinkDto> externalLinks) {
         this.externalLinks = externalLinks;
     }
 }

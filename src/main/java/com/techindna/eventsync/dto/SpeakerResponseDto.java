@@ -12,7 +12,7 @@ public class SpeakerResponseDto {
     private String lastName;
     private String bio;
     private String profilePicture;
-    private List<ExternalLinkResponseDto> externalLinks;
+    private List<ExternalLinkDto> externalLinks;
 
     public UUID getId() {
         return id;
@@ -54,11 +54,11 @@ public class SpeakerResponseDto {
         this.profilePicture = profilePicture;
     }
 
-    public List<ExternalLinkResponseDto> getExternalLinks() {
+    public List<ExternalLinkDto> getExternalLinks() {
         return externalLinks;
     }
 
-    public void setExternalLinks(List<ExternalLinkResponseDto> externalLinks) {
+    public void setExternalLinks(List<ExternalLinkDto> externalLinks) {
         this.externalLinks = externalLinks;
     }
 }
