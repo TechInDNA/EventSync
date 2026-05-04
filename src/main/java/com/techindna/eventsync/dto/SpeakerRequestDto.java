@@ -1,26 +1,14 @@
 package com.techindna.eventsync.dto;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import java.util.List;
-import java.util.UUID;
 
-@JsonPropertyOrder({"id", "firstName", "lastName", "profilePicture", "bio", "externalLinks"})
-public class SpeakerResponseDto {
-    private UUID id;
+public class SpeakerRequestDto {
     private String firstName;
     private String lastName;
-    private String bio;
+    private String email;
     private String profilePicture;
+    private String bio;
     private List<ExternalLinkDto> externalLinks;
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
 
     public String getFirstName() {
         return firstName;
@@ -38,12 +26,12 @@ public class SpeakerResponseDto {
         this.lastName = lastName;
     }
 
-    public String getBio() {
-        return bio;
+    public String getEmail() {
+        return email;
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getProfilePicture() {
@@ -52,6 +40,14 @@ public class SpeakerResponseDto {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
     public List<ExternalLinkDto> getExternalLinks() {

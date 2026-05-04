@@ -2,14 +2,19 @@ package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.GetSpeakerListResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
+import com.techindna.eventsync.dto.SpeakerRequestDto;
 import com.techindna.eventsync.dto.SpeakerResponseDto;
 import com.techindna.eventsync.exception.BadRequestException;
+import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.service.SpeakerService;
 import com.techindna.eventsync.validator.PaginationValidator;
+import com.techindna.eventsync.validator.StringValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,10 +26,12 @@ import java.util.List;
 public class SpeakersController {
     private final PaginationValidator paginationValidator;
     private final SpeakerService speakerService;
+    private final StringValidator stringValidator;
 
-    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService){
+    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator){
         this.paginationValidator = paginationValidator;
         this.speakerService = speakerService;
+        this.stringValidator = stringValidator;
     }
     @GetMapping
     public ResponseEntity<?> getAllSpeakers(
@@ -44,6 +51,37 @@ public class SpeakersController {
 
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createSpeaker(@RequestBody SpeakerRequestDto request) {
+        try {
+            stringValidator.validateSpeakerData(
+                    request.getFirstName(),
+                    request.getLastName(),
+                    request.getEmail(),
+                    request.getBio()
+            );
+
+            SpeakerResponseDto speaker = speakerService.createSpeaker(
+                    request.getFirstName(),
+                    request.getLastName(),
+                    request.getEmail(),
+                    request.getProfilePicture(),
+                    request.getBio(),
+                    request.getExternalLinks()
+            );
+            return ResponseEntity.status(HttpStatus.CREATED).body(speaker);
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

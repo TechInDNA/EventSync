@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -1087.367873834007,
-                  "y": 631.4928073791459,
-                  "zoom": -1.1444877648254232
+                  "x": -1002.5152480750704,
+                  "y": 74.26241776305075,
+                  "zoom": -0.7421219580769529
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -189,17 +189,17 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
-    "target/classes/com/techindna/eventsync/validator/PaginationValidator.class",
-    "src/main/java/com/techindna/eventsync/validator/PaginationValidator.java~",
-    "target/classes/com/techindna/eventsync/dto/SpeakerResponseDto.class",
-    "src/main/java/com/techindna/eventsync/dto/SpeakerResponseDto.java~",
-    "target/classes/com/techindna/eventsync/dto/GetSpeakerListResponseDto.class",
-    "target/classes/com/techindna/eventsync/dto/ExternalLinkResponseDto.class",
-    "target/classes/com/techindna/eventsync/repository/SpeakerRepository.class",
-    "target/classes/com/techindna/eventsync/service/SpeakerService.class",
-    "target/classes/com/techindna/eventsync/controller/SpeakersController.class",
     "src/main/java/com/techindna/eventsync/repository/SpeakerRepository.java~",
-    "src/main/java/com/techindna/eventsync/dto/GetSpeakerListResponseDto.java~",
+    "src/test/java/requests/cookies.txt",
+    "src/main/java/com/techindna/eventsync/controller/SpeakersController.java~",
+    "src/main/java/com/techindna/eventsync/service/SpeakerService.java~",
+    "src/main/java/com/techindna/eventsync/validator/StringValidator.java~",
+    "src/test/java/requests/post_speakers.sh~",
+    "src/main/java/com/techindna/eventsync/validator/ExternalLinksValidator.java~",
+    "src/test/java/requests/post_speakers.sh",
+    "src/main/java/com/techindna/eventsync/validator/ExternalLinksValidator.java",
+    "src/main/java/com/techindna/eventsync/validator/ValidateExternalLinks.java~",
+    "src/main/java/com/techindna/eventsync/validator/ValidateExternalLinks.java",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
