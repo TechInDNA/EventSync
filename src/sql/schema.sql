@@ -21,9 +21,15 @@ create table eventsync_app.events(
     location varchar(50) not null,
     created_at timestamp default now() not null
 );
+
+create table eventsync_app.external_link(
+    id uuid default gen_random_uuid() primary key,
+    name varchar(50),
+    url varchar(50) unique,
+    user_id uuid references eventsync_app.users(id)
+);
+
 create table eventsync_app.rooms(
     id uuid default gen_random_uuid() primary key,
-    name varchar(50) not null,
-    CONSTRAINT uk_room_name UNIQUE (name)
-
+    name varchar(50) unique not null
 );

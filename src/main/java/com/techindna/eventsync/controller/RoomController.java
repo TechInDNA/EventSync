@@ -41,14 +41,9 @@ public class RoomController {
     @PostMapping
     public ResponseEntity<?> createRoom(@RequestBody RoomRequestDto request) {
         try {
-            stringValidator.validateRoomData(
-                    request.getName()
-            );
+            stringValidator.validateRoomData(request.getName());
 
-            Room newRoom = roomService.createRoom(
-                    request.getName()
-
-            );
+            Room newRoom = roomService.createRoom(request.getName());
             return ResponseEntity.status(HttpStatus.CREATED).body(newRoom);
 
         } catch (BadRequestException e) {
