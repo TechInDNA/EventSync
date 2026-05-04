@@ -70,4 +70,11 @@ public class StringValidator {
             throw new BadRequestException(String.format("Invalid email format: %s", email));
         }
     }
+
+    public void validateRoomData(String name){
+        if (name != null && name.length() > 50){
+            throw new BadRequestException("The length of the name cannot exceed 50.");
+        }
+        validate("name", name);
+    }
 }

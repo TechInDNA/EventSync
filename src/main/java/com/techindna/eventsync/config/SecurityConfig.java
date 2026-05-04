@@ -33,6 +33,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/speakers/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/speakers/**").hasRole("ADMIN")
                 .requestMatchers("/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/rooms/**").hasRole("ADMIN")
+                .requestMatchers("/auth/login").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);

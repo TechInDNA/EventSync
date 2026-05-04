@@ -28,3 +28,8 @@ create table eventsync_app.external_link(
     url varchar(50) unique,
     user_id uuid references eventsync_app.users(id)
 );
+
+create table eventsync_app.rooms(
+    id uuid default gen_random_uuid() primary key,
+    name varchar(50) unique not null
+);
