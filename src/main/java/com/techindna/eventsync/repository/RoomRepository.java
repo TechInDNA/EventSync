@@ -1,7 +1,6 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Room;
-import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -83,6 +82,51 @@ public class RoomRepository {
                 ResultSet rs = ps.executeQuery()
         ) {
             return rs.next() ? rs.getInt("total") : 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Room findRoomByName(String name) {
+        final String query = "SELECT id, name FROM eventsync_app.rooms WHERE name = ?";
+
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setString(1, name);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Room room = new Room();
+                    room.setId(UUID.fromString(rs.getString("id")));
+                    room.setName(rs.getString("name"));
+                    return room;
+                }
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Room updateRoom(UUID id, String name) {
+        final String query = "UPDATE eventsync_app.rooms SET name = ? WHERE id = ? RETURNING id, name";
+
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setString(1, name);
+            ps.setObject(2, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Room room = new Room();
+                    room.setId(UUID.fromString(rs.getString("id")));
+                    room.setName(rs.getString("name"));
+                    return room;
+                }
+                return null;
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -2,7 +2,6 @@ package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.entity.Room;
-import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.RoomRepository;
@@ -34,6 +33,19 @@ public class RoomService {
 
     public int countRooms() {
         return roomRepository.countRooms();
+    }
+
+    public Room updateRoom(UUID id, String name) {
+        Room existingRoom = roomRepository.findRoomByName(name);
+        if (existingRoom != null && !existingRoom.getId().equals(id)) {
+            throw new ConflictException(String.format("Room '%s' already exists", name));
+        }
+
+        Room updatedRoom = roomRepository.updateRoom(id, name);
+        if (updatedRoom == null) {
+            throw new NotFoundException(String.format("Room %s not found", id));
+        }
+        return updatedRoom;
     }
 
     public void deleteRoom(UUID id) {
