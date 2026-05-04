@@ -31,6 +31,5 @@ create table eventsync_app.external_link(
 
 create table eventsync_app.rooms(
     id uuid default gen_random_uuid() primary key,
-    name varchar(50) not null,
-    CONSTRAINT uk_room_name UNIQUE (name)
+    name varchar(50) unique not null,
 );
