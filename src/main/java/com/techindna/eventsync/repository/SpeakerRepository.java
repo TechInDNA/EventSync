@@ -2,7 +2,7 @@ package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.SpeakerResponseDto;
-import com.techindna.eventsync.exception.BadRequestException;
+import com.techindna.eventsync.exception.ConflictException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -175,7 +175,7 @@ public class SpeakerRepository {
             int[] results = ps.executeBatch();
             for (int count: results){
                 if (count == 0){
-                    throw new BadRequestException("URL must be unique.");
+                    throw new ConflictException("URL must be unique.");
                 }
             }
         }

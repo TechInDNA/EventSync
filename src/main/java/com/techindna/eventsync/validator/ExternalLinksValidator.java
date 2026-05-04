@@ -13,9 +13,11 @@ public class ExternalLinksValidator {
     }
 
     public void validateExternalLinks(List<ExternalLinkDto> links){
-        for (ExternalLinkDto l : links){
-            stringValidator.validate("name", l.getName());
-            stringValidator.validateUrl(l.getUrl());
+        if (links != null){
+            for (ExternalLinkDto l : links){
+                stringValidator.validate("name", l.getName());
+                stringValidator.validateUrl(l.getUrl());
+            }
         }
     }
 }
