@@ -96,7 +96,7 @@ public class RoomController {
             roomService.deleteRoom(UUID.fromString(id));
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(String.format("Room %s delete", id));
+                    .body(String.format("Room %s deleted", id));
 
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

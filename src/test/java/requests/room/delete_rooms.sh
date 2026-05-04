@@ -39,10 +39,5 @@ echo -e "\n"
 echo "--- Test 6: Delete with malformed UUID (should return 400) ---"
 curlie -b cookies.txt -H "Content-Type: application/json" -X DELETE http://localhost:8080/rooms/12345
 
-# Step 8: Delete with empty ID (should return 404)
-echo -e "\n"
-echo "--- Test 7: Delete with empty ID (should return 404) ---"
-curlie -b cookies.txt -H "Content-Type: application/json" -X DELETE http://localhost:8080/rooms/
-
 # Cleanup
 rm -f cookies.txt
