@@ -121,6 +121,24 @@ public class RoomController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteRoom(@PathVariable String id) {
+        try {
+
+            uuidValidator.validateUUID(id);
+            roomService.deleteRoom(UUID.fromString(id));
+
+            return ResponseEntity.ok("Room deleted successfully");
+
+        } catch (BadRequestException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Internal Server Error");
+        }
+    }
+
 
 
 

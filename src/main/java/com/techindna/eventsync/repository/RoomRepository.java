@@ -124,5 +124,22 @@ public class RoomRepository {
         }
     }
 
+    public void deleteRoom(UUID id) {
+        String query = "DELETE FROM eventsync_app.rooms WHERE id = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+
+            ps.setObject(1, id);
+            int rowsDeleted = ps.executeUpdate();
+
+            if (rowsDeleted == 0) {
+                throw new NotFoundException("Room not found with id: " + id);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error during deletion", e);
+        }
+    }
+
 
 }

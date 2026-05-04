@@ -52,4 +52,8 @@ public class RoomService {
             throw e;
         }
     }
+
+    public void deleteRoom(UUID id) {
+        roomRepository.deleteRoom(id);
+    }
 }
