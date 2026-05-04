@@ -32,10 +32,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/events/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/speakers/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/speakers/**").hasRole("ADMIN")
-                .requestMatchers("/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/rooms/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
                 .requestMatchers("/auth/login").permitAll()
                 .anyRequest().authenticated()
+
+
             )
             .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
