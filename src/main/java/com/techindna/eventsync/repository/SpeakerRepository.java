@@ -1,5 +1,6 @@
 package com.techindna.eventsync.repository;
 
+import com.techindna.eventsync.dto.ExternalLinkRequestDto;
 import com.techindna.eventsync.dto.ExternalLinkResponseDto;
 import com.techindna.eventsync.dto.SpeakerResponseDto;
 import org.springframework.stereotype.Repository;
@@ -108,6 +109,73 @@ public class SpeakerRepository {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public SpeakerResponseDto createSpeaker(String firstName, String lastName, String email,
+                                            String profilePicture, String bio,
+                                            List<ExternalLinkRequestDto> externalLinks){
+        final String insertUser =
+                """
+                insert into eventsync_app.users(first_name, last_name, email, profile_picture, bio, "role")
+                values(?, ?, ?, ?, ?, 'speaker')
+                on conflict (email) do nothing
+                returning id
+                """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(insertUser)
+        ){
+            ps.setString(1, firstName);
+            ps.setString(2, lastName);
+            ps.setString(3, email);
+            ps.setString(4, profilePicture);
+            ps.setString(5, bio);
+
+            UUID userId = null;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    userId = UUID.fromString(rs.getString("id"));
+                }
+            }
+
+            if (userId == null) {
+                return null;
+            }
+
+            if (externalLinks != null && !externalLinks.isEmpty()) {
+                insertExternalLinks(connection, userId, externalLinks);
+            }
+
+            SpeakerResponseDto speaker = new SpeakerResponseDto();
+            speaker.setId(userId);
+            speaker.setFirstName(firstName);
+            speaker.setLastName(lastName);
+            speaker.setProfilePicture(profilePicture);
+            speaker.setBio(bio);
+            speaker.setExternalLinks(getExternalLinksByUserId(userId));
+            return speaker;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void insertExternalLinks(Connection connection, UUID userId, List<ExternalLinkRequestDto> externalLinks) throws SQLException {
+        final String insertLink =
+                """
+                insert into eventsync_app.external_link(name, url, user_id)
+                values(?, ?, ?)
+                on conflict (url) do nothing
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(insertLink)) {
+            for (ExternalLinkRequestDto link : externalLinks) {
+                ps.setString(1, link.getName());
+                ps.setString(2, link.getUrl());
+                ps.setObject(3, userId);
+                ps.addBatch();
+            }
+            ps.executeBatch();
         }
     }
 }
