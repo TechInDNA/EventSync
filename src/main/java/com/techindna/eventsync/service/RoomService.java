@@ -30,27 +30,9 @@ public class RoomService {
     public List<Room> getAllRooms(PaginationRequestDto pagination) {
         return roomRepository.findAllRooms(pagination.getOffset(), pagination.getLimit());
     }
+
     public int countRooms() {
         return roomRepository.countRooms();
-    }
-
-
-    public Room getRoomById(UUID id) {
-        return roomRepository.findRoomById(id);
-    }
-
-    public Room updateRoom(UUID id, String name) {
-        roomRepository.findRoomById(id);
-
-        try {
-            return roomRepository.updateRoom(id, name);
-        } catch (RuntimeException e) {
-
-            if (e.getMessage() != null && e.getMessage().contains("duplicate key")) {
-                throw new ConflictException(String.format("Room with name '%s' already exists", name));
-            }
-            throw e;
-        }
     }
 
     public void deleteRoom(UUID id) {

@@ -4,7 +4,6 @@ import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -23,9 +22,12 @@ public class RoomRepository {
     }
 
     public Room saveRoom(String name) {
-        String query = "insert into eventsync_app.rooms(name) values(?) on conflict (name) do nothing returning id";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+        final String query = "insert into eventsync_app.rooms(name) values(?) on conflict (name) do nothing returning id";
+
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
                 Room room = new Room();
@@ -44,14 +46,16 @@ public class RoomRepository {
     }
 
     public List<Room> findAllRooms(int offset, int limit) {
-        String query = """
+        final String query = """
         SELECT id, name 
         FROM eventsync_app.rooms 
         ORDER BY name ASC 
         LIMIT ? OFFSET ?
         """;
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
             ps.setInt(1, limit);
             ps.setInt(2, offset);
             try (ResultSet rs = ps.executeQuery()) {
@@ -65,35 +69,19 @@ public class RoomRepository {
                 return rooms;
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error fetching rooms", e);
+            throw new RuntimeException(e);
         }
     }
 
     public int countRooms() {
-        String query = "SELECT count(id) as total FROM eventsync_app.rooms";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query);
-             ResultSet rs = ps.executeQuery()) {
-            return rs.next() ? rs.getInt("total") : 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Error counting rooms", e);
-        }
-    }
+        final String query = "SELECT count(id) as total FROM eventsync_app.rooms";
 
-    public Room findRoomById(UUID id) {
-        String query = "SELECT id, name FROM eventsync_app.rooms WHERE id = ?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setObject(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Room room = new Room();
-                    room.setId(UUID.fromString(rs.getString("id")));
-                    room.setName(rs.getString("name"));
-                    return room;
-                }
-                throw new NotFoundException(String.format("Room with ID %s not found", id));
-            }
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query);
+                ResultSet rs = ps.executeQuery()
+        ) {
+            return rs.next() ? rs.getInt("total") : 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -140,6 +128,5 @@ public class RoomRepository {
             throw new RuntimeException("Database error during deletion", e);
         }
     }
-
 
 }

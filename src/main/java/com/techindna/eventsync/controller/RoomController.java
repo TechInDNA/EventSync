@@ -20,17 +20,16 @@ import java.util.UUID;
 @RequestMapping("/rooms")
 public class RoomController {
 
-
-
     private final RoomService roomService;
     private final StringValidator stringValidator;
     private final PaginationValidator paginationValidator;
     private final UUIDValidator uuidValidator;
 
-
     public RoomController(RoomService roomService,
                           StringValidator stringValidator,
-                          PaginationValidator paginationValidator, UUIDValidator uuidValidator) {
+                          PaginationValidator paginationValidator,
+                          UUIDValidator uuidValidator) {
+
         this.roomService = roomService;
         this.stringValidator = stringValidator;
         this.paginationValidator = paginationValidator;
@@ -41,39 +40,32 @@ public class RoomController {
     @PostMapping
     public ResponseEntity<?> createRoom(@RequestBody RoomRequestDto request) {
         try {
-            stringValidator.validateRoomData(
-                    request.getName()
-            );
+            stringValidator.validateRoomData(request.getName());
 
-            Room newRoom = roomService.createRoom(
-                    request.getName()
-
-            );
+            Room newRoom = roomService.createRoom(request.getName());
             return ResponseEntity.status(HttpStatus.CREATED).body(newRoom);
 
         } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (ConflictException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
         } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
         } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
         }
     }
 
-    @GetMapping({"/{id}", ""})
+    @GetMapping()
     public ResponseEntity<?> getRooms(
-            @PathVariable(required = false) String id,
             @RequestParam(required = false, defaultValue = "1") String page,
             @RequestParam(required = false, defaultValue = "5") String size) {
         try {
 
-            if (id != null) {
-                uuidValidator.validateUUID(id);
-                Room room = roomService.getRoomById(UUID.fromString(id));
-                return ResponseEntity.ok(room);
-            }
             paginationValidator.validatePageAndSize(page, size);
             int pageVal = Integer.parseInt(page);
             int sizeVal = Integer.parseInt(size);
@@ -86,38 +78,14 @@ public class RoomController {
             return ResponseEntity.ok(response);
 
         } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
-        }
-    }
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateRoom(
-            @PathVariable String id,
-            @RequestBody RoomRequestDto request) {
-        try {
-            uuidValidator.validateUUID(id);
-            stringValidator.validateRoomData(
-                    request.getName()
-            );
-
-            Room updatedRoom = roomService.updateRoom(
-                    UUID.fromString(id),
-                    request.getName()
-            );
-
-            return ResponseEntity.status(HttpStatus.OK).body(updatedRoom);
-
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } catch (ConflictException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(e.getMessage());
         }
     }
 
@@ -137,9 +105,6 @@ public class RoomController {
             return ResponseEntity.internalServerError().body("Internal Server Error");
         }
     }
-
-
-
 
 }
 
