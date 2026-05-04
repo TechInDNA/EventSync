@@ -93,6 +93,33 @@ public class RoomController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
         }
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateRoom(
+            @PathVariable String id,
+            @RequestBody RoomRequestDto request) {
+        try {
+            uuidValidator.validateUUID(id);
+            stringValidator.validateRoomData(
+                    request.getName()
+            );
+
+            Room updatedRoom = roomService.updateRoom(
+                    UUID.fromString(id),
+                    request.getName()
+            );
+
+            return ResponseEntity.status(HttpStatus.OK).body(updatedRoom);
+
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+        }
+    }
 
 
 

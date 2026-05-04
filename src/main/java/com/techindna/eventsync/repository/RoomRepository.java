@@ -4,6 +4,7 @@ import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
+
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -95,6 +96,31 @@ public class RoomRepository {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+
+    public Room updateRoom(UUID id, String name) {
+
+        String query = "UPDATE eventsync_app.rooms SET name = ? WHERE id = ? RETURNING id, name";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(query)) {
+
+            ps.setString(1, name);
+            ps.setObject(2, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Room room = new Room();
+                    room.setId(UUID.fromString(rs.getString("id")));
+                    room.setName(rs.getString("name"));
+                    return room;
+                }
+                throw new NotFoundException("Room not found with id: " + id);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error during update", e);
         }
     }
 
