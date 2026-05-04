@@ -52,6 +52,7 @@ public class RoomRepository {
         ORDER BY name ASC 
         LIMIT ? OFFSET ?
         """;
+
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
@@ -87,45 +88,20 @@ public class RoomRepository {
         }
     }
 
+    public UUID deleteRoom(UUID id) {
+        String query = "DELETE FROM eventsync_app.rooms WHERE id = ? RETURNING id";
 
-    public Room updateRoom(UUID id, String name) {
-
-        String query = "UPDATE eventsync_app.rooms SET name = ? WHERE id = ? RETURNING id, name";
-
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-
-            ps.setString(1, name);
-            ps.setObject(2, id);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Room room = new Room();
-                    room.setId(UUID.fromString(rs.getString("id")));
-                    room.setName(rs.getString("name"));
-                    return room;
-                }
-                throw new NotFoundException("Room not found with id: " + id);
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Database error during update", e);
-        }
-    }
-
-    public void deleteRoom(UUID id) {
-        String query = "DELETE FROM eventsync_app.rooms WHERE id = ?";
-
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
             ps.setObject(1, id);
-            int rowsDeleted = ps.executeUpdate();
-
-            if (rowsDeleted == 0) {
-                throw new NotFoundException("Room not found with id: " + id);
+            try(ResultSet rs = ps.executeQuery()){
+                return rs.next() ? UUID.fromString(rs.getString("id")) : null;
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException("Database error during deletion", e);
+            throw new RuntimeException(e);
         }
     }
 

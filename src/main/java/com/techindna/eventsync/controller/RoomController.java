@@ -94,15 +94,19 @@ public class RoomController {
         try {
             uuidValidator.validateUUID(id);
             roomService.deleteRoom(UUID.fromString(id));
+
             return ResponseEntity.status(HttpStatus.OK)
                     .body(String.format("Room %s delete", id));
 
         } catch (BadRequestException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Internal Server Error");
+            return ResponseEntity.internalServerError()
+                    .body(e.getMessage());
         }
     }
 
