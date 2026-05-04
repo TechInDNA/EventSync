@@ -21,9 +21,12 @@ public class RoomRepository {
     }
 
     public Room saveRoom(String name) {
-        String query = "insert into eventsync_app.rooms(name) values(?) on conflict (name) do nothing returning id";
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+        final String query = "insert into eventsync_app.rooms(name) values(?) on conflict (name) do nothing returning id";
+
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
                 Room room = new Room();
@@ -37,6 +40,5 @@ public class RoomRepository {
             throw new RuntimeException(e);
         }
     }
-
 
 }

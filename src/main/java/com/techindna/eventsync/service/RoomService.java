@@ -17,7 +17,7 @@ public class RoomService {
         Room newRoom = roomRepository.saveRoom(name);
 
         if (newRoom.getId() == null) {
-            throw new ConflictException(String.format("Room '%s' already exists", name));
+            throw new ConflictException(String.format("Room '%s' already exists ID: %s", name, newRoom.getId()));
         }
         return newRoom;
     }
