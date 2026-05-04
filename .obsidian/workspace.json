@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -794.805767086905,
-                  "y": -709.6066830600091,
-                  "zoom": -0.9001566829184686
+                  "x": -1002.5152480750704,
+                  "y": -1820.324318006878,
+                  "zoom": -0.7421219580769529
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -189,17 +189,17 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
-    "src/main/java/com/techindna/eventsync/dto/PostEventRequestDto.java",
-    "src/test/java/requests/cookies.txt",
-    "src/main/java/com/techindna/eventsync/controller/EventController.java~",
-    "src/main/java/com/techindna/eventsync/validator/EventValidator.java~",
-    "src/test/java/requests/put_events.sh~",
-    "src/sql/data.sql~",
-    "src/test/java/requests/put_events.sh",
-    "src/main/java/com/techindna/eventsync/dto/EventRequestDto.java~",
-    "src/main/java/com/techindna/eventsync/service/EventService.java~",
-    "src/main/java/com/techindna/eventsync/dto/EventRequestDto.java",
-    "src/main/java/com/techindna/eventsync/repository/EventRepository.java~",
+    "src/main/java/com/techindna/eventsync/dto/GetRoomListResponseDto.java",
+    "src/test/java/requests/auth/post_auth_login.sh",
+    "src/test/java/requests/room/post_rooms.sh",
+    "src/test/java/requests/room",
+    "src/test/java/requests/auth",
+    "src/test/java/requests/speaker/post_speakers.sh",
+    "src/test/java/requests/speaker/get_speakers.sh",
+    "src/test/java/requests/speaker",
+    "src/test/java/requests/events/put_events.sh",
+    "src/test/java/requests/events/post_events.sh",
+    "src/test/java/requests/events/get_events.sh",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
