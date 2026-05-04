@@ -30,17 +30,18 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/events/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/events/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/events/**").permitAll()
-
                     .requestMatchers(HttpMethod.POST, "/rooms/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
                     .requestMatchers(HttpMethod.PUT, "/rooms/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE,"/rooms/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE, "/rooms/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
+
+                    .requestMatchers(HttpMethod.POST, "/speakers/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT, "/speakers/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/speakers/**").permitAll()
 
 
-                    .requestMatchers("/auth/login").permitAll()
+                .requestMatchers("/auth/login").permitAll()
                 .anyRequest().authenticated()
-
-
             )
             .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
