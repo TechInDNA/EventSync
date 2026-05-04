@@ -95,3 +95,8 @@ values
     ('Seminar Room 1'),
     ('Seminar Room 2'),
     ('Exhibition Hall');
+
+-- Test room for DELETE /rooms/{id} endpoint (use this ID to test deletion)
+insert into eventsync_app.rooms (id, name)
+values
+    (gen_random_uuid(), 'Room to Delete');
