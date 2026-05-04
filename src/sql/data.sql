@@ -105,3 +105,5 @@ values
 insert into eventsync_app.rooms (id, name)
 values
     ('c1c12204-4427-4add-b755-b681719d1684', 'Room to Update');
+
+INSERT INTO eventsync_app.rooms (name) VALUES ('Grand Ballroom');
