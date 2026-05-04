@@ -1,7 +1,6 @@
 package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.RoomRequestDto;
-import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
@@ -27,14 +26,9 @@ public class RoomController {
     @PostMapping
     public ResponseEntity<?> createRoom(@RequestBody RoomRequestDto request) {
         try {
-            stringValidator.validateRoomData(
-                    request.getName()
-            );
+            stringValidator.validateRoomData(request.getName());
 
-            Room newRoom = roomService.createRoom(
-                    request.getName()
-
-            );
+            Room newRoom = roomService.createRoom(request.getName());
             return ResponseEntity.status(HttpStatus.CREATED).body(newRoom);
 
         } catch (BadRequestException e) {
