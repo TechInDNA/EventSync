@@ -25,15 +25,12 @@ public class RoomService {
         }
         return newRoom;
     }
+
     public List<Room> getAllRooms(PaginationRequestDto pagination) {
         return roomRepository.findAllRooms(pagination.getOffset(), pagination.getLimit());
     }
 
     public int countRooms() {
         return roomRepository.countRooms();
-    }
-
-    public Room getRoomById(UUID id) {
-        return roomRepository.findRoomById(id);
     }
 }

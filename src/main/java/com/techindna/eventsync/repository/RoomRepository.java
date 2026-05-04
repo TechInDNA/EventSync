@@ -46,14 +46,16 @@ public class RoomRepository {
     }
 
     public List<Room> findAllRooms(int offset, int limit) {
-        String query = """
+        final String query = """
         SELECT id, name 
         FROM eventsync_app.rooms 
         ORDER BY name ASC 
         LIMIT ? OFFSET ?
         """;
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
             ps.setInt(1, limit);
             ps.setInt(2, offset);
             try (ResultSet rs = ps.executeQuery()) {
@@ -67,35 +69,19 @@ public class RoomRepository {
                 return rooms;
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Error fetching rooms", e);
+            throw new RuntimeException(e);
         }
     }
 
     public int countRooms() {
-        String query = "SELECT count(id) as total FROM eventsync_app.rooms";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query);
-             ResultSet rs = ps.executeQuery()) {
-            return rs.next() ? rs.getInt("total") : 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Error counting rooms", e);
-        }
-    }
+        final String query = "SELECT count(id) as total FROM eventsync_app.rooms";
 
-    public Room findRoomById(UUID id) {
-        String query = "SELECT id, name FROM eventsync_app.rooms WHERE id = ?";
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
-            ps.setObject(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Room room = new Room();
-                    room.setId(UUID.fromString(rs.getString("id")));
-                    room.setName(rs.getString("name"));
-                    return room;
-                }
-                throw new NotFoundException(String.format("Room with ID %s not found", id));
-            }
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query);
+                ResultSet rs = ps.executeQuery()
+        ) {
+            return rs.next() ? rs.getInt("total") : 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
