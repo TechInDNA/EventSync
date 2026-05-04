@@ -175,7 +175,7 @@ public class SpeakerRepository {
             int[] results = ps.executeBatch();
             for (int count: results){
                 if (count == 0){
-                    throw new ConflictException("URL must be unique.");
+                    throw new ConflictException("One or more external links URL already exist.");
                 }
             }
         }

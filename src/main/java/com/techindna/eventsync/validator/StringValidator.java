@@ -23,7 +23,7 @@ public class StringValidator {
         }
     }
 
-    protected void validateUrl(String data){
+    public void validateUrl(String data){
         Matcher URL_MATCHER = VALID_URL.matcher(data);
         if (!URL_MATCHER.matches()){
             throw new BadRequestException(String.format("Invalid URL format or '%s' contain forbidden characters, only a-zA-Z0-9-._%%&# characters are allowed", data));
