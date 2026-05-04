@@ -2,7 +2,9 @@ package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.entity.Room;
+import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
+import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
@@ -32,5 +34,13 @@ public class RoomService {
 
     public int countRooms() {
         return roomRepository.countRooms();
+    }
+
+    public void deleteRoom(UUID id) {
+        UUID roomId = roomRepository.deleteRoom(id);
+
+        if (roomId == null){
+            throw new NotFoundException(String.format("Room %s not found", id));
+        }
     }
 }
