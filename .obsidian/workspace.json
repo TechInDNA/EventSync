@@ -189,6 +189,7 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/main/java/com/techindna/eventsync/dto/GetRoomListResponseDto.java",
     "target/classes/com/techindna/eventsync/dto/GetSpeakerListResponseDto.class",
     "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
     "target/classes/com/techindna/eventsync/dto/RoomRequestDto.class",
@@ -199,7 +200,6 @@
     "target/classes/com/techindna/eventsync/validator/ExternalLinksValidator.class",
     "target/classes/com/techindna/eventsync/repository/SpeakerRepository.class",
     "target/classes/com/techindna/eventsync/dto/ExternalLinkDto.class",
-    "target/classes/com/techindna/eventsync/dto/SpeakerRequestDto.class",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
