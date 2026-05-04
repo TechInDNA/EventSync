@@ -70,4 +70,12 @@ public class SpeakerService {
         }
     }
 
+    public void deleteSpeaker(UUID id) {
+        boolean deleted = speakerRepository.deleteSpeaker(id);
+
+        if (!deleted) {
+            throw new NotFoundException("Speaker not found with ID: " + id);
+        }
+    }
+
 }

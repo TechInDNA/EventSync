@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -98,6 +99,28 @@ public class SpeakersController {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteSpeaker(@PathVariable String id) {
+        try {
+            speakerService.deleteSpeaker(UUID.fromString(id));
+
+            return ResponseEntity.ok().body(Map.of(
+                    "message", "The speaker has been successfully removed",
+                    "id", id,
+                    "status", "DELETED"
+                )
+            );
+        }catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid UUID format");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+
+    }
+
 
 
 }
