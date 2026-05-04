@@ -10,8 +10,9 @@ import java.util.regex.Pattern;
 @Component
 public class StringValidator {
     private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9 .,':-]+$");
+    private final Pattern VALID_URL = Pattern.compile("^https?://[a-zA-Z0-9\\-._%&#/]+$");
 
-    private void validate(String fieldName, String data){
+    protected void validate(String fieldName, String data){
         if (data == null || data.isEmpty() || data.isBlank()){
             throw new BadRequestException(String.format("The field %s is required and cannot be blank.", fieldName));
         }
@@ -19,6 +20,13 @@ public class StringValidator {
         final Matcher TEXT_MATCHER = TEXT_PATTERN.matcher(data);
         if (!TEXT_MATCHER.matches()){
             throw new BadRequestException(String.format("Invalid input for %s: %s only a-zA-Z0-9 .,':- characters are allowed.", fieldName, data));
+        }
+    }
+
+    protected void validateUrl(String data){
+        Matcher URL_MATCHER = VALID_URL.matcher(data);
+        if (!URL_MATCHER.matches()){
+            throw new BadRequestException(String.format("Invalid URL format or '%s' contain forbidden characters, only a-zA-Z0-9-._%%&# characters are allowed", data));
         }
     }
 

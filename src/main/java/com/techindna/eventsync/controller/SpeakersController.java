@@ -8,6 +8,7 @@ import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.service.SpeakerService;
+import com.techindna.eventsync.validator.ExternalLinksValidator;
 import com.techindna.eventsync.validator.PaginationValidator;
 import com.techindna.eventsync.validator.StringValidator;
 import org.springframework.http.HttpStatus;
@@ -27,11 +28,13 @@ public class SpeakersController {
     private final PaginationValidator paginationValidator;
     private final SpeakerService speakerService;
     private final StringValidator stringValidator;
+    private final ExternalLinksValidator externalLinksValidator;
 
-    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator){
+    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator, ExternalLinksValidator externalLinksValidator){
         this.paginationValidator = paginationValidator;
         this.speakerService = speakerService;
         this.stringValidator = stringValidator;
+        this.externalLinksValidator = externalLinksValidator;
     }
     @GetMapping
     public ResponseEntity<?> getAllSpeakers(
@@ -67,6 +70,8 @@ public class SpeakersController {
                     request.getEmail(),
                     request.getBio()
             );
+
+            externalLinksValidator.validateExternalLinks(request.getExternalLinks());
 
             SpeakerResponseDto speaker = speakerService.createSpeaker(
                     request.getFirstName(),
