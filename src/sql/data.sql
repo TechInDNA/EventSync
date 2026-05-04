@@ -99,4 +99,4 @@ values
 -- Test room for DELETE /rooms/{id} endpoint (use this ID to test deletion)
 insert into eventsync_app.rooms (id, name)
 values
-    (gen_random_uuid(), 'Room to Delete');
+    ('48549c21-6dc0-4e9c-9f57-c0ae88f6544b', 'Room to Delete');
