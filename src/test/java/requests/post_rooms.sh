@@ -93,8 +93,6 @@ echo ""
 echo "--- Test 17: No authentication (should return 401 or 403) ---"
 curlie -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"name":"Unauthorized Room"}' http://localhost:8080/rooms
 
-
-
 # Step 19: GET method (should return 403 - method not allowed or forbidden)
 echo ""
 echo "--- Test 18: GET method (should return 403) ---"

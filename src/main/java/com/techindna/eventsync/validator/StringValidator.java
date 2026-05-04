@@ -72,6 +72,9 @@ public class StringValidator {
     }
 
     public void validateRoomData(String name){
+        if (name != null && name.length() > 50){
+            throw new BadRequestException("The length of the name cannot exceed 50.");
+        }
         validate("name", name);
     }
 }
