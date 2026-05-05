@@ -7,6 +7,7 @@ values (
     'admin'
 );
 
+-- admin hashed password: test
 
 insert into eventsync_app.events (title, description, start_date, end_date, location)
 values
@@ -23,28 +24,17 @@ values
     ('IoT Conference', 'Internet of Things conference and exhibition', '2026-08-20 09:00:00', '2026-08-21 18:00:00', 'Smart City Hall'),
     ('Python Coding Bootcamp', 'Intensive Python programming bootcamp', '2026-09-05 10:00:00', '2026-09-07 16:00:00', 'Code Academy');
 
-
+-- Test event for PUT /events endpoint (use this ID to test update)
 insert into eventsync_app.events (id, title, description, start_date, end_date, location)
 values
     ('c1b957ac-bdd7-481a-b8f7-636d43794f82','Event to Update', 'Original description for testing PUT endpoint', '2026-12-01 09:00:00', '2026-12-01 18:00:00', 'Test Location');
 
+-- Test event for DELETE /events endpoint (use this ID to test deletion)
 insert into eventsync_app.events (id, title, description, start_date, end_date, location)
 values
     ('a7cc7aac-50db-44cd-b8ae-cac7737a4052','Event to Delete', 'Test event for DELETE endpoint', '2026-12-15 10:00:00', '2026-12-15 17:00:00', 'Delete Test Location');
 
-
-INSERT INTO eventsync_app.rooms (name) VALUES
-('Amphitheatre A'),
-('Amphitheatre B'),
-('Salle de reunion 101'),
-('Salle de reunion 102'),
-('Laboratoire Informatique'),
-('Salle de Conference Est'),
-('Espace Co-working'),
-('Bureau Direction'),
-('Salle Polyvalente'),
-('Studio Media');
-
+-- Speakers for testing GET /speakers endpoint
 insert into eventsync_app.users (id, first_name, last_name, email, bio, profile_picture, "role")
 values
     ('af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', 'John', 'Doe', 'john.speaker@eventsync.com', 'Senior software engineer specializing in backend development with 10+ years of experience.', 'https://i.pravatar.cc/150?img=1', 'speaker'),
@@ -95,3 +85,25 @@ values
     ('LinkedIn', 'https://linkedin.com/in/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d'),
     ('Research Gate', 'https://researchgate.net/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d');
 
+-- Rooms for testing GET /rooms endpoint (at least 5 rooms)
+insert into eventsync_app.rooms (name)
+values
+    ('Grand Ballroom'),
+    ('Conference Room A'),
+    ('Conference Room B'),
+    ('Workshop Hall'),
+    ('Seminar Room 1'),
+    ('Seminar Room 2'),
+    ('Exhibition Hall');
+
+-- Test room for DELETE /rooms/{id} endpoint (use this ID to test deletion)
+insert into eventsync_app.rooms (id, name)
+values
+    ('48549c21-6dc0-4e9c-9f57-c0ae88f6544b', 'Room to Delete');
+
+-- Test room for PUT /rooms/{id} endpoint (use this ID to test update)
+insert into eventsync_app.rooms (id, name)
+values
+    ('c1c12204-4427-4add-b755-b681719d1684', 'Room to Update');
+
+INSERT INTO eventsync_app.rooms (name) VALUES ('Grand Ballroom');
