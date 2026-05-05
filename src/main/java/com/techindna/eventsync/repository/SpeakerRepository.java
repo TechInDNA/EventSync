@@ -173,11 +173,8 @@ public class SpeakerRepository {
                 ps.addBatch();
             }
             int[] results = ps.executeBatch();
-            for (int count: results){
-                if (count == 0){
-                    try (PreparedStatement p = connection.prepareStatement("delete from eventsync_app.users where users.id = ?")){
-                        p.setObject(1, userId);
-                        p.executeUpdate();                    }
+            for (int count : results) {
+                if (count == 0) {
                     throw new ConflictException("One or more external links URL already exist.");
                 }
             }

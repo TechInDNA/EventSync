@@ -189,8 +189,6 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
-    "src/test/java/requests/post_speakers.sh",
-    "src/test/java/requests/get_speakers.sh",
     "src/main/java/com/techindna/eventsync/service/SpeakerService.java~",
     "src/main/java/com/techindna/eventsync/repository/SpeakerRepository.java~",
     "target/classes/com/techindna/eventsync/exception/UnauthorizedException.class",
@@ -200,6 +198,8 @@
     "target/classes/com/techindna/eventsync/exception/BadRequestException.class",
     "target/classes/com/techindna/eventsync/entity/Session.class",
     "target/classes/com/techindna/eventsync/entity/Participant.class",
+    "target/classes/com/techindna/eventsync/entity/Speaker.class",
+    "target/classes/com/techindna/eventsync/entity/ExternalLinks.class",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
