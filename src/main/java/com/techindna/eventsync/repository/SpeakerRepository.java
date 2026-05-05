@@ -175,6 +175,9 @@ public class SpeakerRepository {
             int[] results = ps.executeBatch();
             for (int count: results){
                 if (count == 0){
+                    try (PreparedStatement p = connection.prepareStatement("delete from eventsync_app.users where users.id = ?")){
+                        p.setObject(1, userId);
+                        p.executeUpdate();                    }
                     throw new ConflictException("One or more external links URL already exist.");
                 }
             }
