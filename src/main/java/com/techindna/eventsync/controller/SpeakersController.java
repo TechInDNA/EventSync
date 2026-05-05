@@ -112,5 +112,24 @@ public class SpeakersController {
         }
     }
 
+    @DeleteMapping(value = {"/{id}", "/"})
+    public ResponseEntity<?> deleteSpeaker(@PathVariable(required = false) String id) {
+        try {
+            uUIDValidator.validateUUID(id);
+            speakerService.deleteSpeaker(UUID.fromString(id));
+
+            return ResponseEntity.status(HttpStatus.OK).body("Speaker " + id + " deleted.");
+        }catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred");
+        }
+
+    }
 
 }
