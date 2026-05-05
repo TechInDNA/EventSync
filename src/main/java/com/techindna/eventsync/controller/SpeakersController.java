@@ -89,17 +89,26 @@ public class SpeakersController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateSpeaker(@PathVariable(required = false) String id, @RequestBody SpeakerRequestDto request) {
+    public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
         try {
             uUIDValidator.validateUUID(id);
-            speakerService.updateSpeaker(UUID.fromString(id), request);
+            SpeakerResponseDto updated = speakerService.updateSpeaker(UUID.fromString(id), request);
 
-            return ResponseEntity.ok().body("Speaker updated successfully");
+            return ResponseEntity.ok().body(updated);
 
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (ConflictException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).
+                    body(e.getMessage());
+        }
+        catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred");
         }
     }
 

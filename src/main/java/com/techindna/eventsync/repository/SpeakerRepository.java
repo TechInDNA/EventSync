@@ -182,16 +182,34 @@ public class SpeakerRepository {
     }
 
 
-    public boolean updateSpeaker(UUID id, String firstName, String lastName, String profilePicture, String bio, List<ExternalLinkDto> externalLinks) {
+    private void insertExternalLinksForUpdate(Connection connection, UUID userId, List<ExternalLinkDto> externalLinks) throws SQLException {
+        final String insertLink =
+                """
+                insert into eventsync_app.external_link(name, url, user_id)
+                values(?, ?, ?)
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(insertLink)) {
+            for (ExternalLinkDto link : externalLinks) {
+                ps.setString(1, link.getName());
+                ps.setString(2, link.getUrl());
+                ps.setObject(3, userId);
+                ps.addBatch();
+            }
+            ps.executeBatch();
+        }
+    }
+
+    public SpeakerResponseDto updateSpeaker(UUID id, String firstName, String lastName, String email, String profilePicture, String bio, List<ExternalLinkDto> externalLinks) {
         String sql =
         """
-        UPDATE eventsync_app.users 
-        SET 
-        first_name = ?, 
-        last_name = ?, 
-        profile_picture = ?, 
+        UPDATE eventsync_app.users
+        SET
+        first_name = ?,
+        last_name = ?,
+        email = ?,
+        profile_picture = ?,
         bio = ?
-        WHERE id = ? 
+        WHERE id = ?
         AND "role" = 'speaker'
         RETURNING id
         """;
@@ -201,9 +219,10 @@ public class SpeakerRepository {
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, firstName);
                 ps.setString(2, lastName);
-                ps.setString(3, profilePicture);
-                ps.setString(4, bio);
-                ps.setObject(5, id);
+                ps.setString(3, email);
+                ps.setString(4, profilePicture);
+                ps.setString(5, bio);
+                ps.setObject(6, id);
 
                 int rows = ps.executeUpdate();
 
@@ -214,19 +233,28 @@ public class SpeakerRepository {
                         psDel.executeUpdate();
                     }
                     if (externalLinks != null && !externalLinks.isEmpty()) {
-                        insertExternalLinks(conn, id, externalLinks);
+                        insertExternalLinksForUpdate(conn, id, externalLinks);
                     }
                     conn.commit();
-                    return true;
+
+                    SpeakerResponseDto speaker = new SpeakerResponseDto();
+                    speaker.setId(id);
+                    speaker.setFirstName(firstName);
+                    speaker.setLastName(lastName);
+                    speaker.setEmail(email);
+                    speaker.setProfilePicture(profilePicture);
+                    speaker.setBio(bio);
+                    speaker.setExternalLinks(getExternalLinksByUserId(id));
+                    return speaker;
                 }
                 conn.rollback();
-                return false;
+                return null;
             } catch (SQLException e) {
                 conn.rollback();
                 throw e;
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur update", e);
+            throw new RuntimeException(e);
         }
     }
 }

@@ -54,23 +54,25 @@ public class SpeakerService {
     }
 
 
-    public void updateSpeaker(UUID id, SpeakerRequestDto request) {
+    public SpeakerResponseDto updateSpeaker(UUID id, SpeakerRequestDto request) {
 
         stringValidator.validateSpeakerData(request.getFirstName(), request.getLastName(), request.getEmail(), request.getBio());
         externalLinksValidator.validateExternalLinks(request.getExternalLinks());
 
-        boolean updated = speakerRepository.updateSpeaker(
+        SpeakerResponseDto updated = speakerRepository.updateSpeaker(
                 id,
                 request.getFirstName(),
                 request.getLastName(),
+                request.getEmail(),
                 request.getProfilePicture(),
                 request.getBio(),
                 request.getExternalLinks()
         );
 
-        if (!updated) {
+        if (updated == null) {
             throw new NotFoundException("Speaker not found with ID : " + id);
         }
+        return updated;
     }
 
 }

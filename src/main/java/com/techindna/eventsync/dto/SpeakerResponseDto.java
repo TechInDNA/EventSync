@@ -5,11 +5,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.List;
 import java.util.UUID;
 
-@JsonPropertyOrder({"id", "firstName", "lastName", "profilePicture", "bio", "externalLinks"})
+@JsonPropertyOrder({"id", "firstName", "lastName", "email", "profilePicture", "bio", "externalLinks"})
 public class SpeakerResponseDto {
     private UUID id;
     private String firstName;
     private String lastName;
+    private String email;
     private String bio;
     private String profilePicture;
     private List<ExternalLinkDto> externalLinks;
@@ -36,6 +37,14 @@ public class SpeakerResponseDto {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getBio() {
