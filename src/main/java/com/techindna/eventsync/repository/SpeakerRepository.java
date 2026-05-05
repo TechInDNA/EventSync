@@ -182,23 +182,6 @@ public class SpeakerRepository {
     }
 
 
-    private void insertExternalLinksForUpdate(Connection connection, UUID userId, List<ExternalLinkDto> externalLinks) throws SQLException {
-        final String insertLink =
-                """
-                insert into eventsync_app.external_link(name, url, user_id)
-                values(?, ?, ?)
-                """;
-        try (PreparedStatement ps = connection.prepareStatement(insertLink)) {
-            for (ExternalLinkDto link : externalLinks) {
-                ps.setString(1, link.getName());
-                ps.setString(2, link.getUrl());
-                ps.setObject(3, userId);
-                ps.addBatch();
-            }
-            ps.executeBatch();
-        }
-    }
-
     public SpeakerResponseDto updateSpeaker(UUID id, String firstName, String lastName, String email, String profilePicture, String bio, List<ExternalLinkDto> externalLinks) {
         String sql =
         """
@@ -211,7 +194,8 @@ public class SpeakerRepository {
         bio = ?
         WHERE id = ?
         AND "role" = 'speaker'
-        RETURNING id
+        on conflict (email) do nothing
+        returning email
         """;
 
         try (Connection conn = dataSource.getConnection()) {
@@ -233,7 +217,7 @@ public class SpeakerRepository {
                         psDel.executeUpdate();
                     }
                     if (externalLinks != null && !externalLinks.isEmpty()) {
-                        insertExternalLinksForUpdate(conn, id, externalLinks);
+                        insertExternalLinks(conn, id, externalLinks);
                     }
                     conn.commit();
 

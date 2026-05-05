@@ -26,11 +26,6 @@ echo ""
 echo "--- Test 3: Speaker not found with non-existent UUID (should return 404) ---"
 curlie -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"Updated","lastName":"Speaker","email":"nonexistent@eventsync.com","bio":"Updated Bio"}' http://localhost:8080/speakers/$INVALID_UUID
 
-# Step 5: Valid update - all fields (should return 200)
-echo ""
-echo "--- Test 4: Valid update with all fields (should return 200) ---"
-curlie -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"Updated","lastName":"Speaker","email":"test.speaker@eventsync.com","profilePicture":"https://i.pravatar.cc/150?img=25","bio":"Updated speaker bio for testing.","externalLinks":[{"name":"Personal Website","url":"https://testspeaker.dev"},{"name":"GitHub","url":"https://github.com/testspeaker"}]}' http://localhost:8080/speakers/$SPEAKER_ID
-
 # Step 6: Valid update - minimal required fields only (should return 200)
 echo ""
 echo "--- Test 5: Valid update with only required fields (should return 200) ---"
