@@ -84,63 +84,63 @@ curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstNam
 
 # Step 8b: Bad request tests - more invalid externalLinks URLs (based on validateUrl pattern)
 echo ""
-echo "--- Test 26: Invalid externalLink URL - wrong protocol ftp:// (should return 400) ---"
+echo "--- Test 18: Invalid externalLink URL - wrong protocol ftp:// (should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"invalid.link3@valid.com","bio":"Valid Bio","externalLinks":[{"name":"Website","url":"ftp://example.com"}]}' http://localhost:8080/speakers
 
 echo ""
-echo "--- Test 27: Invalid externalLink URL - no protocol (should return 400) ---"
+echo "--- Test 19: Invalid externalLink URL - no protocol (should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"invalid.link4@valid.com","bio":"Valid Bio","externalLinks":[{"name":"Website","url":"example.com"}]}' http://localhost:8080/speakers
 
 echo ""
-echo "--- Test 28: Invalid externalLink URL - with port number (should return 400) ---"
+echo "--- Test 20: Invalid externalLink URL - with port number (should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"invalid.link5@valid.com","bio":"Valid Bio","externalLinks":[{"name":"Website","url":"https://example.com:8080"}]}' http://localhost:8080/speakers
 
 echo ""
-echo "--- Test 29: Invalid externalLink URL - with query string (should return 400) ---"
+echo "--- Test 21: Invalid externalLink URL - with query string (should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"invalid.link6@valid.com","bio":"Valid Bio","externalLinks":[{"name":"Website","url":"https://example.com?q=test"}]}' http://localhost:8080/speakers
 
 echo ""
-echo "--- Test 30: Invalid externalLink URL - with @ symbol (should return 400) ---"
+echo "--- Test 22: Invalid externalLink URL - with @ symbol (should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"invalid.link7@valid.com","bio":"Valid Bio","externalLinks":[{"name":"Website","url":"https://user@example.com"}]}' http://localhost:8080/speakers
 
 # Step 8c: Valid externalLink URL - same as Test 1 (duplicates allowed, should return 201)
 echo ""
-echo "--- Test 31: Valid externalLink URL - same as Test 1 duplicate allowed (should return 201) ---"
+echo "--- Test 23: Valid externalLink URL - same as Test 1 duplicate disallowed (should return 409) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"Alice","lastName":"Brown","email":"duplicate.url@valid.com","bio":"Valid Bio","externalLinks":[{"name":"Website","url":"https://example.com"}]}' http://localhost:8080/speakers
 
 # Step 9: Bad request tests - blank/empty fields
 echo ""
-echo "--- Test 18: Blank firstName (spaces only, should return 400) ---"
+echo "--- Test 24: Blank firstName (spaces only, should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"   ","lastName":"Doe","email":"blank.field@valid.com","bio":"Valid Bio"}' http://localhost:8080/speakers
 
 echo ""
-echo "--- Test 19: Empty firstName (should return 400) ---"
+echo "--- Test 25: Empty firstName (should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"","lastName":"Doe","email":"empty.field@valid.com","bio":"Valid Bio"}' http://localhost:8080/speakers
 
 echo ""
-echo "--- Test 20: Blank email (spaces only, should return 400) ---"
+echo "--- Test 26: Blank email (spaces only, should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"   ","bio":"Valid Bio"}' http://localhost:8080/speakers
 
 echo ""
-echo "--- Test 21: Empty email (should return 400) ---"
+echo "--- Test 27: Empty email (should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"","bio":"Valid Bio"}' http://localhost:8080/speakers
 
 echo ""
-echo "--- Test 22: Blank bio (spaces only, should return 400) ---"
+echo "--- Test 28: Blank bio (spaces only, should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"blank.bio@valid.com","bio":"   "}' http://localhost:8080/speakers
 
 echo ""
-echo "--- Test 23: Empty bio (should return 400) ---"
+echo "--- Test 29: Empty bio (should return 400) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"empty.bio@valid.com","bio":""}' http://localhost:8080/speakers
 
 # Step 10: Valid speaker with minimal fields (only required)
 echo ""
-echo "--- Test 24: Valid speaker with only required fields (should return 201) ---"
+echo "--- Test 30: Valid speaker with only required fields (should return 201) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"Jane","lastName":"Smith","email":"jane.smith@valid.com","bio":"Valid Bio"}' http://localhost:8080/speakers
 
 # Step 11: Valid speaker with profilePicture
 echo ""
-echo "--- Test 25: Valid speaker with profilePicture (should return 201) ---"
+echo "--- Test 31: Valid speaker with profilePicture (should return 201) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"Bob","lastName":"Wilson","email":"bob.wilson@valid.com","profilePicture":"https://example.com/bob.jpg","bio":"Valid Bio"}' http://localhost:8080/speakers
 
 # Cleanup

@@ -189,6 +189,7 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/test/java/requests/speaker/post_speakers.sh~",
     "target/classes/com/techindna/eventsync/repository/SpeakerRepository.class",
     "src/main/java/com/techindna/eventsync/repository/SpeakerRepository.java~",
     "target/classes/com/techindna/eventsync/service/SpeakerService.class",
@@ -199,7 +200,6 @@
     "target/classes/com/techindna/eventsync/repository/RoomRepository.class",
     "target/classes/com/techindna/eventsync/service/RoomService.class",
     "target/classes/com/techindna/eventsync/validator/StringValidator.class",
-    "target/classes/com/techindna/eventsync/controller/SpeakersController.class",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
