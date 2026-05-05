@@ -2,8 +2,10 @@ package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
+import com.techindna.eventsync.dto.SpeakerRequestDto;
 import com.techindna.eventsync.dto.SpeakerResponseDto;
 import com.techindna.eventsync.exception.ConflictException;
+import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.ExternalLinksValidator;
 import com.techindna.eventsync.validator.StringValidator;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class SpeakerService {
@@ -49,4 +52,31 @@ public class SpeakerService {
         }
         return speaker;
     }
+
+
+    public SpeakerResponseDto updateSpeaker(UUID id, SpeakerRequestDto request) {
+
+        stringValidator.validateSpeakerData(request.getFirstName(), request.getLastName(), request.getEmail(), request.getBio());
+        externalLinksValidator.validateExternalLinks(request.getExternalLinks());
+
+        if (request.getProfilePicture() != null){
+            stringValidator.validateUrl(request.getProfilePicture());
+        }
+
+        SpeakerResponseDto updated = speakerRepository.updateSpeaker(
+                id,
+                request.getFirstName(),
+                request.getLastName(),
+                request.getEmail(),
+                request.getProfilePicture(),
+                request.getBio(),
+                request.getExternalLinks()
+        );
+
+        if (updated == null) {
+            throw new NotFoundException("Speaker not found with ID : " + id);
+        }
+        return updated;
+    }
+
 }

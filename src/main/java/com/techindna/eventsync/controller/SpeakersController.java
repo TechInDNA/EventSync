@@ -7,19 +7,17 @@ import com.techindna.eventsync.dto.SpeakerResponseDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.service.SpeakerService;
 import com.techindna.eventsync.validator.PaginationValidator;
 import com.techindna.eventsync.validator.StringValidator;
+import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/speakers")
@@ -27,11 +25,13 @@ public class SpeakersController {
     private final PaginationValidator paginationValidator;
     private final SpeakerService speakerService;
     private final StringValidator stringValidator;
+    private final UUIDValidator uUIDValidator;
 
-    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator){
+    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator, UUIDValidator uUIDValidator){
         this.paginationValidator = paginationValidator;
         this.speakerService = speakerService;
         this.stringValidator = stringValidator;
+        this.uUIDValidator = uUIDValidator;
     }
     @GetMapping
     public ResponseEntity<?> getAllSpeakers(
@@ -88,4 +88,29 @@ public class SpeakersController {
                     .body(e.getMessage());
         }
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
+        try {
+            uUIDValidator.validateUUID(id);
+            SpeakerResponseDto updated = speakerService.updateSpeaker(UUID.fromString(id), request);
+
+            return ResponseEntity.ok().body(updated);
+
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (ConflictException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).
+                    body(e.getMessage());
+        }
+        catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred");
+        }
+    }
+
+
 }

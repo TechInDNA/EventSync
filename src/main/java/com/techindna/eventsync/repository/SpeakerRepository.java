@@ -180,4 +180,65 @@ public class SpeakerRepository {
             }
         }
     }
+
+
+    public SpeakerResponseDto updateSpeaker(UUID id, String firstName, String lastName, String email, String profilePicture, String bio, List<ExternalLinkDto> externalLinks) {
+        String sql =
+        """
+        UPDATE eventsync_app.users
+        SET
+        first_name = ?,
+        last_name = ?,
+        email = ?,
+        profile_picture = ?,
+        bio = ?
+        WHERE id = ?
+        AND "role" = 'speaker'
+        on conflict (email) do nothing
+        returning email
+        """;
+
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, firstName);
+                ps.setString(2, lastName);
+                ps.setString(3, email);
+                ps.setString(4, profilePicture);
+                ps.setString(5, bio);
+                ps.setObject(6, id);
+
+                int rows = ps.executeUpdate();
+
+                if (rows > 0) {
+
+                    try (PreparedStatement psDel = conn.prepareStatement("DELETE FROM eventsync_app.external_link WHERE user_id = ?")) {
+                        psDel.setObject(1, id);
+                        psDel.executeUpdate();
+                    }
+                    if (externalLinks != null && !externalLinks.isEmpty()) {
+                        insertExternalLinks(conn, id, externalLinks);
+                    }
+                    conn.commit();
+
+                    SpeakerResponseDto speaker = new SpeakerResponseDto();
+                    speaker.setId(id);
+                    speaker.setFirstName(firstName);
+                    speaker.setLastName(lastName);
+                    speaker.setEmail(email);
+                    speaker.setProfilePicture(profilePicture);
+                    speaker.setBio(bio);
+                    speaker.setExternalLinks(getExternalLinksByUserId(id));
+                    return speaker;
+                }
+                conn.rollback();
+                return null;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
