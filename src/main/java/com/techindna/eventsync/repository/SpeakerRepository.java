@@ -173,8 +173,8 @@ public class SpeakerRepository {
                 ps.addBatch();
             }
             int[] results = ps.executeBatch();
-            for (int count: results){
-                if (count == 0){
+            for (int count : results) {
+                if (count == 0) {
                     throw new ConflictException("One or more external links URL already exist.");
                 }
             }
@@ -182,26 +182,31 @@ public class SpeakerRepository {
     }
 
 
-    public boolean updateSpeaker(UUID id, String firstName, String lastName, String profilePicture, String bio, List<ExternalLinkDto> externalLinks) {
-        String sql = """
-        UPDATE eventsync_app.users 
-        SET 
-        first_name = ?, 
-        last_name = ?, 
-        profile_picture = ?, 
+    public SpeakerResponseDto updateSpeaker(UUID id, String firstName, String lastName, String email, String profilePicture, String bio, List<ExternalLinkDto> externalLinks) {
+        String sql =
+        """
+        UPDATE eventsync_app.users
+        SET
+        first_name = ?,
+        last_name = ?,
+        email = ?,
+        profile_picture = ?,
         bio = ?
-        WHERE id = ? 
+        WHERE id = ?
         AND "role" = 'speaker'
-    """;
+        on conflict (email) do nothing
+        returning email
+        """;
 
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setString(1, firstName);
                 ps.setString(2, lastName);
-                ps.setString(3, profilePicture);
-                ps.setString(4, bio);
-                ps.setObject(5, id);
+                ps.setString(3, email);
+                ps.setString(4, profilePicture);
+                ps.setString(5, bio);
+                ps.setObject(6, id);
 
                 int rows = ps.executeUpdate();
 
@@ -215,16 +220,25 @@ public class SpeakerRepository {
                         insertExternalLinks(conn, id, externalLinks);
                     }
                     conn.commit();
-                    return true;
+
+                    SpeakerResponseDto speaker = new SpeakerResponseDto();
+                    speaker.setId(id);
+                    speaker.setFirstName(firstName);
+                    speaker.setLastName(lastName);
+                    speaker.setEmail(email);
+                    speaker.setProfilePicture(profilePicture);
+                    speaker.setBio(bio);
+                    speaker.setExternalLinks(getExternalLinksByUserId(id));
+                    return speaker;
                 }
                 conn.rollback();
-                return false;
+                return null;
             } catch (SQLException e) {
                 conn.rollback();
                 throw e;
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Erreur update", e);
+            throw new RuntimeException(e);
         }
     }
 

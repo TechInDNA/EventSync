@@ -3,6 +3,7 @@ package com.techindna.eventsync.service;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.ConflictException;
+import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,34 +27,32 @@ public class RoomService {
         return newRoom;
     }
 
-
     public List<Room> getAllRooms(PaginationRequestDto pagination) {
         return roomRepository.findAllRooms(pagination.getOffset(), pagination.getLimit());
     }
+
     public int countRooms() {
         return roomRepository.countRooms();
     }
 
-
-    public Room getRoomById(UUID id) {
-        return roomRepository.findRoomById(id);
-    }
-
     public Room updateRoom(UUID id, String name) {
-        roomRepository.findRoomById(id);
-
-        try {
-            return roomRepository.updateRoom(id, name);
-        } catch (RuntimeException e) {
-
-            if (e.getMessage() != null && e.getMessage().contains("duplicate key")) {
-                throw new ConflictException(String.format("Room with name '%s' already exists", name));
-            }
-            throw e;
+        Room existingRoom = roomRepository.findRoomByName(name);
+        if (existingRoom != null && !existingRoom.getId().equals(id)) {
+            throw new ConflictException(String.format("Room '%s' already exists", name));
         }
+
+        Room updatedRoom = roomRepository.updateRoom(id, name);
+        if (updatedRoom == null) {
+            throw new NotFoundException(String.format("Room %s not found", id));
+        }
+        return updatedRoom;
     }
 
     public void deleteRoom(UUID id) {
-        roomRepository.deleteRoom(id);
+        UUID roomId = roomRepository.deleteRoom(id);
+
+        if (roomId == null){
+            throw new NotFoundException(String.format("Room %s not found", id));
+        }
     }
 }

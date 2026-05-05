@@ -31,16 +31,15 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/events/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET, "/events/**").permitAll()
 
-                    .requestMatchers(HttpMethod.POST, "/rooms/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/rooms/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE, "/rooms/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/speakers/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/speakers/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/speakers/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,"/speakers/**").hasRole("ADMIN")
 
-                    .requestMatchers(HttpMethod.POST, "/speakers/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT, "/speakers/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.DELETE,"/speakers/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/speakers/**").permitAll()
-
+                .requestMatchers(HttpMethod.POST, "/rooms/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/rooms/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,"/rooms/**").hasRole("ADMIN")
 
                 .requestMatchers("/auth/login").permitAll()
                 .anyRequest().authenticated()

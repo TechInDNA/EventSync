@@ -11,6 +11,7 @@ import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.service.SpeakerService;
 import com.techindna.eventsync.validator.PaginationValidator;
 import com.techindna.eventsync.validator.StringValidator;
+import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,11 +26,13 @@ public class SpeakersController {
     private final PaginationValidator paginationValidator;
     private final SpeakerService speakerService;
     private final StringValidator stringValidator;
+    private final UUIDValidator uUIDValidator;
 
-    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator){
+    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator, UUIDValidator uUIDValidator){
         this.paginationValidator = paginationValidator;
         this.speakerService = speakerService;
         this.stringValidator = stringValidator;
+        this.uUIDValidator = uUIDValidator;
     }
     @GetMapping
     public ResponseEntity<?> getAllSpeakers(
@@ -89,14 +92,24 @@ public class SpeakersController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
         try {
-            speakerService.updateSpeaker(UUID.fromString(id), request);
+            uUIDValidator.validateUUID(id);
+            SpeakerResponseDto updated = speakerService.updateSpeaker(UUID.fromString(id), request);
 
-            return ResponseEntity.ok().body("Speaker updated successfully");
+            return ResponseEntity.ok().body(updated);
 
         } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (ConflictException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).
+                    body(e.getMessage());
+        }
+        catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred");
         }
     }
 

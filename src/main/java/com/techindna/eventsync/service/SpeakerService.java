@@ -10,6 +10,7 @@ import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.ExternalLinksValidator;
 import com.techindna.eventsync.validator.StringValidator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +35,7 @@ public class SpeakerService {
         return speakerRepository.countSpeakers();
     }
 
+    @Transactional
     public SpeakerResponseDto createSpeaker(String firstName, String lastName, String email,
                                             String profilePicture, String bio,
                                             List<ExternalLinkDto> externalLinks){
@@ -52,22 +54,29 @@ public class SpeakerService {
     }
 
 
-    public void updateSpeaker(UUID id, SpeakerRequestDto request) {
+    public SpeakerResponseDto updateSpeaker(UUID id, SpeakerRequestDto request) {
 
         stringValidator.validateSpeakerData(request.getFirstName(), request.getLastName(), request.getEmail(), request.getBio());
+        externalLinksValidator.validateExternalLinks(request.getExternalLinks());
 
-        boolean updated = speakerRepository.updateSpeaker(
+        if (request.getProfilePicture() != null){
+            stringValidator.validateUrl(request.getProfilePicture());
+        }
+
+        SpeakerResponseDto updated = speakerRepository.updateSpeaker(
                 id,
                 request.getFirstName(),
                 request.getLastName(),
+                request.getEmail(),
                 request.getProfilePicture(),
                 request.getBio(),
                 request.getExternalLinks()
         );
 
-        if (!updated) {
+        if (updated == null) {
             throw new NotFoundException("Speaker not found with ID : " + id);
         }
+        return updated;
     }
 
     public void deleteSpeaker(UUID id) {
