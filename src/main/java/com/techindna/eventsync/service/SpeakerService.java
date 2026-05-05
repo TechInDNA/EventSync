@@ -8,6 +8,7 @@ import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.ExternalLinksValidator;
 import com.techindna.eventsync.validator.StringValidator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class SpeakerService {
         return speakerRepository.countSpeakers();
     }
 
+    @Transactional
     public SpeakerResponseDto createSpeaker(String firstName, String lastName, String email,
                                             String profilePicture, String bio,
                                             List<ExternalLinkDto> externalLinks){
