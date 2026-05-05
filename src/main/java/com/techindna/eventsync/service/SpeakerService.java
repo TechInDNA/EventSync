@@ -55,6 +55,7 @@ public class SpeakerService {
     public void updateSpeaker(UUID id, SpeakerRequestDto request) {
 
         stringValidator.validateSpeakerData(request.getFirstName(), request.getLastName(), request.getEmail(), request.getBio());
+        externalLinksValidator.validateExternalLinks(request.getExternalLinks());
 
         boolean updated = speakerRepository.updateSpeaker(
                 id,

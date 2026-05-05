@@ -11,6 +11,7 @@ import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.service.SpeakerService;
 import com.techindna.eventsync.validator.PaginationValidator;
 import com.techindna.eventsync.validator.StringValidator;
+import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,11 +25,13 @@ public class SpeakersController {
     private final PaginationValidator paginationValidator;
     private final SpeakerService speakerService;
     private final StringValidator stringValidator;
+    private final UUIDValidator uUIDValidator;
 
-    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator){
+    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator, UUIDValidator uUIDValidator){
         this.paginationValidator = paginationValidator;
         this.speakerService = speakerService;
         this.stringValidator = stringValidator;
+        this.uUIDValidator = uUIDValidator;
     }
     @GetMapping
     public ResponseEntity<?> getAllSpeakers(
@@ -86,8 +89,9 @@ public class SpeakersController {
         }
     }
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
+    public ResponseEntity<?> updateSpeaker(@PathVariable(required = false) String id, @RequestBody SpeakerRequestDto request) {
         try {
+            uUIDValidator.validateUUID(id);
             speakerService.updateSpeaker(UUID.fromString(id), request);
 
             return ResponseEntity.ok().body("Speaker updated successfully");
