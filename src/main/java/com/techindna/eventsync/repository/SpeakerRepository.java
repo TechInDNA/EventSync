@@ -183,7 +183,8 @@ public class SpeakerRepository {
 
 
     public boolean updateSpeaker(UUID id, String firstName, String lastName, String profilePicture, String bio, List<ExternalLinkDto> externalLinks) {
-        String sql = """
+        String sql =
+        """
         UPDATE eventsync_app.users 
         SET 
         first_name = ?, 
@@ -192,7 +193,8 @@ public class SpeakerRepository {
         bio = ?
         WHERE id = ? 
         AND "role" = 'speaker'
-    """;
+        RETURNING id
+        """;
 
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
