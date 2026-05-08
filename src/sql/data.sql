@@ -86,11 +86,6 @@ values
     ('Research Gate', 'https://researchgate.net/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d');
 
 
--- Test room for PUT /rooms/{id} endpoint (use this ID to test update)
-insert into eventsync_app.rooms (id, name)
-values
-    ('c1c12204-4427-4add-b755-b681719d1684', 'Room to Update');
-
 INSERT INTO eventsync_app.rooms (name) VALUES ('Grand Ballroom');
 
 -- Test speaker for PUT /speaker/{id} and DELETE PUT /speaker/{id} endpoint (use this ID to test update)

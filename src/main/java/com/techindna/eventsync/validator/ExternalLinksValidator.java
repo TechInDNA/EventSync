@@ -7,16 +7,16 @@ import java.util.List;
 
 @Component
 public class ExternalLinksValidator {
-    private final StringValidator stringValidator;
-    public ExternalLinksValidator(StringValidator stringValidator){
-        this.stringValidator = stringValidator;
+    private final DataValidator dataValidator;
+    public ExternalLinksValidator(DataValidator dataValidator){
+        this.dataValidator = dataValidator;
     }
 
     public void validateExternalLinks(List<ExternalLinkDto> links){
         if (links != null){
             for (ExternalLinkDto l : links){
-                stringValidator.validateString("name", l.getName());
-                stringValidator.validateUrl(l.getUrl());
+                dataValidator.validateString("name", l.getName());
+                dataValidator.validateUrl(l.getUrl());
             }
         }
     }

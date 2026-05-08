@@ -8,7 +8,7 @@ import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.ExternalLinksValidator;
-import com.techindna.eventsync.validator.StringValidator;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +18,12 @@ import java.util.UUID;
 @Service
 public class SpeakerService {
     private final SpeakerRepository speakerRepository;
-    private final StringValidator stringValidator;
+    private final DataValidator dataValidator;
     private final ExternalLinksValidator externalLinksValidator;
 
-    public SpeakerService(SpeakerRepository speakerRepository, StringValidator stringValidator, ExternalLinksValidator externalLinksValidator){
+    public SpeakerService(SpeakerRepository speakerRepository, DataValidator dataValidator, ExternalLinksValidator externalLinksValidator){
         this.speakerRepository = speakerRepository;
-        this.stringValidator = stringValidator;
+        this.dataValidator = dataValidator;
         this.externalLinksValidator = externalLinksValidator;
     }
 
@@ -41,7 +41,7 @@ public class SpeakerService {
                                             List<ExternalLinkDto> externalLinks){
         
         if (profilePicture != null && !profilePicture.isEmpty()){
-            stringValidator.validateUrl(profilePicture);
+            dataValidator.validateUrl(profilePicture);
         }
 
         externalLinksValidator.validateExternalLinks(externalLinks);
@@ -56,11 +56,11 @@ public class SpeakerService {
 
     public SpeakerResponseDto updateSpeaker(UUID id, SpeakerRequestDto request) {
 
-        stringValidator.validateSpeakerData(request.getFirstName(), request.getLastName(), request.getEmail(), request.getBio());
+        dataValidator.validateSpeakerData(request.getFirstName(), request.getLastName(), request.getEmail(), request.getBio());
         externalLinksValidator.validateExternalLinks(request.getExternalLinks());
 
         if (request.getProfilePicture() != null){
-            stringValidator.validateUrl(request.getProfilePicture());
+            dataValidator.validateUrl(request.getProfilePicture());
         }
 
         SpeakerResponseDto updated = speakerRepository.updateSpeaker(

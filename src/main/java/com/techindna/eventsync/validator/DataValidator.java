@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Component
-public class StringValidator {
+public class DataValidator {
     private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9 .,':-]+$");
     private final Pattern VALID_URL = Pattern.compile("^https?://[a-zA-Z0-9\\-._%&#/]+$");
     private static final Pattern VALID_EMAIL = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
@@ -109,6 +109,7 @@ public class StringValidator {
         if (name != null && name.length() > 50){
             throw new BadRequestException("The length of the name cannot exceed 50.");
         }
+        checkNullData("name", name);
         validateString("name", name);
     }
 

@@ -6,7 +6,7 @@ import com.techindna.eventsync.dto.RoomRequestDto;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.service.RoomService;
-import com.techindna.eventsync.validator.StringValidator;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,19 +19,19 @@ import java.util.UUID;
 public class RoomController {
 
     private final RoomService roomService;
-    private final StringValidator stringValidator;
+    private final DataValidator dataValidator;
 
-    public RoomController(RoomService roomService, StringValidator stringValidator) {
+    public RoomController(RoomService roomService, DataValidator dataValidator) {
 
         this.roomService = roomService;
-        this.stringValidator = stringValidator;
+        this.dataValidator = dataValidator;
     }
 
 
     @PostMapping
     public ResponseEntity<?> createRoom(@RequestBody RoomRequestDto request) {
         try {
-            stringValidator.validateRoomData(request.getName());
+            dataValidator.validateRoomData(request.getName());
 
             Room newRoom = roomService.createRoom(request.getName());
             return ResponseEntity.status(HttpStatus.CREATED).body(newRoom);
@@ -57,7 +57,7 @@ public class RoomController {
             @RequestParam(required = false, defaultValue = "5") String size) {
         try {
 
-            stringValidator.validatePageAndSize(page, size);
+            dataValidator.validatePageAndSize(page, size);
             int pageVal = Integer.parseInt(page);
             int sizeVal = Integer.parseInt(size);
 
@@ -80,8 +80,8 @@ public class RoomController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateRoom(@PathVariable String id, @RequestBody RoomRequestDto request) {
         try {
-            stringValidator.validateUUID(id);
-            stringValidator.validateRoomData(request.getName());
+            dataValidator.validateUUID(id);
+            dataValidator.validateRoomData(request.getName());
 
             Room updatedRoom = roomService.updateRoom(UUID.fromString(id), request.getName());
             return ResponseEntity.status(HttpStatus.OK).body(updatedRoom);
@@ -107,7 +107,7 @@ public class RoomController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteRoomById(@PathVariable String id) {
         try {
-            stringValidator.validateUUID(id);
+            dataValidator.validateUUID(id);
             roomService.deleteRoomById(UUID.fromString(id));
 
             return ResponseEntity.status(HttpStatus.OK)
