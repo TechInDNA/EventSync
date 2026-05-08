@@ -33,7 +33,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthLoginRequestDto request) {
         try{
-            Administrator admin = authService.emailLogin(request.getEmail(), request.getPassword());
+            Administrator admin = authService.logInAdmin(request.getEmail(), request.getPassword())
+                    .orElseThrow(() -> new UnauthorizedException("Invalid credentials."));
             String token = authService.generateToken(admin);
 
             ResponseCookie jwtCookie = ResponseCookie.from("jwt", token)

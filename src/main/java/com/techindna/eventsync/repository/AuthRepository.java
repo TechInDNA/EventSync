@@ -20,7 +20,7 @@ public class AuthRepository {
         this.dataSource = dataSource;
     }
 
-    public Administrator getAdminByEmail(String email) {
+    public Optional<Administrator> findAdminByEmail(String email) {
         String sql = """
             select
             id,
@@ -48,9 +48,9 @@ public class AuthRepository {
                     admin.setLastName(rs.getString("last_name"));
                     admin.setPassword(rs.getString("password"));
                     admin.setEmail(rs.getString("email"));
-                    return admin;
+                    return Optional.of(admin);
                 }
-                throw new UnauthorizedException("Invalid credentials");
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
