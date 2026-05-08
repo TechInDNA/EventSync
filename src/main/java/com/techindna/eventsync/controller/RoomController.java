@@ -42,9 +42,6 @@ public class RoomController {
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(e.getMessage());
-        } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(e.getMessage());
