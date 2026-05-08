@@ -136,7 +136,7 @@ public class EventController {
             dataValidator.validateUUID(id);
             UUID deletedId = eventService.deleteEventById(UUID.fromString(id));
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(String.format("Event %s deleted", deletedId));
+                    .body(String.format("Event %s deleted.", deletedId));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
