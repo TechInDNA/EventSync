@@ -44,8 +44,9 @@ public class RoomRepository {
 
     }
 
-    public List<Room> findAllRooms(int offset, int limit) {
-        final String query = """
+    public List<Room> getAllRooms(int offset, int limit) {
+        final String query =
+        """
         SELECT id, name 
         FROM eventsync_app.rooms 
         ORDER BY name ASC 
