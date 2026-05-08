@@ -28,7 +28,7 @@ public class RoomService {
     }
 
     public List<Room> getAllRooms(PaginationRequestDto pagination) {
-        return roomRepository.findAllRooms(pagination.getOffset(), pagination.getLimit());
+        return roomRepository.getAllRooms(pagination.getOffset(), pagination.getLimit());
     }
 
     public int countRooms() {
