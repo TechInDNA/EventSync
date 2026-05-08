@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -1002.5152480750704,
-                  "y": 233.0014134052452,
-                  "zoom": -0.7421219580769529
+                  "x": -1604.2803420996588,
+                  "y": -140.01424369463493,
+                  "zoom": -0.7124794184565532
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -81,8 +81,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "be6bb9ee8d661016",
@@ -189,7 +188,9 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/main/java/com/techindna/eventsync/service/AuthService.java~",
     "target/classes/com/techindna/eventsync/exception/UnauthorizedException.class",
+    "target/classes/com/techindna/eventsync/exception/TooManyRequestException.class",
     "target/classes/com/techindna/eventsync/exception/NotFoundException.class",
     "target/classes/com/techindna/eventsync/exception/InternalServerErrorException.class",
     "target/classes/com/techindna/eventsync/exception/ConflictException.class",
@@ -198,8 +199,6 @@
     "target/classes/com/techindna/eventsync/entity/Participant.class",
     "target/classes/com/techindna/eventsync/entity/Speaker.class",
     "target/classes/com/techindna/eventsync/entity/ExternalLinks.class",
-    "target/classes/com/techindna/eventsync/dto/GetSpeakerListResponseDto.class",
-    "target/classes/com/techindna/eventsync/dto/GetRoomListResponseDto.class",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
