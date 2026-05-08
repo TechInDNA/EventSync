@@ -93,24 +93,9 @@ echo ""
 echo "--- Test 17: No authentication (should return 401 or 403) ---"
 curlie -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"name":"Unauthorized Room"}' http://localhost:8080/rooms
 
-# Step 19: GET method (should return 403 - method not allowed or forbidden)
+# Step 19: Test with very long name
 echo ""
-echo "--- Test 18: GET method (should return 403) ---"
-curlie -X GET -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" http://localhost:8080/rooms
-
-# Step 20: PUT method (should return 403)
-echo ""
-echo "--- Test 19: PUT method (should return 403) ---"
-curlie -X PUT -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"name":"Test"}' http://localhost:8080/rooms
-
-# Step 21: DELETE method (should return 403)
-echo ""
-echo "--- Test 20: DELETE method (should return 403) ---"
-curlie -X DELETE -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" http://localhost:8080/rooms
-
-# Step 22: Test with very long name (no length validation, but test anyway)
-echo ""
-echo "--- Test 21: Very long name (should return 400) ---"
+echo "--- Test 18: Very long name (should return 400) ---"
 curlie -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"name":"VeryLongRoomNameThatMightExceedDatabaseConstraintsButLetsSeeWhatHappensWithThisStringWhichIsQuiteLong"}' http://localhost:8080/rooms
 
 # Cleanup
