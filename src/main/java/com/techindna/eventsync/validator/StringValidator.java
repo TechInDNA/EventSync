@@ -23,7 +23,7 @@ public class StringValidator {
 
         final Matcher EMAIL_MATCHER = VALID_EMAIL.matcher(email);
         if (!EMAIL_MATCHER.matches()){
-            throw new BadRequestException(String.format("Email %s is invalid", email));
+            throw new BadRequestException(String.format("Invalid email format for %s.", email));
         }
     }
 

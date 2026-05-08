@@ -31,8 +31,8 @@ public class AuthService {
     }
 
     public Administrator emailLogin(String email, String password) {
-        stringValidator.checkNullData(email, email);
-        stringValidator.checkNullData(password, password);
+        stringValidator.checkNullData("email", email);
+        stringValidator.checkNullData("password", password);
         stringValidator.ValidateEmail(email);
 
         if (firstFailureTime != null && Duration.between(firstFailureTime, Instant.now()).compareTo(RESET_DURATION) >= 0) {
@@ -51,7 +51,7 @@ public class AuthService {
             if (loggingAttempt == 1) {
                 firstFailureTime = Instant.now();
             }
-            throw new UnauthorizedException("Invalid credentials");
+            throw new UnauthorizedException("Invalid credentials.");
         }
 
         return admin;

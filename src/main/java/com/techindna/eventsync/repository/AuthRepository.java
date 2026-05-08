@@ -33,7 +33,7 @@ public class AuthRepository {
             eventsync_app.users
             where
             email = ?
-            and role = 'ADMIN'
+            and role = 'admin'
             """;
         try (
                 Connection connection = dataSource.getConnection();

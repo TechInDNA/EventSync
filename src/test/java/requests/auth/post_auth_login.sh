@@ -17,7 +17,7 @@ echo "--- Test 3: Non-existent email (should return 401 - same generic message t
 curlie -H "Content-Type: application/json" -d '{"email": "nobody@eventsync.com", "password": "test"}' http://localhost:8080/auth/login
 
 echo ""
-echo "--- Test 4: Missing/null password (should return 401 - PasswordEncoder.matches returns false for null) ---"
+echo "--- Test 4: Missing/null password (should return 400 - PasswordEncoder.matches returns false for null) ---"
 curlie -H "Content-Type: application/json" -d '{"email": "admin@eventsync.com"}' http://localhost:8080/auth/login
 
 echo ""
@@ -42,22 +42,18 @@ echo "--- Test 9: SQL injection attempt in email (should return 400 - first rege
 curlie -H "Content-Type: application/json" -d "{\"email\": \"admin@eventsync.com' OR '1'='1\", \"password\": \"test\"}" http://localhost:8080/auth/login
 
 echo ""
-echo "==========  INTERNAL SERVER ERROR (500)  =========="
-echo "--- Test 10: Missing/null email (should return 500 - Pattern.matcher(null) throws NPE, not caught) ---"
-echo "    NOTE: This is a bug - ValidateEmail should handle null email before calling Pattern.matcher()"
+echo "--- Test 10: Missing/null email (should return 400) ---"
 curlie -H "Content-Type: application/json" -d '{"password": "test"}' http://localhost:8080/auth/login
 
 echo ""
-echo "--- Test 11: Empty body with null email + null password (should return 500 - NPE from null email) ---"
-echo "    NOTE: Same bug as Test 10 - null email reaches Pattern.matcher()"
+echo "--- Test 11: Empty body with null email + null password (should return 400) ---"
 curlie -H "Content-Type: application/json" -d '{}' http://localhost:8080/auth/login
 
 echo ""
 echo "==========  RATE LIMITING  =========="
-echo "--- Test 12: Trigger rate limiting (should return 429, currently unhandled -> 500) ---"
+echo "--- Test 12: Trigger rate limiting (should return 429) ---"
 echo "    NOTE: AuthService blocks after 5 failures within 12h (in-memory counter)."
 echo "    Restart the app between runs to reset the counter."
-echo "    ALSO: TooManyRequestException is NOT caught by the controller -> falls through to 500."
 for i in $(seq 1 5); do
   curlie -s -H "Content-Type: application/json" -d '{"email": "admin@eventsync.com", "password": "wrong"}' http://localhost:8080/auth/login > /dev/null 2>&1
 done
