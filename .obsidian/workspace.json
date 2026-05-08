@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -1002.5152480750704,
-                  "y": -1820.324318006878,
-                  "zoom": -0.7421219580769529
+                  "x": -1604.2803420996588,
+                  "y": -140.01424369463493,
+                  "zoom": -0.7124794184565532
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -81,8 +81,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "be6bb9ee8d661016",
@@ -189,17 +188,17 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
-    "target/classes/com/techindna/eventsync/dto/GetSpeakerListResponseDto.class",
-    "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
-    "target/classes/com/techindna/eventsync/dto/RoomRequestDto.class",
-    "target/classes/com/techindna/eventsync/controller/RoomController.class",
-    "target/classes/com/techindna/eventsync/repository/RoomRepository.class",
-    "target/classes/com/techindna/eventsync/service/RoomService.class",
-    "target/classes/com/techindna/eventsync/dto/SpeakerResponseDto.class",
-    "target/classes/com/techindna/eventsync/validator/ExternalLinksValidator.class",
-    "target/classes/com/techindna/eventsync/repository/SpeakerRepository.class",
-    "target/classes/com/techindna/eventsync/dto/ExternalLinkDto.class",
-    "target/classes/com/techindna/eventsync/dto/SpeakerRequestDto.class",
+    "src/main/java/com/techindna/eventsync/validator/AuthValidator.java",
+    "src/main/java/com/techindna/eventsync/exception/TooManyRequestException.java",
+    "src/main/java/com/techindna/eventsync/dto/UserResponseDto.java",
+    "src/test/java/requests/speaker/cookies.txt",
+    "src/main/java/com/techindna/eventsync/service/AuthService.java~",
+    "target/classes/com/techindna/eventsync/validator/StringValidator.class",
+    "src/main/java/com/techindna/eventsync/validator/StringValidator.java~",
+    "src/test/java/requests/auth/post_auth_login.sh~",
+    "target/classes/com/techindna/eventsync/service/AuthService.class",
+    "target/classes/com/techindna/eventsync/repository/AuthRepository.class",
+    "src/main/java/com/techindna/eventsync/repository/AuthRepository.java~",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
