@@ -15,7 +15,7 @@ public class ExternalLinksValidator {
     public void validateExternalLinks(List<ExternalLinkDto> links){
         if (links != null){
             for (ExternalLinkDto l : links){
-                stringValidator.validate("name", l.getName());
+                stringValidator.validateString("name", l.getName());
                 stringValidator.validateUrl(l.getUrl());
             }
         }

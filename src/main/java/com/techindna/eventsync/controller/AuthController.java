@@ -2,12 +2,13 @@ package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.AuthLoginRequestDto;
 import com.techindna.eventsync.dto.AuthLoginResponseDto;
+import com.techindna.eventsync.dto.UserResponseDto;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.exception.TooManyRequestException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.AuthService;
-import com.techindna.eventsync.validator.AuthValidator;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -23,17 +24,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final AuthValidator authValidator;
+    private final int COOKIE_MAX_AGE = 86400;
 
-    public AuthController(AuthService authService, AuthValidator authValidator) {
+    public AuthController(AuthService authService) {
         this.authService = authService;
-        this.authValidator = authValidator;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthLoginRequestDto request) {
         try{
-            authValidator.ValidateData(request.getEmail(), request.getPassword());
             Administrator admin = authService.emailLogin(request.getEmail(), request.getPassword());
             String token = authService.generateToken(admin);
 
@@ -41,17 +40,26 @@ public class AuthController {
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
-                    .maxAge(86400)
+                    .maxAge(COOKIE_MAX_AGE)
                     .sameSite("Strict")
                     .build();
 
             AuthLoginResponseDto response = new AuthLoginResponseDto();
-            response.setUser(admin);
+            UserResponseDto userDto = new UserResponseDto();
+            userDto.setId(admin.getId());
+            userDto.setFirstName(admin.getFirstName());
+            userDto.setLastName(admin.getLastName());
+            userDto.setEmail(admin.getEmail());
+            userDto.setRole(admin.getRole());
+            response.setUser(userDto);
             response.setToken(token);
 
             return ResponseEntity.status(HttpStatus.OK)
                     .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                     .body(response);
+        } catch (TooManyRequestException e){
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(e.getMessage());
         }
         catch (BadRequestException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
