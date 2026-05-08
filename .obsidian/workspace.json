@@ -81,8 +81,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "be6bb9ee8d661016",
@@ -189,17 +188,17 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
-    "target/classes/com/techindna/eventsync/exception/UnauthorizedException.class",
-    "target/classes/com/techindna/eventsync/exception/NotFoundException.class",
-    "target/classes/com/techindna/eventsync/exception/InternalServerErrorException.class",
-    "target/classes/com/techindna/eventsync/exception/ConflictException.class",
-    "target/classes/com/techindna/eventsync/exception/BadRequestException.class",
-    "target/classes/com/techindna/eventsync/entity/Session.class",
-    "target/classes/com/techindna/eventsync/entity/Participant.class",
-    "target/classes/com/techindna/eventsync/entity/Speaker.class",
-    "target/classes/com/techindna/eventsync/entity/ExternalLinks.class",
-    "target/classes/com/techindna/eventsync/dto/GetSpeakerListResponseDto.class",
-    "target/classes/com/techindna/eventsync/dto/GetRoomListResponseDto.class",
+    "src/main/java/com/techindna/eventsync/validator/PaginationValidator.java",
+    "src/main/java/com/techindna/eventsync/controller/RoomController.java~",
+    "src/main/java/com/techindna/eventsync/exception/ForbiddenException.java~",
+    "src/main/java/com/techindna/eventsync/exception/ForbiddenException.java",
+    "src/main/java/com/techindna/eventsync/validator/StringValidator.java~",
+    "src/test/java/requests/room/get_rooms.sh~",
+    "src/sql/room_data.sql~",
+    "src/sql/data.sql~",
+    "src/sql/room_data.sql",
+    "target/classes/com/techindna/eventsync/dto/AuthLoginResponseDto.class",
+    "target/classes/com/techindna/eventsync/service/AuthService.class",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
