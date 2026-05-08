@@ -55,7 +55,7 @@ public class RoomController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getRooms(
+    public ResponseEntity<?> getAllRooms(
             @RequestParam(required = false, defaultValue = "1") String page,
             @RequestParam(required = false, defaultValue = "5") String size) {
         try {
@@ -73,9 +73,6 @@ public class RoomController {
 
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
