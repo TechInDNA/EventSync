@@ -21,7 +21,14 @@ public class RoomRepository {
     }
 
     public Room saveRoom(String name) {
-        final String query = "insert into eventsync_app.rooms(name) values(?) on conflict (name) do nothing returning id";
+        final String query =
+        """
+        insert into
+            eventsync_app.rooms(name)
+        values(?) on conflict (name)
+        do nothing
+        returning id
+        """;
 
         try (
                 Connection conn = dataSource.getConnection();
@@ -39,9 +46,6 @@ public class RoomRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-
-
     }
 
     public List<Room> getAllRooms(int offset, int limit) {
