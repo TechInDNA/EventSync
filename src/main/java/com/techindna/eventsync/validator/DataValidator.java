@@ -109,6 +109,7 @@ public class DataValidator {
         if (name != null && name.length() > 50){
             throw new BadRequestException("The length of the name cannot exceed 50.");
         }
+        checkNullData("name", name);
         validateString("name", name);
     }
 
