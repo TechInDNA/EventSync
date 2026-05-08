@@ -31,6 +31,8 @@ public class AuthService {
     }
 
     public Administrator emailLogin(String email, String password) {
+        stringValidator.checkNullData(email, email);
+        stringValidator.checkNullData(password, password);
         stringValidator.ValidateEmail(email);
 
         if (firstFailureTime != null && Duration.between(firstFailureTime, Instant.now()).compareTo(RESET_DURATION) >= 0) {

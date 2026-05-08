@@ -27,12 +27,15 @@ public class StringValidator {
         }
     }
 
-    protected void validateString(String fieldName, String data){
+    public void checkNullData(String fieldName, String data){
         if (data == null || data.isEmpty() || data.isBlank()){
             throw new BadRequestException(String.format("The field %s is required and cannot be blank.", fieldName));
         }
+    }
 
+    protected void validateString(String fieldName, String data){
         final Matcher TEXT_MATCHER = TEXT_PATTERN.matcher(data);
+
         if (!TEXT_MATCHER.matches()){
             throw new BadRequestException(String.format("Invalid input for %s: %s only a-zA-Z0-9 .,':- characters are allowed.", fieldName, data));
         }

@@ -6,6 +6,7 @@ import com.techindna.eventsync.dto.UserResponseDto;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.exception.TooManyRequestException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.AuthService;
 import org.springframework.http.HttpHeaders;
@@ -56,6 +57,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.OK)
                     .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                     .body(response);
+        } catch (TooManyRequestException e){
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(e.getMessage());
         }
         catch (BadRequestException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
