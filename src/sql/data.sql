@@ -85,17 +85,6 @@ values
     ('LinkedIn', 'https://linkedin.com/in/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d'),
     ('Research Gate', 'https://researchgate.net/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d');
 
--- Rooms for testing GET /rooms endpoint (at least 5 rooms)
-insert into eventsync_app.rooms (name)
-values
-    ('Grand Ballroom'),
-    ('Conference Room A'),
-    ('Conference Room B'),
-    ('Workshop Hall'),
-    ('Seminar Room 1'),
-    ('Seminar Room 2'),
-    ('Exhibition Hall');
-
 -- Test room for DELETE /rooms/{id} endpoint (use this ID to test deletion)
 insert into eventsync_app.rooms (id, name)
 values
