@@ -3,14 +3,14 @@ package com.techindna.eventsync.dto;
 import com.techindna.eventsync.entity.User;
 
 public class AuthLoginResponseDto {
-    private User user;
+    private UserResponseDto user;
     private String token;
 
-    public User getUser() {
+    public UserResponseDto getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserResponseDto user) {
         this.user = user;
     }
 

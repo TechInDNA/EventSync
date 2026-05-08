@@ -20,17 +20,16 @@ import java.util.UUID;
 @RequestMapping("/rooms")
 public class RoomController {
 
-
-
     private final RoomService roomService;
     private final StringValidator stringValidator;
     private final PaginationValidator paginationValidator;
     private final UUIDValidator uuidValidator;
 
-
     public RoomController(RoomService roomService,
                           StringValidator stringValidator,
-                          PaginationValidator paginationValidator, UUIDValidator uuidValidator) {
+                          PaginationValidator paginationValidator,
+                          UUIDValidator uuidValidator) {
+
         this.roomService = roomService;
         this.stringValidator = stringValidator;
         this.paginationValidator = paginationValidator;
@@ -61,7 +60,7 @@ public class RoomController {
         }
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<?> getRooms(
             @RequestParam(required = false, defaultValue = "1") String page,
             @RequestParam(required = false, defaultValue = "5") String size) {
@@ -90,8 +89,53 @@ public class RoomController {
         }
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateRoom(@PathVariable String id, @RequestBody RoomRequestDto request) {
+        try {
+            uuidValidator.validateUUID(id);
+            stringValidator.validateRoomData(request.getName());
 
+            Room updatedRoom = roomService.updateRoom(UUID.fromString(id), request.getName());
+            return ResponseEntity.status(HttpStatus.OK).body(updatedRoom);
 
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteRoom(@PathVariable String id) {
+        try {
+            uuidValidator.validateUUID(id);
+            roomService.deleteRoom(UUID.fromString(id));
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(String.format("Room %s deleted", id));
+
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(e.getMessage());
+        }
+    }
 
 }
 
