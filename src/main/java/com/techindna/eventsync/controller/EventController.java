@@ -23,12 +23,10 @@ import java.util.UUID;
 public class EventController {
     private final EventService eventService;
     private final StringValidator stringValidator;
-    private final UUIDValidator UuidValidator;
 
-    public EventController(EventService eventService, StringValidator eventValidator, UUIDValidator UuidValidator){
+    public EventController(EventService eventService, StringValidator eventValidator){
         this.eventService = eventService;
         this.stringValidator = eventValidator;
-        this.UuidValidator = UuidValidator;
     }
 
     @GetMapping
