@@ -10,7 +10,6 @@ import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.service.SpeakerService;
 import com.techindna.eventsync.validator.StringValidator;
-import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,12 +22,10 @@ import java.util.UUID;
 public class SpeakersController {
     private final SpeakerService speakerService;
     private final StringValidator stringValidator;
-    private final UUIDValidator uUIDValidator;
 
-    public SpeakersController(SpeakerService speakerService, StringValidator stringValidator, UUIDValidator uUIDValidator){
+    public SpeakersController(SpeakerService speakerService, StringValidator stringValidator){
         this.speakerService = speakerService;
         this.stringValidator = stringValidator;
-        this.uUIDValidator = uUIDValidator;
     }
     @GetMapping
     public ResponseEntity<?> getAllSpeakers(
@@ -88,7 +85,7 @@ public class SpeakersController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
         try {
-            uUIDValidator.validateUUID(id);
+            stringValidator.validateUUID(id);
             SpeakerResponseDto updated = speakerService.updateSpeaker(UUID.fromString(id), request);
 
             return ResponseEntity.ok().body(updated);
@@ -112,7 +109,7 @@ public class SpeakersController {
     @DeleteMapping(value = {"/{id}", "/"})
     public ResponseEntity<?> deleteSpeaker(@PathVariable(required = false) String id) {
         try {
-            uUIDValidator.validateUUID(id);
+            stringValidator.validateUUID(id);
             speakerService.deleteSpeaker(UUID.fromString(id));
 
             return ResponseEntity.status(HttpStatus.OK).body("Speaker " + id + " deleted.");
