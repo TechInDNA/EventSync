@@ -13,3 +13,8 @@ values
 insert into eventsync_app.rooms (id, name)
 values
     ('48549c21-6dc0-4e9c-9f57-c0ae88f6544b', 'Room to Delete');
+
+-- Test room for PUT /rooms/{id} endpoint (use this ID to test update)
+insert into eventsync_app.rooms (id, name)
+values
+    ('c1c12204-4427-4add-b755-b681719d1684', 'Room to Update');
