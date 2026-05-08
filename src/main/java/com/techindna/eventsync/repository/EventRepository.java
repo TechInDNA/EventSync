@@ -185,8 +185,8 @@ public class EventRepository {
         }
     }
 
-    public UUID deleteEvent(UUID id) {
-        String query = "delete from eventsync_app.events where id = ? returning id";
+    public UUID deleteEventById(UUID id) {
+        final String query = "delete from eventsync_app.events where id = ? returning id";
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
