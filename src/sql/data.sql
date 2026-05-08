@@ -85,10 +85,6 @@ values
     ('LinkedIn', 'https://linkedin.com/in/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d'),
     ('Research Gate', 'https://researchgate.net/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d');
 
--- Test room for DELETE /rooms/{id} endpoint (use this ID to test deletion)
-insert into eventsync_app.rooms (id, name)
-values
-    ('48549c21-6dc0-4e9c-9f57-c0ae88f6544b', 'Room to Delete');
 
 -- Test room for PUT /rooms/{id} endpoint (use this ID to test update)
 insert into eventsync_app.rooms (id, name)

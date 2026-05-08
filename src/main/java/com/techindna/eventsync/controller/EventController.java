@@ -11,7 +11,6 @@ import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.EventService;
 import com.techindna.eventsync.validator.StringValidator;
-import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +23,10 @@ import java.util.UUID;
 public class EventController {
     private final EventService eventService;
     private final StringValidator stringValidator;
-    private final UUIDValidator UuidValidator;
 
-    public EventController(EventService eventService, StringValidator eventValidator, UUIDValidator UuidValidator){
+    public EventController(EventService eventService, StringValidator eventValidator){
         this.eventService = eventService;
         this.stringValidator = eventValidator;
-        this.UuidValidator = UuidValidator;
     }
 
     @GetMapping
@@ -96,7 +93,7 @@ public class EventController {
             @PathVariable String id,
             @RequestBody EventRequestDto request) {
         try {
-            UuidValidator.validateUUID(id);
+            stringValidator.validateUUID(id);
             stringValidator.validateEventData(
                     request.getTitle(),
                     request.getDescription(),
@@ -136,7 +133,7 @@ public class EventController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable(required = false) String id) {
         try {
-            UuidValidator.validateUUID(id);
+            stringValidator.validateUUID(id);
             UUID deletedId = eventService.deleteEvent(UUID.fromString(id));
             return ResponseEntity.status(HttpStatus.OK).body(String.format("Event %s deleted", deletedId));
         } catch (BadRequestException e) {

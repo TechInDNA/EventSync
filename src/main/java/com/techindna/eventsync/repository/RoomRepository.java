@@ -133,8 +133,8 @@ public class RoomRepository {
         }
     }
 
-    public UUID deleteRoom(UUID id) {
-        String query = "DELETE FROM eventsync_app.rooms WHERE id = ? RETURNING id";
+    public UUID deleteRoomById(UUID id) {
+        final String query = "DELETE FROM eventsync_app.rooms WHERE id = ? RETURNING id";
 
         try (
                 Connection connection = dataSource.getConnection();

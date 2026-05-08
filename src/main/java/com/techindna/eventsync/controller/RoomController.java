@@ -7,7 +7,6 @@ import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.service.RoomService;
 import com.techindna.eventsync.validator.StringValidator;
-import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +20,11 @@ public class RoomController {
 
     private final RoomService roomService;
     private final StringValidator stringValidator;
-    private final UUIDValidator uuidValidator;
 
-    public RoomController(RoomService roomService, StringValidator stringValidator, UUIDValidator uuidValidator) {
+    public RoomController(RoomService roomService, StringValidator stringValidator) {
 
         this.roomService = roomService;
         this.stringValidator = stringValidator;
-        this.uuidValidator = uuidValidator;
     }
 
 
@@ -83,7 +80,7 @@ public class RoomController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateRoom(@PathVariable String id, @RequestBody RoomRequestDto request) {
         try {
-            uuidValidator.validateUUID(id);
+            stringValidator.validateUUID(id);
             stringValidator.validateRoomData(request.getName());
 
             Room updatedRoom = roomService.updateRoom(UUID.fromString(id), request.getName());
@@ -108,10 +105,10 @@ public class RoomController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteRoom(@PathVariable String id) {
+    public ResponseEntity<?> deleteRoomById(@PathVariable String id) {
         try {
-            uuidValidator.validateUUID(id);
-            roomService.deleteRoom(UUID.fromString(id));
+            stringValidator.validateUUID(id);
+            roomService.deleteRoomById(UUID.fromString(id));
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(String.format("Room %s deleted", id));
