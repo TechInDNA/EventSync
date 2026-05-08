@@ -13,6 +13,7 @@ public class StringValidator {
     private final Pattern VALID_URL = Pattern.compile("^https?://[a-zA-Z0-9\\-._%&#/]+$");
     private static final Pattern VALID_EMAIL = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
     private static final Pattern VALID_INTEGER = Pattern.compile("^[0-9]+$");
+    private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
 
     public void ValidateEmail(String email){
         final Pattern VALID_PATTERN = Pattern.compile("^[a-zA-Z0-9@._-]+$");
@@ -109,5 +110,16 @@ public class StringValidator {
             throw new BadRequestException("The length of the name cannot exceed 50.");
         }
         validateString("name", name);
+    }
+
+    public void validateUUID(String uuid){
+        if (uuid == null || uuid.isEmpty()){
+            throw new BadRequestException("UUID path variable cannot be null or blank.");
+        }
+
+        final Matcher UUID_MATCHER = UUID_PATTERN.matcher(uuid);
+        if (!UUID_MATCHER.matches()){
+            throw new BadRequestException("Invalid UUID format.");
+        }
     }
 }

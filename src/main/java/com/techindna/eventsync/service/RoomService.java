@@ -48,7 +48,7 @@ public class RoomService {
         return updatedRoom;
     }
 
-    public void deleteRoom(UUID id) {
+    public void deleteRoomById(UUID id) {
         UUID roomId = roomRepository.deleteRoom(id);
 
         if (roomId == null){
