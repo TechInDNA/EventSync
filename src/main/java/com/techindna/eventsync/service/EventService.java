@@ -3,7 +3,6 @@ package com.techindna.eventsync.service;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.ConflictException;
-import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.EventRepository;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +32,7 @@ public class EventService {
     }
 
     public List<Event> getAllEvents(PaginationRequestDto pagination) {
-        return eventRepository.findAllEvents(pagination.getOffset(), pagination.getLimit());
+        return eventRepository.getAllEvents(pagination.getOffset(), pagination.getLimit());
     }
 
     public int countEvents() {

@@ -59,9 +59,17 @@ public class EventRepository {
         }
     }
 
-    public List<Event> findAllEvents(int offset, int limit) {
-        String query = """
-            select id, title, description, start_date, end_date, location, created_at
+    public List<Event> getAllEvents(int offset, int limit) {
+        final String query =
+            """
+            select
+                id,
+                title,
+                description,
+                start_date,
+                end_date,
+                location,
+                created_at
             from eventsync_app.events
             order by created_at desc
             limit ? offset ?
