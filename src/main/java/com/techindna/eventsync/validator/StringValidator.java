@@ -11,13 +11,31 @@ import java.util.regex.Pattern;
 public class StringValidator {
     private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9 .,':-]+$");
     private final Pattern VALID_URL = Pattern.compile("^https?://[a-zA-Z0-9\\-._%&#/]+$");
+    private static final Pattern VALID_EMAIL = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
 
-    protected void validate(String fieldName, String data){
+    public void ValidateEmail(String email){
+        final Pattern VALID_PATTERN = Pattern.compile("^[a-zA-Z0-9@._-]+$");
+        final Matcher VALID_PATTERN_MATCHER = VALID_PATTERN.matcher(email);
+
+        if (!VALID_PATTERN_MATCHER.matches()){
+            throw new BadRequestException("Invalid email — only a-z A-Z 0-9 @ . _ - are permitted.");
+        }
+
+        final Matcher EMAIL_MATCHER = VALID_EMAIL.matcher(email);
+        if (!EMAIL_MATCHER.matches()){
+            throw new BadRequestException(String.format("Invalid email format for %s.", email));
+        }
+    }
+
+    public void checkNullData(String fieldName, String data){
         if (data == null || data.isEmpty() || data.isBlank()){
             throw new BadRequestException(String.format("The field %s is required and cannot be blank.", fieldName));
         }
+    }
 
+    protected void validateString(String fieldName, String data){
         final Matcher TEXT_MATCHER = TEXT_PATTERN.matcher(data);
+
         if (!TEXT_MATCHER.matches()){
             throw new BadRequestException(String.format("Invalid input for %s: %s only a-zA-Z0-9 .,':- characters are allowed.", fieldName, data));
         }
@@ -45,17 +63,17 @@ public class StringValidator {
     }
 
     public void  validateEventData(String title, String description, Instant startDate, Instant endDate, String location){
-        validate("title", title);
-        validate("description", description);
+        validateString("title", title);
+        validateString("description", description);
         validateDate("startDate", startDate);
         validateDate("endDate", endDate);
-        validate("location", location);
+        validateString("location", location);
     }
 
     public void validateSpeakerData(String firstName, String lastName, String email, String bio){
-        validate("firstName", firstName);
-        validate("lastName", lastName);
-        validate("bio", bio);
+        validateString("firstName", firstName);
+        validateString("lastName", lastName);
+        validateString("bio", bio);
         validateEmail(email);
     }
 
@@ -75,6 +93,6 @@ public class StringValidator {
         if (name != null && name.length() > 50){
             throw new BadRequestException("The length of the name cannot exceed 50.");
         }
-        validate("name", name);
+        validateString("name", name);
     }
 }
