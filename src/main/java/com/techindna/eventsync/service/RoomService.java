@@ -49,7 +49,7 @@ public class RoomService {
     }
 
     public void deleteRoomById(UUID id) {
-        UUID roomId = roomRepository.deleteRoom(id);
+        UUID roomId = roomRepository.deleteRoomById(id);
 
         if (roomId == null){
             throw new NotFoundException(String.format("Room %s not found", id));
