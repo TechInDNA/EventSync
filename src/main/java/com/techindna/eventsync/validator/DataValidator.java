@@ -35,11 +35,7 @@ public class DataValidator {
         final Matcher SIZE = VALID_INTEGER.matcher(size);
 
         if (!PAGE.matches() || !SIZE.matches()){
-            throw new BadRequestException("The page and the size parameter must be a digit.");
-        }
-
-        if (Integer.parseInt(page) <= 0 || Integer.parseInt(size) <= 0){
-            throw new BadRequestException("The page and the size parameter must be greater than 0.");
+            throw new BadRequestException("The page and the size parameter must be a digit greater than 0.");
         }
     }
 
