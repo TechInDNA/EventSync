@@ -9,7 +9,7 @@ import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.service.SpeakerService;
-import com.techindna.eventsync.validator.StringValidator;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,18 +21,18 @@ import java.util.UUID;
 @RequestMapping("/speakers")
 public class SpeakersController {
     private final SpeakerService speakerService;
-    private final StringValidator stringValidator;
+    private final DataValidator dataValidator;
 
-    public SpeakersController(SpeakerService speakerService, StringValidator stringValidator){
+    public SpeakersController(SpeakerService speakerService, DataValidator dataValidator){
         this.speakerService = speakerService;
-        this.stringValidator = stringValidator;
+        this.dataValidator = dataValidator;
     }
     @GetMapping
     public ResponseEntity<?> getAllSpeakers(
             @RequestParam(required = false, defaultValue = "1") String page,
             @RequestParam(required = false, defaultValue = "5") String size) {
         try {
-            stringValidator.validatePageAndSize(page, size);
+            dataValidator.validatePageAndSize(page, size);
             int pageVal = Integer.parseInt(page);
             int sizeVal = Integer.parseInt(size);
 
@@ -55,7 +55,7 @@ public class SpeakersController {
     @PostMapping
     public ResponseEntity<?> createSpeaker(@RequestBody SpeakerRequestDto request) {
         try {
-            stringValidator.validateSpeakerData(
+            dataValidator.validateSpeakerData(
                     request.getFirstName(),
                     request.getLastName(),
                     request.getEmail(),
@@ -85,7 +85,7 @@ public class SpeakersController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
         try {
-            stringValidator.validateUUID(id);
+            dataValidator.validateUUID(id);
             SpeakerResponseDto updated = speakerService.updateSpeaker(UUID.fromString(id), request);
 
             return ResponseEntity.ok().body(updated);
@@ -109,7 +109,7 @@ public class SpeakersController {
     @DeleteMapping(value = {"/{id}", "/"})
     public ResponseEntity<?> deleteSpeaker(@PathVariable(required = false) String id) {
         try {
-            stringValidator.validateUUID(id);
+            dataValidator.validateUUID(id);
             speakerService.deleteSpeaker(UUID.fromString(id));
 
             return ResponseEntity.status(HttpStatus.OK).body("Speaker " + id + " deleted.");
