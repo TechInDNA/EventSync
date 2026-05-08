@@ -11,7 +11,6 @@ import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.EventService;
 import com.techindna.eventsync.validator.StringValidator;
-import com.techindna.eventsync.validator.PaginationValidator;
 import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +24,11 @@ import java.util.UUID;
 public class EventController {
     private final EventService eventService;
     private final StringValidator stringValidator;
-    private final PaginationValidator paginationValidator;
     private final UUIDValidator UuidValidator;
 
-    public EventController(EventService eventService, StringValidator eventValidator, PaginationValidator paginationValidator, UUIDValidator UuidValidator){
+    public EventController(EventService eventService, StringValidator eventValidator, UUIDValidator UuidValidator){
         this.eventService = eventService;
         this.stringValidator = eventValidator;
-        this.paginationValidator = paginationValidator;
         this.UuidValidator = UuidValidator;
     }
 
@@ -40,7 +37,7 @@ public class EventController {
             @RequestParam(required = false, defaultValue = "1") String page,
             @RequestParam(required = false, defaultValue = "5") String size) {
         try {
-            paginationValidator.validatePageAndSize(page, size);
+            stringValidator.validatePageAndSize(page, size);
 
             int pageVal = Integer.parseInt(page);
             int sizeVal = Integer.parseInt(size);

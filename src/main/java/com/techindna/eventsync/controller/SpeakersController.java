@@ -9,7 +9,6 @@ import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.service.SpeakerService;
-import com.techindna.eventsync.validator.PaginationValidator;
 import com.techindna.eventsync.validator.StringValidator;
 import com.techindna.eventsync.validator.UUIDValidator;
 import org.springframework.http.HttpStatus;
@@ -22,13 +21,11 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/speakers")
 public class SpeakersController {
-    private final PaginationValidator paginationValidator;
     private final SpeakerService speakerService;
     private final StringValidator stringValidator;
     private final UUIDValidator uUIDValidator;
 
-    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator, UUIDValidator uUIDValidator){
-        this.paginationValidator = paginationValidator;
+    public SpeakersController(SpeakerService speakerService, StringValidator stringValidator, UUIDValidator uUIDValidator){
         this.speakerService = speakerService;
         this.stringValidator = stringValidator;
         this.uUIDValidator = uUIDValidator;
@@ -38,7 +35,7 @@ public class SpeakersController {
             @RequestParam(required = false, defaultValue = "1") String page,
             @RequestParam(required = false, defaultValue = "5") String size) {
         try {
-            paginationValidator.validatePageAndSize(page, size);
+            stringValidator.validatePageAndSize(page, size);
             int pageVal = Integer.parseInt(page);
             int sizeVal = Integer.parseInt(size);
 

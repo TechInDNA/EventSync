@@ -12,6 +12,7 @@ public class StringValidator {
     private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9 .,':-]+$");
     private final Pattern VALID_URL = Pattern.compile("^https?://[a-zA-Z0-9\\-._%&#/]+$");
     private static final Pattern VALID_EMAIL = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
+    private static final Pattern VALID_INTEGER = Pattern.compile("^[1-9]+$");
 
     public void ValidateEmail(String email){
         final Pattern VALID_PATTERN = Pattern.compile("^[a-zA-Z0-9@._-]+$");
@@ -24,6 +25,16 @@ public class StringValidator {
         final Matcher EMAIL_MATCHER = VALID_EMAIL.matcher(email);
         if (!EMAIL_MATCHER.matches()){
             throw new BadRequestException(String.format("Invalid email format for %s.", email));
+        }
+    }
+
+    public void validatePageAndSize(String page, String size){
+
+        final Matcher PAGE = VALID_INTEGER.matcher(page);
+        final Matcher SIZE = VALID_INTEGER.matcher(size);
+
+        if (!PAGE.matches() || !SIZE.matches()){
+            throw new BadRequestException("The page and the size parameter must be a digit greater than 0.");
         }
     }
 
