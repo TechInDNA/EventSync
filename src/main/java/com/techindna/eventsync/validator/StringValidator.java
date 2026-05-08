@@ -34,7 +34,7 @@ public class StringValidator {
         final Matcher SIZE = VALID_INTEGER.matcher(size);
 
         if (!PAGE.matches() || !SIZE.matches()){
-            throw new BadRequestException("The page and the size parameter must be a digit");
+            throw new BadRequestException("The page and the size parameter must be a digit.");
         }
 
         if (Integer.parseInt(page) <= 0 || Integer.parseInt(size) <= 0){
