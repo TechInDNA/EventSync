@@ -13,3 +13,8 @@ values
     ('UX/UI Design Summit', 'Summit for user experience and interface designers', '2026-07-22 10:00:00', '2026-07-23 17:00:00', 'Design Studio'),
     ('IoT Conference', 'Internet of Things conference and exhibition', '2026-08-20 09:00:00', '2026-08-21 18:00:00', 'Smart City Hall'),
     ('Python Coding Bootcamp', 'Intensive Python programming bootcamp', '2026-09-05 10:00:00', '2026-09-07 16:00:00', 'Code Academy');
+
+-- Test event for DELETE /events endpoint (use this ID to test deletion)
+insert into eventsync_app.events (id, title, description, start_date, end_date, location)
+values
+    ('a7cc7aac-50db-44cd-b8ae-cac7737a4052','Event to Delete', 'Test event for DELETE endpoint', '2026-12-15 10:00:00', '2026-12-15 17:00:00', 'Delete Test Location');
