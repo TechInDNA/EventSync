@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -40,11 +41,13 @@ public class EventService {
     }
 
     public Event updateEvent(UUID id, String title, String description, Instant startDate, Instant endDate, String location) {
-        Event eventExist = eventRepository.findEventByTitle(title);
+        Optional<Event> existing = eventRepository.findEventByTitle(title);
 
-        if (eventExist.getId() != null){
-            throw new ConflictException(String.format("An event with title '%s' already exists (ID: %s, Location: %s, Creation date: %s)",
-                    eventExist.getTitle(), eventExist.getId(), eventExist.getLocation(), eventExist.getCreatedAt()));
+        if (existing.isPresent()) {
+            Event e = existing.get();
+            throw new ConflictException(String.format(
+                    "An event with title '%s' already exists (ID: %s, Location: %s, Creation date: %s)",
+                    e.getTitle(), e.getId(), e.getLocation(), e.getCreatedAt()));
         }
 
         return eventRepository.updateEvent(id, title, description, startDate, endDate, location);
