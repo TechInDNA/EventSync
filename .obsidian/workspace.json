@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -1604.2803420996588,
-                  "y": -140.01424369463493,
-                  "zoom": -0.7124794184565532
+                  "x": 185.55043848475432,
+                  "y": -1089.0864348208745,
+                  "zoom": -0.7896750419735891
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -188,17 +188,17 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/test/java/requests/events/cookies.txt",
+    "target/classes/com/techindna/eventsync/dto/EventRequestDto.class",
+    "target/classes/com/techindna/eventsync/validator/DataValidator.class",
+    "target/classes/com/techindna/eventsync/controller/EventController.class",
+    "target/classes/com/techindna/eventsync/service/EventService.class",
+    "target/classes/com/techindna/eventsync/repository/EventRepository.class",
+    "src/main/java/com/techindna/eventsync/validator/DataValidator.java~",
     "target/classes/com/techindna/eventsync/exception/UnauthorizedException.class",
     "target/classes/com/techindna/eventsync/exception/NotFoundException.class",
     "target/classes/com/techindna/eventsync/exception/InternalServerErrorException.class",
     "target/classes/com/techindna/eventsync/exception/ConflictException.class",
-    "target/classes/com/techindna/eventsync/exception/BadRequestException.class",
-    "target/classes/com/techindna/eventsync/entity/Session.class",
-    "target/classes/com/techindna/eventsync/entity/Participant.class",
-    "target/classes/com/techindna/eventsync/entity/Speaker.class",
-    "target/classes/com/techindna/eventsync/entity/ExternalLinks.class",
-    "target/classes/com/techindna/eventsync/dto/GetSpeakerListResponseDto.class",
-    "target/classes/com/techindna/eventsync/dto/GetRoomListResponseDto.class",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
