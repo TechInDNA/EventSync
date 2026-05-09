@@ -8,11 +8,6 @@ values (
 );
 -- admin hashed password: test
 
--- Test event for PUT /events endpoint (use this ID to test update)
-insert into eventsync_app.events (id, title, description, start_date, end_date, location)
-values
-    ('c1b957ac-bdd7-481a-b8f7-636d43794f82','Event to Update', 'Original description for testing PUT endpoint', '2026-12-01 09:00:00', '2026-12-01 18:00:00', 'Test Location');
-
 -- Speakers for testing GET /speakers endpoint
 insert into eventsync_app.users (id, first_name, last_name, email, bio, profile_picture, "role")
 values

@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -68,8 +69,8 @@ public class EventController {
             Event newEvent = eventService.createEvent(
                     request.getTitle(),
                     request.getDescription(),
-                    request.getStartDate(),
-                    request.getEndDate(),
+                    Instant.parse(request.getStartDate()),
+                    Instant.parse(request.getEndDate()),
                     request.getLocation()
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(newEvent);
@@ -106,8 +107,8 @@ public class EventController {
                     UUID.fromString(id),
                     request.getTitle(),
                     request.getDescription(),
-                    request.getStartDate(),
-                    request.getEndDate(),
+                    Instant.parse(request.getStartDate()),
+                    Instant.parse(request.getEndDate()),
                     request.getLocation()
             );
 
