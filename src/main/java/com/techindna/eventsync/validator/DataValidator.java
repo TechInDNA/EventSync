@@ -3,7 +3,6 @@ package com.techindna.eventsync.validator;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +13,7 @@ public class DataValidator {
     private static final Pattern VALID_EMAIL = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
     private static final Pattern VALID_INTEGER = Pattern.compile("^[1-9][0-9]*$");
     private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+    private static final Pattern VALID_DATE = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$");
 
     public void ValidateEmail(String email){
         final Pattern VALID_PATTERN = Pattern.compile("^[a-zA-Z0-9@._-]+$");
@@ -61,21 +61,17 @@ public class DataValidator {
         }
     }
 
-    private void  validateDate(String fieldName, Instant date){
-        if (date == null || date.toString().isBlank() || date.toString().isEmpty()){
-            throw new BadRequestException(String.format("The field %s is required and cannot be blank.", fieldName));
+    private void  validateDate(String fieldName, String date){
+        checkNullData(fieldName, date);
+        final Matcher DATE_MATCHER = VALID_DATE.matcher(date);
+
+        if (!DATE_MATCHER.matches()){
+            throw new BadRequestException(String.format("Invalid Date format or %s field contain forbidden characters.", fieldName));
         }
 
-        /* Didn't pass test 13
-        try {
-            Instant.parse(String.valueOf(date));
-        }catch (DateTimeException e){
-            throw new BadRequestException(String.format("The field %s contain forbidden character or is invalid.", fieldName));
-        }
-         */
     }
 
-    public void  validateEventData(String title, String description, Instant startDate, Instant endDate, String location){
+    public void  validateEventData(String title, String description, String startDate, String endDate, String location){
         validateString("title", title);
         validateString("description", description);
         validateDate("startDate", startDate);
