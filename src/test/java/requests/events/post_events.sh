@@ -73,5 +73,13 @@ echo ""
 echo "--- Test 15: Empty title (should return 400) ---"
 curlie -b cookies.txt -H "Content-Type: application/json" -d '{"title":"","description":"ValidDesc","startDate":"2026-06-01T10:00:00Z","endDate":"2026-06-01T18:00:00Z","location":"ValidLoc"}' http://localhost:8080/events
 
+echo ""
+echo "--- Test 16: Title exceeding 50 characters (should return 400) ---"
+curlie -b cookies.txt -H "Content-Type: application/json" -d '{"title":"ThisIsAVeryLongTitleThatExceedsFiftyCharactersForTestingPurposes","description":"ValidDesc","startDate":"2026-06-01T10:00:00Z","endDate":"2026-06-01T18:00:00Z","location":"ValidLoc"}' http://localhost:8080/events
+
+echo ""
+echo "--- Test 17: Location exceeding 50 characters (should return 400) ---"
+curlie -b cookies.txt -H "Content-Type: application/json" -d '{"title":"ValidTitle","description":"ValidDesc","startDate":"2026-06-01T10:00:00Z","endDate":"2026-06-01T18:00:00Z","location":"ThisIsAVeryLongLocationNameThatExceedsFiftyCharactersTest"}' http://localhost:8080/events
+
 # Cleanup
 rm -f cookies.txt
