@@ -24,9 +24,10 @@ public class EventRepository {
     }
 
     public Event saveEvent(String title, String description, Instant startDate, Instant endDate, String location){
-        String query =
+        final String query =
                 """
-                    insert into eventsync_app.events(title, description, start_date, end_date, location)
+                    insert into
+                        eventsync_app.events(title, description, start_date, end_date, location)
                     values(?, ?, ?, ?, ?)
                     on conflict (title) do nothing
                     returning id, created_at
