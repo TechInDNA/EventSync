@@ -29,6 +29,12 @@ public class DataValidator {
         }
     }
 
+    protected void lengthValidation(String fieldName, int limit, String data){
+        if (data != null && data.length() > limit){
+            throw new BadRequestException(String.format("The length of %s field cannot exceed 50.", fieldName));
+        }
+    }
+
     public void validatePageAndSize(String page, String size){
 
         final Matcher PAGE = VALID_INTEGER.matcher(page);
@@ -72,10 +78,12 @@ public class DataValidator {
     }
 
     public void  validateEventData(String title, String description, String startDate, String endDate, String location){
+        lengthValidation("title", 50, title);
         validateString("title", title);
         validateString("description", description);
         validateDate("startDate", startDate);
         validateDate("endDate", endDate);
+        lengthValidation("location", 50, location);
         validateString("location", location);
     }
 
@@ -96,10 +104,8 @@ public class DataValidator {
     }
 
     public void validateRoomData(String name){
-        if (name != null && name.length() > 50){
-            throw new BadRequestException("The length of the name cannot exceed 50.");
-        }
         checkNullData("name", name);
+        lengthValidation("name", 50, name);
         validateString("name", name);
     }
 
