@@ -5,15 +5,22 @@
 ```bash
 mvn spring-boot:run          # Start app on :8080
 mvn clean install            # Build
-mvn test                     # JUnit tests (currently only EventSyncApplicationTests)
+mvn test                     # JUnit tests
+mvn test -Dtest=SessionControllerTest  # Session tests only
 ```
 
 Manual API tests (require running app + curlie):
 
 ```bash
 chmod +x src/test/java/requests/*.sh
+chmod +x src/test/java/requests/**/*.sh
 ./src/test/java/requests/post_auth_login.sh
 ./src/test/java/requests/post_events.sh
+./src/test/java/requests/sessions/post_sessions.sh
+./src/test/java/requests/sessions/get_sessions.sh
+./src/test/java/requests/sessions/get_session_by_id.sh
+./src/test/java/requests/sessions/put_sessions.sh
+./src/test/java/requests/sessions/delete_sessions.sh
 ```
 
 ## Environment

@@ -109,6 +109,16 @@ public class DataValidator {
         validateString("name", name);
     }
 
+    public void validateSessionData(String title, String description, String startDate, String endDate, String roomId, String eventId, int capacity) {
+        lengthValidation("title", 50, title);
+        validateString("title", title);
+        validateString("description", description);
+        validateDate("startDate", startDate);
+        validateDate("endDate", endDate);
+        validateUUID(roomId);
+        validateUUID(eventId);
+    }
+
     public void validateUUID(String uuid){
         if (uuid == null || uuid.isEmpty()){
             throw new BadRequestException("UUID path variable cannot be null or blank.");
