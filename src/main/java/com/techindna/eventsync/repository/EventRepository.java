@@ -140,10 +140,18 @@ public class EventRepository {
     }
 
     public Event updateEvent(UUID id, String title, String description, Instant startDate, Instant endDate, String location) {
-        String query = """
+        final String query =
+            """
             update eventsync_app.events
-            set title = ?, description = ?, start_date = ?, end_date = ?, location = ?, created_at = now()
-            where id = ? returning id, created_at
+            set
+                title = ?,
+                description = ?,
+                start_date = ?,
+                end_date = ?,
+                location = ?,
+                created_at = now()
+            where id = ?
+            returning id, created_at
             """;
         try (
                 Connection connection = dataSource.getConnection();
@@ -167,7 +175,7 @@ public class EventRepository {
                     event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
                     return event;
                 }
-                throw new NotFoundException(String.format("Event %s not found", id));
+                throw new NotFoundException(String.format("Event %s not found.", id));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
