@@ -46,7 +46,7 @@ public class SpeakerService {
         UUID deleted = speakerRepository.deleteSpeakerById(id);
 
         if (deleted == null) {
-            throw new NotFoundException("Speaker not found with ID: " + id);
+            throw new NotFoundException(String.format("Speaker ID %s not found.", id));
         }
     }
 
