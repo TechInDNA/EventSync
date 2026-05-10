@@ -15,7 +15,7 @@ public class DataValidator {
     private static final Pattern VALID_INTEGER = Pattern.compile("^[1-9][0-9]*$");
     private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     private static final Pattern VALID_DATE = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$");
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
+    private static final Pattern VALID_EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
 
     protected void lengthValidation(String fieldName, int limit, String data){
         if (data != null && data.length() > limit){
@@ -107,10 +107,15 @@ public class DataValidator {
     public void validateEmail(String email){
         checkNullData("email", email);
         lengthValidation("email", 50, email);
-        final Matcher EMAIL_MATCHER = EMAIL_PATTERN.matcher(email);
+        final Pattern ALLOWED_CHAR = Pattern.compile("^[a-zA-Z0-9.@_-]+$");
+        final Matcher EMAIL_MATCHER = VALID_EMAIL_PATTERN.matcher(email);
+
+        if (!ALLOWED_CHAR.matcher(email).matches()){
+            throw new BadRequestException(String.format("Invalid input for email: '%s' only a-zA-Z0-9@_.- characters are allowed.", email));
+        }
 
         if (!EMAIL_MATCHER.matches()){
-            throw new BadRequestException(String.format("Invalid email format: %s", email));
+            throw new BadRequestException(String.format("Invalid email format: '%s'", email));
         }
     }
 
