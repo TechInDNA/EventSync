@@ -188,10 +188,10 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+    "src/main/java/com/techindna/eventsync/validator/DataValidator.java~",
     "src/test/java/requests/post_speakers.sh",
     "src/main/java/com/techindna/eventsync/validator/ExternalLinksValidator.java",
     "cookies.txt",
-    "src/main/java/com/techindna/eventsync/validator/DataValidator.java~",
     "target/classes/com/techindna/eventsync/service/AuthService.class",
     "target/classes/com/techindna/eventsync/validator/DataValidator.class",
     "target/classes/com/techindna/eventsync/validator",
