@@ -52,6 +52,7 @@ public class SpeakersController {
         }
     }
 
+    /*
     @PostMapping
     public ResponseEntity<?> createSpeaker(@RequestBody SpeakerRequestDto request) {
         try {
@@ -68,13 +69,14 @@ public class SpeakersController {
                     .body("An unexpected error occurred");
         }
     }
+    */
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
         try {
             dataValidator.validateUUID(id);
-            SpeakerResponseDto updated = speakerService.updateSpeaker(UUID.fromString(id), request);
-
-            return ResponseEntity.ok().body(updated);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(speakerService.updateSpeakerById(UUID.fromString(id), request));
 
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

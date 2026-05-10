@@ -1,6 +1,7 @@
 package com.techindna.eventsync.validator;
 
 import com.techindna.eventsync.dto.ExternalLinkDto;
+import com.techindna.eventsync.dto.SpeakerRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
@@ -75,16 +76,13 @@ public class DataValidator {
         validateString("location", location);
     }
 
-    public void validateSpeakerData(String firstName, String lastName, String email, String bio, String url){
-        lengthValidation("firstName", 50, firstName);
-        validateString("firstName", firstName);
-        lengthValidation("lastName", 50, lastName);
-        validateString("lastName", lastName);
-        validateString("bio", bio);
-        validateEmail(email);
-        if (url != null) {
-            validateUrl(url);
-        }
+    public void validateSpeakerData(SpeakerRequestDto speakerRequestDto){
+        lengthValidation("firstName", 50, speakerRequestDto.getFirstName());
+        validateString("firstName", speakerRequestDto.getFirstName());
+        lengthValidation("lastName", 50, speakerRequestDto.getLastName());
+        validateString("lastName", speakerRequestDto.getLastName());
+        validateString("bio", speakerRequestDto.getBio());
+        validateEmail(speakerRequestDto.getEmail());
     }
 
     public void validateRoomData(String name){

@@ -594,14 +594,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SpeakerInput'
+              $ref: '#/components/schemas/SpeakerUpdateInput'
       responses:
         '200':
           description: Speaker updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Speaker'
+                $ref: '#/components/schemas/SpeakerUpdateResponse'
         '401':
           description: Unauthorized
         '404':
@@ -622,6 +622,41 @@ paths:
       responses:
         '204':
           description: Speaker deleted
+        '401':
+          description: Unauthorized
+        '404':
+          description: Speaker not found
+  /speakers/{id}/external-link:
+    put:
+      summary: Update speaker external link
+      tags:
+        - Speakers
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExternalLinkInput'
+      responses:
+        '200':
+          description: External links updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExternalLinkInput'
         '401':
           description: Unauthorized
         '404':
@@ -1027,6 +1062,51 @@ components:
               url:
                 type: string
                 format: uri
+    SpeakerUpdateInput:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        profilePicture:
+          type: string
+          format: uri
+        bio:
+          type: string
+    SpeakerUpdateResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+        profilePicture:
+          type: string
+          format: uri
+        bio:
+          type: string
+    ExternalLinkInput:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+          format: uri
     Question:
       type: object
       properties:
