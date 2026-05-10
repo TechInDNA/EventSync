@@ -265,41 +265,27 @@ public class SpeakerRepository {
         }
     }
 
-    public boolean deleteSpeaker(UUID id) {
-
-        final String deleteLinks = "DELETE FROM eventsync_app.external_link WHERE user_id = ?";
-
-        final String deleteUser = """
+    public UUID deleteSpeakerById(UUID id) {
+        final String query =
+                            """
                             DELETE
                             FROM
                                 eventsync_app.users
                             WHERE id = ?
                               AND
                                 "role" = 'speaker'
+                            RETURNING id
                             """;
 
         try (
-                Connection conn = dataSource.getConnection()
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
         ) {
-            conn.setAutoCommit(false);
+                ps.setObject(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next() ? UUID.fromString(rs.getString("id")) : null;
+                }
 
-            try (
-                    PreparedStatement psLinks = conn.prepareStatement(deleteLinks);
-                    PreparedStatement psUser = conn.prepareStatement(deleteUser)
-            ) {
-                psLinks.setObject(1, id);
-                psLinks.executeUpdate();
-
-                psUser.setObject(1, id);
-                int rowsAffected = psUser.executeUpdate();
-
-                conn.commit();
-                return rowsAffected > 0;
-
-            } catch (SQLException e) {
-                conn.rollback();
-                throw e;
-            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
