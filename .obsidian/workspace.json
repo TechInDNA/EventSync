@@ -189,8 +189,11 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
+<<<<<<< HEAD
     "src/test/java/requests/post_speakers.sh",
     "src/main/java/com/techindna/eventsync/validator/ExternalLinksValidator.java",
+=======
+>>>>>>> cd4d962d1dd5fb3e62c10ecf9779ca789c5dfc5a
     "cookies.txt",
     "src/main/java/com/techindna/eventsync/validator/DataValidator.java~",
     "target/classes/com/techindna/eventsync/service/AuthService.class",
@@ -200,6 +203,11 @@
     "src/main/java/com/techindna/eventsync/service/AuthService.java~",
     "src/main/java/com/techindna/eventsync/service/SpeakerService.java~",
     "src/test/java/requests/speaker/cookies.txt",
+<<<<<<< HEAD
+=======
+    "target/classes/com/techindna/eventsync/repository/SpeakerRepository.class",
+    "src/test/java/requests/cookies.txt",
+>>>>>>> cd4d962d1dd5fb3e62c10ecf9779ca789c5dfc5a
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
