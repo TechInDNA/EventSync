@@ -12,24 +12,10 @@ import java.util.regex.Pattern;
 public class DataValidator {
     private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9 .,':-]+$");
     private final Pattern VALID_URL = Pattern.compile("^https?://[a-zA-Z0-9\\-._%&#/]+$");
-    private static final Pattern VALID_EMAIL = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
     private static final Pattern VALID_INTEGER = Pattern.compile("^[1-9][0-9]*$");
     private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     private static final Pattern VALID_DATE = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$");
-
-    public void ValidateEmail(String email){
-        final Pattern VALID_PATTERN = Pattern.compile("^[a-zA-Z0-9@._-]+$");
-        final Matcher VALID_PATTERN_MATCHER = VALID_PATTERN.matcher(email);
-
-        if (!VALID_PATTERN_MATCHER.matches()){
-            throw new BadRequestException("Invalid email — only a-z A-Z 0-9 @ . _ - are permitted.");
-        }
-
-        final Matcher EMAIL_MATCHER = VALID_EMAIL.matcher(email);
-        if (!EMAIL_MATCHER.matches()){
-            throw new BadRequestException(String.format("Invalid email format for %s.", email));
-        }
-    }
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
 
     protected void lengthValidation(String fieldName, int limit, String data){
         if (data != null && data.length() > limit){
@@ -95,20 +81,9 @@ public class DataValidator {
         lengthValidation("lastName", 50, lastName);
         validateString("lastName", lastName);
         validateString("bio", bio);
-        lengthValidation("email", 50, email);
         validateEmail(email);
         if (url != null) {
             validateUrl(url);
-        }
-    }
-
-    private void validateEmail(String email){
-        checkNullData("email", email);
-        final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
-        final Matcher EMAIL_MATCHER = EMAIL_PATTERN.matcher(email);
-        
-        if (!EMAIL_MATCHER.matches()){
-            throw new BadRequestException(String.format("Invalid email format: %s", email));
         }
     }
 
@@ -126,6 +101,16 @@ public class DataValidator {
         final Matcher UUID_MATCHER = UUID_PATTERN.matcher(uuid);
         if (!UUID_MATCHER.matches()){
             throw new BadRequestException("Invalid UUID format.");
+        }
+    }
+
+    public void validateEmail(String email){
+        checkNullData("email", email);
+        lengthValidation("email", 50, email);
+        final Matcher EMAIL_MATCHER = EMAIL_PATTERN.matcher(email);
+
+        if (!EMAIL_MATCHER.matches()){
+            throw new BadRequestException(String.format("Invalid email format: %s", email));
         }
     }
 

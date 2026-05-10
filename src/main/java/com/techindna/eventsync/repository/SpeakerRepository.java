@@ -14,6 +14,7 @@ import java.util.UUID;
 
 @Repository
 public class SpeakerRepository {
+    private static final String UNIQUE_VIOLATION_SQLSTATE = "23505";
     private final DataSource dataSource;
     public SpeakerRepository(DataSource dataSource){
         this.dataSource = dataSource;
@@ -153,7 +154,7 @@ public class SpeakerRepository {
                 speaker.setEmail(speakerRequestDto.getEmail());
                 speaker.setProfilePicture(speakerRequestDto.getProfilePicture());
                 speaker.setBio(speakerRequestDto.getBio());
-                speaker.setExternalLinks(getExternalLinksByUserId(userId));
+                speaker.setExternalLinks(speakerRequestDto.getExternalLinks());
                 return speaker;
 
             } catch (ConflictException e) {
@@ -183,7 +184,10 @@ public class SpeakerRepository {
             }
             ps.executeBatch();
         } catch (SQLException e){
-            throw new ConflictException("One or more external links URL already exist.");
+            if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
+                throw new ConflictException("One or more external links URL already exist.");
+            }
+            throw new RuntimeException("Database error while inserting external links", e);
         }
     }
 
