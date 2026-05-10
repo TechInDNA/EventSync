@@ -83,6 +83,10 @@ public class DataValidator {
         validateString("lastName", speakerRequestDto.getLastName());
         validateString("bio", speakerRequestDto.getBio());
         validateEmail(speakerRequestDto.getEmail());
+        if (speakerRequestDto.getProfilePicture() != null) {
+            lengthValidation("profilePicture", 255, speakerRequestDto.getProfilePicture());
+            validateUrl(speakerRequestDto.getProfilePicture());
+        }
     }
 
     public void validateRoomData(String name){

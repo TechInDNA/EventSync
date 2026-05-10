@@ -1,9 +1,7 @@
 package com.techindna.eventsync.service;
 
-import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.dto.SpeakerRequestDto;
-import com.techindna.eventsync.dto.SpeakerResponseDto;
-import com.techindna.eventsync.dto.UpdateSpeakerResponseDto;
+import com.techindna.eventsync.dto.*;
+import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.DataValidator;
@@ -30,25 +28,15 @@ public class SpeakerService {
         return speakerRepository.countSpeakers();
     }
 
-/*
-    public SpeakerResponseDto createSpeaker(SpeakerRequestDto speakerRequestDto){
 
-        dataValidator.validateSpeakerData(
-                speakerRequestDto.getFirstName(),
-                speakerRequestDto.getLastName(),
-                speakerRequestDto.getEmail(),
-                speakerRequestDto.getBio(),
-                speakerRequestDto.getProfilePicture()
-        );
-        dataValidator.validateExternalLinks(speakerRequestDto.getExternalLinks());
+    public SpeakerResponseDto createSpeaker(PostSpeakersRequestDto postSpeakersRequestDto){
 
-        SpeakerResponseDto speaker = speakerRepository.createSpeaker(speakerRequestDto);
-        if (speaker == null){
-            throw new ConflictException(String.format("Speaker with email %s already exists", speakerRequestDto.getEmail()));
-        }
-        return speaker;
+        dataValidator.validateSpeakerData(postSpeakersRequestDto);
+        dataValidator.validateExternalLinks(postSpeakersRequestDto.getExternalLinks());
+
+        return speakerRepository.createSpeaker(postSpeakersRequestDto, postSpeakersRequestDto.getExternalLinks());
     }
-*/
+
 
     public UpdateSpeakerResponseDto updateSpeakerById(UUID id, SpeakerRequestDto request) {
         dataValidator.validateSpeakerData(request);
