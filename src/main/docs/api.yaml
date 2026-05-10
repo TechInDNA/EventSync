@@ -1091,6 +1091,9 @@ components:
           type: string
         lastName:
           type: string
+        email:
+          type: string
+          format: email
         profilePicture:
           type: string
           format: uri
