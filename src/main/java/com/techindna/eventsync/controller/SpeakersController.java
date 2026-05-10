@@ -53,7 +53,7 @@ public class SpeakersController {
     public ResponseEntity<?> createSpeaker(@RequestBody PostSpeakersRequestDto request) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(speakerService.createSpeaker(request.getSpeakerRequestDto(), request.getExternalLinks()));
+                    .body(speakerService.createSpeaker(request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

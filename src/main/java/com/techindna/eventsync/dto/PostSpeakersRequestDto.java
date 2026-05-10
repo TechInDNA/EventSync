@@ -2,8 +2,7 @@ package com.techindna.eventsync.dto;
 
 import java.util.List;
 
-public class PostSpeakersRequestDto {
-    private SpeakerRequestDto speakerRequestDto;
+public class PostSpeakersRequestDto extends SpeakerRequestDto {
     private List<ExternalLinkDto> externalLinks;
 
     public List<ExternalLinkDto> getExternalLinks() {
@@ -12,13 +11,5 @@ public class PostSpeakersRequestDto {
 
     public void setExternalLinks(List<ExternalLinkDto> externalLinks) {
         this.externalLinks = externalLinks;
-    }
-
-    public SpeakerRequestDto getSpeakerRequestDto() {
-        return speakerRequestDto;
-    }
-
-    public void setSpeakerRequestDto(SpeakerRequestDto speakerRequestDto) {
-        this.speakerRequestDto = speakerRequestDto;
     }
 }

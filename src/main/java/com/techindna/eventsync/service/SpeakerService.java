@@ -29,12 +29,12 @@ public class SpeakerService {
     }
 
 
-    public SpeakerResponseDto createSpeaker(SpeakerRequestDto speakerRequest, List<ExternalLinkDto> externalLinks){
+    public SpeakerResponseDto createSpeaker(PostSpeakersRequestDto postSpeakersRequestDto){
 
-        dataValidator.validateSpeakerData(speakerRequest);
-        dataValidator.validateExternalLinks(externalLinks);
+        dataValidator.validateSpeakerData(postSpeakersRequestDto);
+        dataValidator.validateExternalLinks(postSpeakersRequestDto.getExternalLinks());
 
-        return speakerRepository.createSpeaker(speakerRequest, externalLinks);
+        return speakerRepository.createSpeaker(postSpeakersRequestDto, postSpeakersRequestDto.getExternalLinks());
     }
 
 

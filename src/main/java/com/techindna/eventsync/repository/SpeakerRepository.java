@@ -138,11 +138,6 @@ public class SpeakerRepository {
                     }
                 }
 
-                if (userId == null) {
-                    connection.rollback();
-                    throw new ConflictException(String.format("Speaker with email %s already exists", speakerRequestDto.getEmail()));
-                }
-
                 if (externalLinks != null && !externalLinks.isEmpty()) {
                     insertExternalLinks(connection, userId, externalLinks);
                 }
@@ -159,11 +154,13 @@ public class SpeakerRepository {
                 speaker.setExternalLinks(externalLinks);
                 return speaker;
 
-            } catch (ConflictException e) {
-                connection.rollback();
-                throw e;
             } catch (SQLException e) {
                 connection.rollback();
+                if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
+                    throw new ConflictException(
+                        String.format("Speaker with email %s already exists", speakerRequestDto.getEmail())
+                    );
+                }
                 throw new RuntimeException(e);
             }
         } catch (SQLException e) {
@@ -189,7 +186,7 @@ public class SpeakerRepository {
             if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
                 throw new ConflictException("One or more external links URL already exist.");
             }
-            throw new RuntimeException("Database error while inserting external links", e);
+            throw new RuntimeException(e);
         }
     }
 
