@@ -74,7 +74,7 @@ public class SpeakersController {
             dataValidator.validateUUID(id);
             SpeakerResponseDto updated = speakerService.updateSpeaker(UUID.fromString(id), request);
 
-            return ResponseEntity.ok().body(updated);
+            return ResponseEntity.status(HttpStatus.OK).body(updated);
 
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

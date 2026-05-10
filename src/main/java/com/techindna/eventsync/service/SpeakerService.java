@@ -54,18 +54,9 @@ public class SpeakerService {
         dataValidator.validateSpeakerData(request.getFirstName(), request.getLastName(), request.getEmail(), request.getBio(), request.getProfilePicture());
         dataValidator.validateExternalLinks(request.getExternalLinks());
 
-        if (request.getProfilePicture() != null){
-            dataValidator.validateUrl(request.getProfilePicture());
-        }
-
         SpeakerResponseDto updated = speakerRepository.updateSpeaker(
                 id,
-                request.getFirstName(),
-                request.getLastName(),
-                request.getEmail(),
-                request.getProfilePicture(),
-                request.getBio(),
-                request.getExternalLinks()
+                request
         );
 
         if (updated == null) {

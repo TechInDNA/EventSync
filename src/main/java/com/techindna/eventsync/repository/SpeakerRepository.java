@@ -192,8 +192,8 @@ public class SpeakerRepository {
     }
 
 
-    public SpeakerResponseDto updateSpeaker(UUID id, String firstName, String lastName, String email, String profilePicture, String bio, List<ExternalLinkDto> externalLinks) {
-        String sql =
+    public SpeakerResponseDto updateSpeaker(UUID id, SpeakerRequestDto speakerRequestDto) {
+        final String sql =
         """
         UPDATE eventsync_app.users
         SET
@@ -211,11 +211,11 @@ public class SpeakerRepository {
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, firstName);
-                ps.setString(2, lastName);
-                ps.setString(3, email);
-                ps.setString(4, profilePicture);
-                ps.setString(5, bio);
+                ps.setString(1, speakerRequestDto.getFirstName());
+                ps.setString(2, speakerRequestDto.getLastName());
+                ps.setString(3, speakerRequestDto.getEmail());
+                ps.setString(4, speakerRequestDto.getProfilePicture());
+                ps.setString(5, speakerRequestDto.getBio());
                 ps.setObject(6, id);
 
                 int rows = ps.executeUpdate();
@@ -226,18 +226,18 @@ public class SpeakerRepository {
                         psDel.setObject(1, id);
                         psDel.executeUpdate();
                     }
-                    if (externalLinks != null && !externalLinks.isEmpty()) {
-                        insertExternalLinks(conn, id, externalLinks);
+                    if (speakerRequestDto.getExternalLinks() != null && !speakerRequestDto.getExternalLinks().isEmpty()) {
+                        insertExternalLinks(conn, id, speakerRequestDto.getExternalLinks());
                     }
                     conn.commit();
 
                     SpeakerResponseDto speaker = new SpeakerResponseDto();
                     speaker.setId(id);
-                    speaker.setFirstName(firstName);
-                    speaker.setLastName(lastName);
-                    speaker.setEmail(email);
-                    speaker.setProfilePicture(profilePicture);
-                    speaker.setBio(bio);
+                    speaker.setFirstName(speakerRequestDto.getFirstName());
+                    speaker.setLastName(speakerRequestDto.getLastName());
+                    speaker.setEmail(speakerRequestDto.getEmail());
+                    speaker.setProfilePicture(speakerRequestDto.getProfilePicture());
+                    speaker.setBio(speakerRequestDto.getBio());
                     speaker.setExternalLinks(getExternalLinksByUserId(id));
                     return speaker;
                 }
