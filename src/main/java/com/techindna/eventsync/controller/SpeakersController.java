@@ -95,7 +95,8 @@ public class SpeakersController {
             dataValidator.validateUUID(id);
             speakerService.deleteSpeaker(UUID.fromString(id));
 
-            return ResponseEntity.status(HttpStatus.OK).body("Speaker " + id + " deleted.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("Speaker " + id + " deleted.");
         }catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
