@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -1002.5152480750704,
-                  "y": 233.0014134052452,
-                  "zoom": -0.7421219580769529
+                  "x": -747.5069905825527,
+                  "y": 278.728910098368,
+                  "zoom": -0.7124794184565532
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -81,8 +81,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "be6bb9ee8d661016",
@@ -189,17 +188,17 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
-    "target/classes/com/techindna/eventsync/exception/UnauthorizedException.class",
-    "target/classes/com/techindna/eventsync/exception/NotFoundException.class",
-    "target/classes/com/techindna/eventsync/exception/InternalServerErrorException.class",
-    "target/classes/com/techindna/eventsync/exception/ConflictException.class",
-    "target/classes/com/techindna/eventsync/exception/BadRequestException.class",
-    "target/classes/com/techindna/eventsync/entity/Session.class",
-    "target/classes/com/techindna/eventsync/entity/Participant.class",
-    "target/classes/com/techindna/eventsync/entity/Speaker.class",
-    "target/classes/com/techindna/eventsync/entity/ExternalLinks.class",
-    "target/classes/com/techindna/eventsync/dto/GetSpeakerListResponseDto.class",
-    "target/classes/com/techindna/eventsync/dto/GetRoomListResponseDto.class",
+    "src/test/java/requests/post_speakers.sh",
+    "src/main/java/com/techindna/eventsync/validator/DataValidator.java~",
+    "src/main/java/com/techindna/eventsync/validator/ExternalLinksValidator.java",
+    "cookies.txt",
+    "target/classes/com/techindna/eventsync/service/AuthService.class",
+    "target/classes/com/techindna/eventsync/validator/DataValidator.class",
+    "target/classes/com/techindna/eventsync/validator",
+    "target/classes/com/techindna/eventsync/service/SpeakerService.class",
+    "src/main/java/com/techindna/eventsync/service/AuthService.java~",
+    "src/main/java/com/techindna/eventsync/service/SpeakerService.java~",
+    "src/test/java/requests/speaker/cookies.txt",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",
