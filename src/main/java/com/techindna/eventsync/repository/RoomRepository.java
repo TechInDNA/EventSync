@@ -21,7 +21,14 @@ public class RoomRepository {
     }
 
     public Room saveRoom(String name) {
-        final String query = "insert into eventsync_app.rooms(name) values(?) on conflict (name) do nothing returning id";
+        final String query =
+        """
+        insert into
+            eventsync_app.rooms(name)
+        values(?) on conflict (name)
+        do nothing
+        returning id
+        """;
 
         try (
                 Connection conn = dataSource.getConnection();
@@ -39,13 +46,11 @@ public class RoomRepository {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-
-
     }
 
-    public List<Room> findAllRooms(int offset, int limit) {
-        final String query = """
+    public List<Room> getAllRooms(int offset, int limit) {
+        final String query =
+        """
         SELECT id, name 
         FROM eventsync_app.rooms 
         ORDER BY name ASC 
@@ -132,8 +137,8 @@ public class RoomRepository {
         }
     }
 
-    public UUID deleteRoom(UUID id) {
-        String query = "DELETE FROM eventsync_app.rooms WHERE id = ? RETURNING id";
+    public UUID deleteRoomById(UUID id) {
+        final String query = "DELETE FROM eventsync_app.rooms WHERE id = ? RETURNING id";
 
         try (
                 Connection connection = dataSource.getConnection();

@@ -9,9 +9,7 @@ import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.service.SpeakerService;
-import com.techindna.eventsync.validator.PaginationValidator;
-import com.techindna.eventsync.validator.StringValidator;
-import com.techindna.eventsync.validator.UUIDValidator;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,23 +20,19 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/speakers")
 public class SpeakersController {
-    private final PaginationValidator paginationValidator;
     private final SpeakerService speakerService;
-    private final StringValidator stringValidator;
-    private final UUIDValidator uUIDValidator;
+    private final DataValidator dataValidator;
 
-    public SpeakersController(PaginationValidator paginationValidator, SpeakerService speakerService, StringValidator stringValidator, UUIDValidator uUIDValidator){
-        this.paginationValidator = paginationValidator;
+    public SpeakersController(SpeakerService speakerService, DataValidator dataValidator){
         this.speakerService = speakerService;
-        this.stringValidator = stringValidator;
-        this.uUIDValidator = uUIDValidator;
+        this.dataValidator = dataValidator;
     }
     @GetMapping
     public ResponseEntity<?> getAllSpeakers(
             @RequestParam(required = false, defaultValue = "1") String page,
             @RequestParam(required = false, defaultValue = "5") String size) {
         try {
-            paginationValidator.validatePageAndSize(page, size);
+            dataValidator.validatePageAndSize(page, size);
             int pageVal = Integer.parseInt(page);
             int sizeVal = Integer.parseInt(size);
 
@@ -61,21 +55,7 @@ public class SpeakersController {
     @PostMapping
     public ResponseEntity<?> createSpeaker(@RequestBody SpeakerRequestDto request) {
         try {
-            stringValidator.validateSpeakerData(
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getEmail(),
-                    request.getBio()
-            );
-
-            SpeakerResponseDto speaker = speakerService.createSpeaker(
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getEmail(),
-                    request.getProfilePicture(),
-                    request.getBio(),
-                    request.getExternalLinks()
-            );
+            SpeakerResponseDto speaker = speakerService.createSpeaker(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(speaker);
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -83,15 +63,15 @@ public class SpeakersController {
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+                    .body("An unexpected error occurred");
         }
     }
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
         try {
-            uUIDValidator.validateUUID(id);
+            dataValidator.validateUUID(id);
             SpeakerResponseDto updated = speakerService.updateSpeaker(UUID.fromString(id), request);
 
             return ResponseEntity.ok().body(updated);
@@ -112,5 +92,24 @@ public class SpeakersController {
         }
     }
 
+    @DeleteMapping(value = {"/{id}", "/"})
+    public ResponseEntity<?> deleteSpeaker(@PathVariable(required = false) String id) {
+        try {
+            dataValidator.validateUUID(id);
+            speakerService.deleteSpeaker(UUID.fromString(id));
+
+            return ResponseEntity.status(HttpStatus.OK).body("Speaker " + id + " deleted.");
+        }catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred");
+        }
+
+    }
 
 }

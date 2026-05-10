@@ -1,6 +1,7 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Administrator;
+import com.techindna.eventsync.exception.UnauthorizedException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -32,9 +33,12 @@ public class AuthRepository {
             eventsync_app.users
             where
             email = ?
+            and role = 'admin'
             """;
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)) {
+        try (
+                Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(sql)
+        ) {
                 ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {

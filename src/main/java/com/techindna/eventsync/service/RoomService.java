@@ -28,7 +28,7 @@ public class RoomService {
     }
 
     public List<Room> getAllRooms(PaginationRequestDto pagination) {
-        return roomRepository.findAllRooms(pagination.getOffset(), pagination.getLimit());
+        return roomRepository.getAllRooms(pagination.getOffset(), pagination.getLimit());
     }
 
     public int countRooms() {
@@ -48,8 +48,8 @@ public class RoomService {
         return updatedRoom;
     }
 
-    public void deleteRoom(UUID id) {
-        UUID roomId = roomRepository.deleteRoom(id);
+    public void deleteRoomById(UUID id) {
+        UUID roomId = roomRepository.deleteRoomById(id);
 
         if (roomId == null){
             throw new NotFoundException(String.format("Room %s not found", id));

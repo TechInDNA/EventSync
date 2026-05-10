@@ -3,12 +3,12 @@ package com.techindna.eventsync.service;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.ConflictException;
-import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.EventRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -33,7 +33,7 @@ public class EventService {
     }
 
     public List<Event> getAllEvents(PaginationRequestDto pagination) {
-        return eventRepository.findAllEvents(pagination.getOffset(), pagination.getLimit());
+        return eventRepository.getAllEvents(pagination.getOffset(), pagination.getLimit());
     }
 
     public int countEvents() {
@@ -41,17 +41,19 @@ public class EventService {
     }
 
     public Event updateEvent(UUID id, String title, String description, Instant startDate, Instant endDate, String location) {
-        Event eventExist = eventRepository.findEventByTitle(title);
+        Optional<Event> existing = eventRepository.findEventByTitle(title);
 
-        if (eventExist.getId() != null){
-            throw new ConflictException(String.format("An event with title '%s' already exists (ID: %s, Location: %s, Creation date: %s)",
-                    eventExist.getTitle(), eventExist.getId(), eventExist.getLocation(), eventExist.getCreatedAt()));
+        if (existing.isPresent()) {
+            Event e = existing.get();
+            throw new ConflictException(String.format(
+                    "An event with title '%s' already exists (ID: %s, Location: %s, Creation date: %s)",
+                    e.getTitle(), e.getId(), e.getLocation(), e.getCreatedAt()));
         }
 
         return eventRepository.updateEvent(id, title, description, startDate, endDate, location);
     }
 
-    public UUID deleteEvent(UUID id) {
-        return eventRepository.deleteEvent(id);
+    public UUID deleteEventById(UUID id) {
+        return eventRepository.deleteEventById(id);
     }
 }

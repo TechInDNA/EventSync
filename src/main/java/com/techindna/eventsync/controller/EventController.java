@@ -10,13 +10,12 @@ import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.EventService;
-import com.techindna.eventsync.validator.StringValidator;
-import com.techindna.eventsync.validator.PaginationValidator;
-import com.techindna.eventsync.validator.UUIDValidator;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,15 +23,11 @@ import java.util.UUID;
 @RequestMapping("/events")
 public class EventController {
     private final EventService eventService;
-    private final StringValidator stringValidator;
-    private final PaginationValidator paginationValidator;
-    private final UUIDValidator UuidValidator;
+    private final DataValidator dataValidator;
 
-    public EventController(EventService eventService, StringValidator eventValidator, PaginationValidator paginationValidator, UUIDValidator UuidValidator){
+    public EventController(EventService eventService, DataValidator eventValidator){
         this.eventService = eventService;
-        this.stringValidator = eventValidator;
-        this.paginationValidator = paginationValidator;
-        this.UuidValidator = UuidValidator;
+        this.dataValidator = eventValidator;
     }
 
     @GetMapping
@@ -40,7 +35,7 @@ public class EventController {
             @RequestParam(required = false, defaultValue = "1") String page,
             @RequestParam(required = false, defaultValue = "5") String size) {
         try {
-            paginationValidator.validatePageAndSize(page, size);
+            dataValidator.validatePageAndSize(page, size);
 
             int pageVal = Integer.parseInt(page);
             int sizeVal = Integer.parseInt(size);
@@ -63,7 +58,7 @@ public class EventController {
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody EventRequestDto request) {
         try {
-            stringValidator.validateEventData(
+            dataValidator.validateEventData(
                     request.getTitle(),
                     request.getDescription(),
                     request.getStartDate(),
@@ -74,8 +69,8 @@ public class EventController {
             Event newEvent = eventService.createEvent(
                     request.getTitle(),
                     request.getDescription(),
-                    request.getStartDate(),
-                    request.getEndDate(),
+                    Instant.parse(request.getStartDate()),
+                    Instant.parse(request.getEndDate()),
                     request.getLocation()
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(newEvent);
@@ -99,8 +94,8 @@ public class EventController {
             @PathVariable String id,
             @RequestBody EventRequestDto request) {
         try {
-            UuidValidator.validateUUID(id);
-            stringValidator.validateEventData(
+            dataValidator.validateUUID(id);
+            dataValidator.validateEventData(
                     request.getTitle(),
                     request.getDescription(),
                     request.getStartDate(),
@@ -112,8 +107,8 @@ public class EventController {
                     UUID.fromString(id),
                     request.getTitle(),
                     request.getDescription(),
-                    request.getStartDate(),
-                    request.getEndDate(),
+                    Instant.parse(request.getStartDate()),
+                    Instant.parse(request.getEndDate()),
                     request.getLocation()
             );
 
@@ -139,17 +134,15 @@ public class EventController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable(required = false) String id) {
         try {
-            UuidValidator.validateUUID(id);
-            UUID deletedId = eventService.deleteEvent(UUID.fromString(id));
-            return ResponseEntity.status(HttpStatus.OK).body(String.format("Event %s deleted", deletedId));
+            dataValidator.validateUUID(id);
+            UUID deletedId = eventService.deleteEventById(UUID.fromString(id));
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(String.format("Event %s deleted.", deletedId));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

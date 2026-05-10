@@ -13,6 +13,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -23,9 +24,10 @@ public class EventRepository {
     }
 
     public Event saveEvent(String title, String description, Instant startDate, Instant endDate, String location){
-        String query =
+        final String query =
                 """
-                    insert into eventsync_app.events(title, description, start_date, end_date, location)
+                    insert into
+                        eventsync_app.events(title, description, start_date, end_date, location)
                     values(?, ?, ?, ?, ?)
                     on conflict (title) do nothing
                     returning id, created_at
@@ -59,9 +61,17 @@ public class EventRepository {
         }
     }
 
-    public List<Event> findAllEvents(int offset, int limit) {
-        String query = """
-            select id, title, description, start_date, end_date, location, created_at
+    public List<Event> getAllEvents(int offset, int limit) {
+        final String query =
+            """
+            select
+                id,
+                title,
+                description,
+                start_date,
+                end_date,
+                location,
+                created_at
             from eventsync_app.events
             order by created_at desc
             limit ? offset ?
@@ -92,9 +102,17 @@ public class EventRepository {
         }
     }
 
-    public Event findEventByTitle(String title) {
-        String query = """
-            select id, title, description, start_date, end_date, location, created_at
+    public Optional<Event> findEventByTitle(String title) {
+        final String query =
+            """
+            select
+                id,
+                title,
+                description,
+                start_date,
+                end_date,
+                location,
+                created_at
             from eventsync_app.events
             where title = ?
             """;
@@ -104,9 +122,8 @@ public class EventRepository {
         ) {
             ps.setString(1, title);
             try (ResultSet rs = ps.executeQuery()) {
-                Event event = new Event();
-
                 if (rs.next()) {
+                    Event event = new Event();
                     event.setId(UUID.fromString(rs.getString("id")));
                     event.setTitle(rs.getString("title"));
                     event.setDescription(rs.getString("description"));
@@ -114,8 +131,9 @@ public class EventRepository {
                     event.setEndDate(rs.getTimestamp("end_date").toInstant());
                     event.setLocation(rs.getString("location"));
                     event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+                    return Optional.of(event);
                 }
-                return event;
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -123,10 +141,18 @@ public class EventRepository {
     }
 
     public Event updateEvent(UUID id, String title, String description, Instant startDate, Instant endDate, String location) {
-        String query = """
+        final String query =
+            """
             update eventsync_app.events
-            set title = ?, description = ?, start_date = ?, end_date = ?, location = ?, created_at = now()
-            where id = ? returning id, created_at
+            set
+                title = ?,
+                description = ?,
+                start_date = ?,
+                end_date = ?,
+                location = ?,
+                created_at = now()
+            where id = ?
+            returning id, created_at
             """;
         try (
                 Connection connection = dataSource.getConnection();
@@ -150,7 +176,7 @@ public class EventRepository {
                     event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
                     return event;
                 }
-                throw new NotFoundException(String.format("Event %s not found", id));
+                throw new NotFoundException(String.format("Event %s not found.", id));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -177,8 +203,8 @@ public class EventRepository {
         }
     }
 
-    public UUID deleteEvent(UUID id) {
-        String query = "delete from eventsync_app.events where id = ? returning id";
+    public UUID deleteEventById(UUID id) {
+        final String query = "delete from eventsync_app.events where id = ? returning id";
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)

@@ -111,5 +111,15 @@ echo ""
 echo "--- Test 20: Title with valid special characters (should return 200) ---"
 curlie -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"Valid.Title,Test:Desc-Updated","description":"UpdatedDesc","startDate":"2026-12-19T10:00:00Z","endDate":"2026-12-19T18:00:00Z","location":"UpdatedLoc"}' http://localhost:8080/events/$EVENT_ID
 
+# Step 22: Title exceeding 50 characters (should return 400)
+echo ""
+echo "--- Test 21: Title exceeding 50 characters (should return 400) ---"
+curlie -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"ThisIsAVeryLongTitleThatExceedsFiftyCharactersForTestingPurposes","description":"UpdatedDesc","startDate":"2026-12-20T10:00:00Z","endDate":"2026-12-20T18:00:00Z","location":"UpdatedLoc"}' http://localhost:8080/events/$EVENT_ID
+
+# Step 23: Location exceeding 50 characters (should return 400)
+echo ""
+echo "--- Test 22: Location exceeding 50 characters (should return 400) ---"
+curlie -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"ValidTitle","description":"UpdatedDesc","startDate":"2026-12-21T10:00:00Z","endDate":"2026-12-21T18:00:00Z","location":"ThisIsAVeryLongLocationNameThatExceedsFiftyCharactersTest"}' http://localhost:8080/events/$EVENT_ID
+
 # Cleanup
 rm -f cookies.txt

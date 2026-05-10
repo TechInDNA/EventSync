@@ -45,17 +45,17 @@ curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/rooms?page=1
 
 # Test 9: Test with non-numeric page parameter
 echo ""
-echo "--- Test 9: Non-numeric page parameter - should return 400 or 200 with default ---"
+echo "--- Test 9: Non-numeric page parameter - should return 400 ---"
 curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/rooms?page=abc&size=10"
 
 # Test 10: Test with non-numeric size parameter
 echo ""
-echo "--- Test 10: Non-numeric size parameter - should return 400 or 200 with default ---"
+echo "--- Test 10: Non-numeric size parameter - should return 400 ---"
 curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/rooms?page=1&size=abc"
 
-# Test 11: Test with additional unknown parameters (should be ignored)
+# Test 11: Test with additional unknown parameters (should return 400)
 echo ""
-echo "--- Test 11: Unknown parameters (should be ignored) ---"
+echo "--- Test 11: Unknown parameters (should return 400) ---"
 curlie -s -w "\nHTTP Status: %{http_code}\n" "http://localhost:8080/rooms?page=1&size=10&unknown=param"
 
 # Test 12: Test with POST method (should fail - 403)

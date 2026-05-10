@@ -1,13 +1,11 @@
 package com.techindna.eventsync.dto;
 
-import java.time.Instant;
-
 public class EventRequestDto {
     private String id;
     private String title;
     private String description;
-    private Instant startDate;
-    private Instant endDate;
+    private String startDate;
+    private String endDate;
     private String location;
 
     public String getId() {
@@ -34,19 +32,19 @@ public class EventRequestDto {
         this.description = description;
     }
 
-    public Instant getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Instant startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public Instant getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Instant endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
