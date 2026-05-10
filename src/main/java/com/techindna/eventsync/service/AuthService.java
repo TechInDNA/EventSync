@@ -31,9 +31,8 @@ public class AuthService {
     }
 
     public Optional<Administrator> logInAdmin(String email, String password) {
-        dataValidator.checkNullData("email", email);
+        dataValidator.validateEmail(email);
         dataValidator.checkNullData("password", password);
-        dataValidator.ValidateEmail(email);
 
         if (firstFailureTime != null && Duration.between(firstFailureTime, Instant.now()).compareTo(RESET_DURATION) >= 0) {
             loggingAttempt = 0;

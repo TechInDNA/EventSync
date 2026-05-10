@@ -55,21 +55,7 @@ public class SpeakersController {
     @PostMapping
     public ResponseEntity<?> createSpeaker(@RequestBody SpeakerRequestDto request) {
         try {
-            dataValidator.validateSpeakerData(
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getEmail(),
-                    request.getBio()
-            );
-
-            SpeakerResponseDto speaker = speakerService.createSpeaker(
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getEmail(),
-                    request.getProfilePicture(),
-                    request.getBio(),
-                    request.getExternalLinks()
-            );
+            SpeakerResponseDto speaker = speakerService.createSpeaker(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(speaker);
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -77,9 +63,9 @@ public class SpeakersController {
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+                    .body("An unexpected error occurred");
         }
     }
     @PutMapping("/{id}")

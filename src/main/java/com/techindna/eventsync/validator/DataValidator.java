@@ -1,8 +1,10 @@
 package com.techindna.eventsync.validator;
 
+import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,28 +12,14 @@ import java.util.regex.Pattern;
 public class DataValidator {
     private static final Pattern TEXT_PATTERN = Pattern.compile("^[a-zA-Z0-9 .,':-]+$");
     private final Pattern VALID_URL = Pattern.compile("^https?://[a-zA-Z0-9\\-._%&#/]+$");
-    private static final Pattern VALID_EMAIL = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
     private static final Pattern VALID_INTEGER = Pattern.compile("^[1-9][0-9]*$");
     private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     private static final Pattern VALID_DATE = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$");
-
-    public void ValidateEmail(String email){
-        final Pattern VALID_PATTERN = Pattern.compile("^[a-zA-Z0-9@._-]+$");
-        final Matcher VALID_PATTERN_MATCHER = VALID_PATTERN.matcher(email);
-
-        if (!VALID_PATTERN_MATCHER.matches()){
-            throw new BadRequestException("Invalid email — only a-z A-Z 0-9 @ . _ - are permitted.");
-        }
-
-        final Matcher EMAIL_MATCHER = VALID_EMAIL.matcher(email);
-        if (!EMAIL_MATCHER.matches()){
-            throw new BadRequestException(String.format("Invalid email format for %s.", email));
-        }
-    }
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
 
     protected void lengthValidation(String fieldName, int limit, String data){
         if (data != null && data.length() > limit){
-            throw new BadRequestException(String.format("The length of %s field cannot exceed 50.", fieldName));
+            throw new BadRequestException(String.format("The length of %s field cannot exceed %d.", fieldName, limit));
         }
     }
 
@@ -87,19 +75,15 @@ public class DataValidator {
         validateString("location", location);
     }
 
-    public void validateSpeakerData(String firstName, String lastName, String email, String bio){
+    public void validateSpeakerData(String firstName, String lastName, String email, String bio, String url){
+        lengthValidation("firstName", 50, firstName);
         validateString("firstName", firstName);
+        lengthValidation("lastName", 50, lastName);
         validateString("lastName", lastName);
         validateString("bio", bio);
         validateEmail(email);
-    }
-
-    private void validateEmail(String email){
-        final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
-        final Matcher EMAIL_MATCHER = EMAIL_PATTERN.matcher(email);
-        
-        if (!EMAIL_MATCHER.matches()){
-            throw new BadRequestException(String.format("Invalid email format: %s", email));
+        if (url != null) {
+            validateUrl(url);
         }
     }
 
@@ -117,6 +101,25 @@ public class DataValidator {
         final Matcher UUID_MATCHER = UUID_PATTERN.matcher(uuid);
         if (!UUID_MATCHER.matches()){
             throw new BadRequestException("Invalid UUID format.");
+        }
+    }
+
+    public void validateEmail(String email){
+        checkNullData("email", email);
+        lengthValidation("email", 50, email);
+        final Matcher EMAIL_MATCHER = EMAIL_PATTERN.matcher(email);
+
+        if (!EMAIL_MATCHER.matches()){
+            throw new BadRequestException(String.format("Invalid email format: %s", email));
+        }
+    }
+
+    public void validateExternalLinks(List<ExternalLinkDto> links){
+        if (links != null){
+            for (ExternalLinkDto l : links){
+                validateString("name", l.getName());
+                validateUrl(l.getUrl());
+            }
         }
     }
 }
