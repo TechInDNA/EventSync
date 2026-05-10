@@ -1,7 +1,10 @@
 package com.techindna.eventsync.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.util.UUID;
 
+@JsonPropertyOrder({"id", "firstName", "lastName", "email", "profilePicture", "bio"})
 public class UpdateSpeakerResponseDto extends SpeakerRequestDto {
     private UUID id;
 
