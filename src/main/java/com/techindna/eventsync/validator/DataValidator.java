@@ -1,8 +1,10 @@
 package com.techindna.eventsync.validator;
 
+import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,7 +33,7 @@ public class DataValidator {
 
     protected void lengthValidation(String fieldName, int limit, String data){
         if (data != null && data.length() > limit){
-            throw new BadRequestException(String.format("The length of %s field cannot exceed 50.", fieldName));
+            throw new BadRequestException(String.format("The length of %s field cannot exceed %d.", fieldName, limit));
         }
     }
 
@@ -87,14 +89,21 @@ public class DataValidator {
         validateString("location", location);
     }
 
-    public void validateSpeakerData(String firstName, String lastName, String email, String bio){
+    public void validateSpeakerData(String firstName, String lastName, String email, String bio, String url){
+        lengthValidation("firstName", 50, firstName);
         validateString("firstName", firstName);
+        lengthValidation("lastName", 50, lastName);
         validateString("lastName", lastName);
         validateString("bio", bio);
+        lengthValidation("email", 50, email);
         validateEmail(email);
+        if (url != null) {
+            validateUrl(url);
+        }
     }
 
     private void validateEmail(String email){
+        checkNullData("email", email);
         final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
         final Matcher EMAIL_MATCHER = EMAIL_PATTERN.matcher(email);
         
@@ -117,6 +126,15 @@ public class DataValidator {
         final Matcher UUID_MATCHER = UUID_PATTERN.matcher(uuid);
         if (!UUID_MATCHER.matches()){
             throw new BadRequestException("Invalid UUID format.");
+        }
+    }
+
+    public void validateExternalLinks(List<ExternalLinkDto> links){
+        if (links != null){
+            for (ExternalLinkDto l : links){
+                validateString("name", l.getName());
+                validateUrl(l.getUrl());
+            }
         }
     }
 }

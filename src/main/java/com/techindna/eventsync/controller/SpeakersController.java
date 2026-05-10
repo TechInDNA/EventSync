@@ -59,17 +59,11 @@ public class SpeakersController {
                     request.getFirstName(),
                     request.getLastName(),
                     request.getEmail(),
-                    request.getBio()
+                    request.getBio(),
+                    request.getProfilePicture()
             );
 
-            SpeakerResponseDto speaker = speakerService.createSpeaker(
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getEmail(),
-                    request.getProfilePicture(),
-                    request.getBio(),
-                    request.getExternalLinks()
-            );
+            SpeakerResponseDto speaker = speakerService.createSpeaker(request);
             return ResponseEntity.status(HttpStatus.CREATED).body(speaker);
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
