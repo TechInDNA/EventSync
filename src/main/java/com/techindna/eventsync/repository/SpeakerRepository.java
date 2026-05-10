@@ -3,13 +3,16 @@ package com.techindna.eventsync.repository;
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.SpeakerRequestDto;
 import com.techindna.eventsync.dto.SpeakerResponseDto;
+import com.techindna.eventsync.dto.UpdateSpeakerResponseDto;
 import com.techindna.eventsync.exception.ConflictException;
+import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -111,6 +114,7 @@ public class SpeakerRepository {
         }
     }
 
+    /*
     public SpeakerResponseDto createSpeaker(SpeakerRequestDto speakerRequestDto){
         final String insertUser =
                 """
@@ -168,6 +172,7 @@ public class SpeakerRepository {
             throw new RuntimeException(e);
         }
     }
+    */
 
     private void insertExternalLinks(Connection connection, UUID userId, List<ExternalLinkDto> externalLinks) {
         final String insertLink =
@@ -192,7 +197,7 @@ public class SpeakerRepository {
     }
 
 
-    public SpeakerResponseDto updateSpeaker(UUID id, SpeakerRequestDto speakerRequestDto) {
+    public UpdateSpeakerResponseDto updateSpeakerById(UUID id, SpeakerRequestDto speakerRequestDto) {
         final String sql =
         """
         UPDATE eventsync_app.users
@@ -204,51 +209,66 @@ public class SpeakerRepository {
         bio = ?
         WHERE id = ?
         AND "role" = 'speaker'
-        on conflict (email) do nothing
-        returning email
+        returning id
         """;
 
-        try (Connection conn = dataSource.getConnection()) {
-            conn.setAutoCommit(false);
-            try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setString(1, speakerRequestDto.getFirstName());
-                ps.setString(2, speakerRequestDto.getLastName());
-                ps.setString(3, speakerRequestDto.getEmail());
-                ps.setString(4, speakerRequestDto.getProfilePicture());
-                ps.setString(5, speakerRequestDto.getBio());
-                ps.setObject(6, id);
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(sql)
+                ){
 
-                int rows = ps.executeUpdate();
+            findSpeakerEmailById(connection, id)
+                    .orElseThrow(() -> new ConflictException(
+                            String.format("Speaker with email %s already exist.", speakerRequestDto.getEmail()
+                            )));
 
-                if (rows > 0) {
+            ps.setString(1, speakerRequestDto.getFirstName());
+            ps.setString(2, speakerRequestDto.getLastName());
+            ps.setString(3, speakerRequestDto.getEmail());
+            ps.setString(4, speakerRequestDto.getProfilePicture());
+            ps.setString(5, speakerRequestDto.getBio());
+            ps.setObject(6, id);
 
-                    try (PreparedStatement psDel = conn.prepareStatement("DELETE FROM eventsync_app.external_link WHERE user_id = ?")) {
-                        psDel.setObject(1, id);
-                        psDel.executeUpdate();
-                    }
-                    if (speakerRequestDto.getExternalLinks() != null && !speakerRequestDto.getExternalLinks().isEmpty()) {
-                        insertExternalLinks(conn, id, speakerRequestDto.getExternalLinks());
-                    }
-                    conn.commit();
-
-                    SpeakerResponseDto speaker = new SpeakerResponseDto();
-                    speaker.setId(id);
-                    speaker.setFirstName(speakerRequestDto.getFirstName());
-                    speaker.setLastName(speakerRequestDto.getLastName());
-                    speaker.setEmail(speakerRequestDto.getEmail());
-                    speaker.setProfilePicture(speakerRequestDto.getProfilePicture());
-                    speaker.setBio(speakerRequestDto.getBio());
-                    speaker.setExternalLinks(getExternalLinksByUserId(id));
-                    return speaker;
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new NotFoundException(String.format("Speaker ID %s does not exist.", id));
                 }
-                conn.rollback();
-                return null;
-            } catch (SQLException e) {
-                conn.rollback();
-                throw e;
             }
+
+            UpdateSpeakerResponseDto updateSpeakerResponseDto = new UpdateSpeakerResponseDto();
+            updateSpeakerResponseDto.setId(id);
+            updateSpeakerResponseDto.setFirstName(speakerRequestDto.getFirstName());
+            updateSpeakerResponseDto.setLastName(speakerRequestDto.getLastName());
+            updateSpeakerResponseDto.setEmail(speakerRequestDto.getEmail());
+            updateSpeakerResponseDto.setProfilePicture(speakerRequestDto.getProfilePicture());
+            updateSpeakerResponseDto.setBio(speakerRequestDto.getBio());
+
+            return updateSpeakerResponseDto;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+
+    }
+
+    private Optional<String> findSpeakerEmailById(Connection connection, UUID id) throws SQLException {
+        final String query =
+                """
+                select email
+                from eventsync_app.users
+                where id = ?
+                  and "role" = 'speaker'
+                """;
+        try (
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(rs.getString("email"));
+                }
+                return Optional.empty();
+            }
         }
     }
 
