@@ -217,10 +217,9 @@ public class SpeakerRepository {
                 PreparedStatement ps = connection.prepareStatement(sql)
                 ){
 
-            findSpeakerEmailById(connection, id)
-                    .orElseThrow(() -> new ConflictException(
-                            String.format("Speaker with email %s already exist.", speakerRequestDto.getEmail()
-                            )));
+            if (findExistingSpeakerEmail(connection, speakerRequestDto.getEmail()).isPresent()){
+                throw new ConflictException(String.format("Speaker with email %s already exist.", speakerRequestDto.getEmail()));
+            }
 
             ps.setString(1, speakerRequestDto.getFirstName());
             ps.setString(2, speakerRequestDto.getLastName());
@@ -251,18 +250,18 @@ public class SpeakerRepository {
 
     }
 
-    private Optional<String> findSpeakerEmailById(Connection connection, UUID id) throws SQLException {
+    private Optional<String> findExistingSpeakerEmail(Connection connection, String email) throws SQLException {
         final String query =
                 """
                 select email
                 from eventsync_app.users
-                where id = ?
+                where email = ?
                   and "role" = 'speaker'
                 """;
         try (
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
-            ps.setObject(1, id);
+            ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return Optional.of(rs.getString("email"));
