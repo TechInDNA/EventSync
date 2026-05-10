@@ -114,13 +114,11 @@ public class SpeakerRepository {
         }
     }
 
-    /*
-    public SpeakerResponseDto createSpeaker(SpeakerRequestDto speakerRequestDto){
+    public SpeakerResponseDto createSpeaker(SpeakerRequestDto speakerRequestDto, List<ExternalLinkDto> externalLinks){
         final String insertUser =
                 """
                 insert into eventsync_app.users(first_name, last_name, email, profile_picture, bio, "role")
                 values(?, ?, ?, ?, ?, 'speaker')
-                on conflict (email) do nothing
                 returning id
                 """;
         try (Connection connection = dataSource.getConnection()) {
@@ -142,11 +140,11 @@ public class SpeakerRepository {
 
                 if (userId == null) {
                     connection.rollback();
-                    return null;
+                    throw new ConflictException(String.format("Speaker with email %s already exists", speakerRequestDto.getEmail()));
                 }
 
-                if (speakerRequestDto.getExternalLinks() != null && !speakerRequestDto.getExternalLinks().isEmpty()) {
-                    insertExternalLinks(connection, userId, speakerRequestDto.getExternalLinks());
+                if (externalLinks != null && !externalLinks.isEmpty()) {
+                    insertExternalLinks(connection, userId, externalLinks);
                 }
 
                 connection.commit();
@@ -158,7 +156,7 @@ public class SpeakerRepository {
                 speaker.setEmail(speakerRequestDto.getEmail());
                 speaker.setProfilePicture(speakerRequestDto.getProfilePicture());
                 speaker.setBio(speakerRequestDto.getBio());
-                speaker.setExternalLinks(speakerRequestDto.getExternalLinks());
+                speaker.setExternalLinks(externalLinks);
                 return speaker;
 
             } catch (ConflictException e) {
@@ -172,7 +170,6 @@ public class SpeakerRepository {
             throw new RuntimeException(e);
         }
     }
-    */
 
     private void insertExternalLinks(Connection connection, UUID userId, List<ExternalLinkDto> externalLinks) {
         final String insertLink =

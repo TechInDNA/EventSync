@@ -1,9 +1,6 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.GetSpeakerListResponseDto;
-import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.dto.SpeakerRequestDto;
-import com.techindna.eventsync.dto.SpeakerResponseDto;
+import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
@@ -52,12 +49,11 @@ public class SpeakersController {
         }
     }
 
-    /*
     @PostMapping
-    public ResponseEntity<?> createSpeaker(@RequestBody SpeakerRequestDto request) {
+    public ResponseEntity<?> createSpeaker(@RequestBody PostSpeakersRequestDto request) {
         try {
-            SpeakerResponseDto speaker = speakerService.createSpeaker(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(speaker);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(speakerService.createSpeaker(request.getSpeakerRequestDto(), request.getExternalLinks()));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -69,7 +65,6 @@ public class SpeakersController {
                     .body("An unexpected error occurred");
         }
     }
-    */
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
