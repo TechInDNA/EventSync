@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -499.1692822331775,
-                  "y": 355.03463144786326,
-                  "zoom": -0.7896750419735891
+                  "x": -747.5069905825527,
+                  "y": 278.728910098368,
+                  "zoom": -0.7124794184565532
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -188,17 +188,17 @@
   },
   "active": "082b9020340236c3",
   "lastOpenFiles": [
-    "src/sql/room_data.sql",
-    "src/sql/event_data.sql",
-    "src/main/java/com/techindna/eventsync/service/RoomService.java",
-    "src/main/java/com/techindna/eventsync/repository/RoomRepository.java",
-    "src/main/java/com/techindna/eventsync/exception/TooManyRequestException.java",
-    "src/main/java/com/techindna/eventsync/dto/UserResponseDto.java",
-    "src/main/java/com/techindna/eventsync/dto/RoomRequestDto.java",
-    "src/main/java/com/techindna/eventsync/dto/GetRoomListResponseDto.java",
-    "src/main/java/com/techindna/eventsync/controller/RoomController.java",
-    "target/classes/com/techindna/eventsync/dto/GetSpeakerListResponseDto.class",
-    "target/classes/com/techindna/eventsync/exception/NotFoundException.class",
+    "src/test/java/requests/post_speakers.sh",
+    "src/main/java/com/techindna/eventsync/validator/ExternalLinksValidator.java",
+    "cookies.txt",
+    "src/main/java/com/techindna/eventsync/validator/DataValidator.java~",
+    "target/classes/com/techindna/eventsync/service/AuthService.class",
+    "target/classes/com/techindna/eventsync/validator/DataValidator.class",
+    "target/classes/com/techindna/eventsync/validator",
+    "target/classes/com/techindna/eventsync/service/SpeakerService.class",
+    "src/main/java/com/techindna/eventsync/service/AuthService.java~",
+    "src/main/java/com/techindna/eventsync/service/SpeakerService.java~",
+    "src/test/java/requests/speaker/cookies.txt",
     "AGENTS.md",
     "src/main/gen/README.md",
     "src/main/gen/docs/SpeakersApi.md",

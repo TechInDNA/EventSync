@@ -1,16 +1,13 @@
 package com.techindna.eventsync.service;
 
-import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.SpeakerRequestDto;
 import com.techindna.eventsync.dto.SpeakerResponseDto;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
-import com.techindna.eventsync.validator.ExternalLinksValidator;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -19,12 +16,10 @@ import java.util.UUID;
 public class SpeakerService {
     private final SpeakerRepository speakerRepository;
     private final DataValidator dataValidator;
-    private final ExternalLinksValidator externalLinksValidator;
 
-    public SpeakerService(SpeakerRepository speakerRepository, DataValidator dataValidator, ExternalLinksValidator externalLinksValidator){
+    public SpeakerService(SpeakerRepository speakerRepository, DataValidator dataValidator){
         this.speakerRepository = speakerRepository;
         this.dataValidator = dataValidator;
-        this.externalLinksValidator = externalLinksValidator;
     }
 
     public List<SpeakerResponseDto> getAllSpeakers(PaginationRequestDto paginationRequestDto){
@@ -35,20 +30,20 @@ public class SpeakerService {
         return speakerRepository.countSpeakers();
     }
 
-    @Transactional
-    public SpeakerResponseDto createSpeaker(String firstName, String lastName, String email,
-                                            String profilePicture, String bio,
-                                            List<ExternalLinkDto> externalLinks){
-        
-        if (profilePicture != null && !profilePicture.isEmpty()){
-            dataValidator.validateUrl(profilePicture);
-        }
+    public SpeakerResponseDto createSpeaker(SpeakerRequestDto speakerRequestDto){
 
-        externalLinksValidator.validateExternalLinks(externalLinks);
+        dataValidator.validateSpeakerData(
+                speakerRequestDto.getFirstName(),
+                speakerRequestDto.getLastName(),
+                speakerRequestDto.getEmail(),
+                speakerRequestDto.getBio(),
+                speakerRequestDto.getProfilePicture()
+        );
+        dataValidator.validateExternalLinks(speakerRequestDto.getExternalLinks());
 
-        SpeakerResponseDto speaker = speakerRepository.createSpeaker(firstName, lastName, email, profilePicture, bio, externalLinks);
+        SpeakerResponseDto speaker = speakerRepository.createSpeaker(speakerRequestDto);
         if (speaker == null){
-            throw new ConflictException(String.format("Speaker with email %s already exists", email));
+            throw new ConflictException(String.format("Speaker with email %s already exists", speakerRequestDto.getEmail()));
         }
         return speaker;
     }
@@ -56,8 +51,8 @@ public class SpeakerService {
 
     public SpeakerResponseDto updateSpeaker(UUID id, SpeakerRequestDto request) {
 
-        dataValidator.validateSpeakerData(request.getFirstName(), request.getLastName(), request.getEmail(), request.getBio());
-        externalLinksValidator.validateExternalLinks(request.getExternalLinks());
+        dataValidator.validateSpeakerData(request.getFirstName(), request.getLastName(), request.getEmail(), request.getBio(), request.getProfilePicture());
+        dataValidator.validateExternalLinks(request.getExternalLinks());
 
         if (request.getProfilePicture() != null){
             dataValidator.validateUrl(request.getProfilePicture());

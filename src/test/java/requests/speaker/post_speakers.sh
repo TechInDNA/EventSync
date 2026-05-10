@@ -143,5 +143,22 @@ echo ""
 echo "--- Test 31: Valid speaker with profilePicture (should return 201) ---"
 curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"Bob","lastName":"Wilson","email":"bob.wilson@valid.com","profilePicture":"https://example.com/bob.jpg","bio":"Valid Bio"}' http://localhost:8080/speakers
 
+# Step 12: Length limit violations
+echo ""
+echo "--- Test 32: firstName exceeding 50 characters (should return 400) ---"
+curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"Johnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn","lastName":"Doe","email":"long.first@valid.com","bio":"Valid Bio"}' http://localhost:8080/speakers
+
+echo ""
+echo "--- Test 33: lastName exceeding 50 characters (should return 400) ---"
+curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee","email":"long.last@valid.com","bio":"Valid Bio"}' http://localhost:8080/speakers
+
+echo ""
+echo "--- Test 34: email exceeding 50 characters (should return 400) ---"
+curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"johnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn@valid.com","bio":"Valid Bio"}' http://localhost:8080/speakers
+
+echo ""
+echo "--- Test 35: Empty string profilePicture (not null, should return 400) ---"
+curlie -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"firstName":"John","lastName":"Doe","email":"empty.pp@valid.com","profilePicture":"","bio":"Valid Bio"}' http://localhost:8080/speakers
+
 # Cleanup
 rm -f cookies.txt
