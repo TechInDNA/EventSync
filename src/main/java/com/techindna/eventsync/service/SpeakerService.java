@@ -3,7 +3,7 @@ package com.techindna.eventsync.service;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.SpeakerRequestDto;
 import com.techindna.eventsync.dto.SpeakerResponseDto;
-import com.techindna.eventsync.exception.ConflictException;
+import com.techindna.eventsync.dto.UpdateSpeakerResponseDto;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.DataValidator;
@@ -30,6 +30,7 @@ public class SpeakerService {
         return speakerRepository.countSpeakers();
     }
 
+/*
     public SpeakerResponseDto createSpeaker(SpeakerRequestDto speakerRequestDto){
 
         dataValidator.validateSpeakerData(
@@ -47,31 +48,11 @@ public class SpeakerService {
         }
         return speaker;
     }
+*/
 
-
-    public SpeakerResponseDto updateSpeaker(UUID id, SpeakerRequestDto request) {
-
-        dataValidator.validateSpeakerData(request.getFirstName(), request.getLastName(), request.getEmail(), request.getBio(), request.getProfilePicture());
-        dataValidator.validateExternalLinks(request.getExternalLinks());
-
-        if (request.getProfilePicture() != null){
-            dataValidator.validateUrl(request.getProfilePicture());
-        }
-
-        SpeakerResponseDto updated = speakerRepository.updateSpeaker(
-                id,
-                request.getFirstName(),
-                request.getLastName(),
-                request.getEmail(),
-                request.getProfilePicture(),
-                request.getBio(),
-                request.getExternalLinks()
-        );
-
-        if (updated == null) {
-            throw new NotFoundException("Speaker not found with ID : " + id);
-        }
-        return updated;
+    public UpdateSpeakerResponseDto updateSpeakerById(UUID id, SpeakerRequestDto request) {
+        dataValidator.validateSpeakerData(request);
+        return speakerRepository.updateSpeakerById(id, request);
     }
 
     public void deleteSpeaker(UUID id) {

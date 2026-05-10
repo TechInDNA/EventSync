@@ -1,14 +1,11 @@
 package com.techindna.eventsync.dto;
 
-import java.util.List;
-
 public class SpeakerRequestDto {
     private String firstName;
     private String lastName;
     private String email;
     private String profilePicture;
     private String bio;
-    private List<ExternalLinkDto> externalLinks;
 
     public String getFirstName() {
         return firstName;
@@ -48,13 +45,5 @@ public class SpeakerRequestDto {
 
     public void setBio(String bio) {
         this.bio = bio;
-    }
-
-    public List<ExternalLinkDto> getExternalLinks() {
-        return externalLinks;
-    }
-
-    public void setExternalLinks(List<ExternalLinkDto> externalLinks) {
-        this.externalLinks = externalLinks;
     }
 }
