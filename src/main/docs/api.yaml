@@ -333,6 +333,105 @@ paths:
           description: Unauthorized
         '404':
           description: Session not found
+  /sessions/{sessionId}/speaker/{speakerId}:
+    post:
+      summary: Add a speaker to a session
+      tags:
+        - Sessions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: speakerId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionSpeakerInput'
+      responses:
+        '201':
+          description: Speaker linked to session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionSpeaker'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Session or speaker not found
+    put:
+      summary: Update a speaker link in a session
+      tags:
+        - Sessions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: speakerId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionSpeakerInput'
+      responses:
+        '200':
+          description: Speaker link updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionSpeaker'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Session or speaker not found
+    delete:
+      summary: Remove a speaker from a session
+      tags:
+        - Sessions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: speakerId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Speaker removed from session
+        '401':
+          description: Unauthorized
+        '404':
+          description: Session or speaker not found
   /sessions/{id}/questions:
     get:
       summary: List questions of a session
@@ -1162,6 +1261,36 @@ components:
               type: integer
             size:
               type: integer
+    SessionSpeakerInput:
+      type: object
+      required:
+        - startTime
+        - endTime
+      properties:
+        startTime:
+          type: string
+          format: time
+          description: Start time of the speaker's intervention (time with time zone)
+        endTime:
+          type: string
+          format: time
+          description: End time of the speaker's intervention (time with time zone)
+    SessionSpeaker:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        speaker:
+          $ref: '#/components/schemas/SpeakerRef'
+        session:
+          $ref: '#/components/schemas/SessionRef'
+        startTime:
+          type: string
+          format: time
+        endTime:
+          type: string
+          format: time
     QuestionInput:
       type: object
       required:
