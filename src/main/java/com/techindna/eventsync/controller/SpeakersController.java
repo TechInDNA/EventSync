@@ -45,7 +45,7 @@ public class SpeakersController {
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+                    .body("An unexpected error occurred.");
         }
     }
 
@@ -95,7 +95,8 @@ public class SpeakersController {
             dataValidator.validateUUID(id);
             speakerService.deleteSpeaker(UUID.fromString(id));
 
-            return ResponseEntity.status(HttpStatus.OK).body("Speaker " + id + " deleted.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("Speaker " + id + " deleted.");
         }catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
