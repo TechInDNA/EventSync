@@ -33,3 +33,16 @@ create table eventsync_app.rooms(
     id uuid default gen_random_uuid() primary key,
     name varchar(50) unique not null
 );
+
+create table eventsync_app.sessions(
+    id uuid default gen_random_uuid() primary key,
+    title varchar(50) unique not null,
+    description text not null,
+    start_date timestamp not null,
+    end_date timestamp not null,
+    room_id uuid not null references eventsync_app.rooms(id),
+    capacity int not null default 0,
+    event_id uuid not null references eventsync_app.events(id)
+
+);
+
