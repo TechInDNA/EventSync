@@ -67,3 +67,9 @@ select 'Data Science with Python', 'Introduction to data science using Python',
 from eventsync_app.rooms r, eventsync_app.events e
 where r.name = 'Conference Room B' and e.title = 'Cloud Computing Expo'
 and not exists (select 1 from eventsync_app.sessions where title = 'Data Science with Python');
+
+-- Intervene test data for /sessions/{sessionId}/speaker/{speakerId} endpoints
+-- John Doe speaks at "Session to Update" from 09:00 to 10:00
+insert into eventsync_app.intervene (speaker_id, session_id, start_time, end_time)
+values ('af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', 'f47ac10b-58cc-4372-a567-0e02b2c3d479', '09:00:00+00:00', '10:00:00+00:00')
+on conflict (speaker_id, session_id) do nothing;

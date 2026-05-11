@@ -56,4 +56,8 @@ public class SessionService {
     public UUID deleteSessionById(UUID id) {
         return sessionRepository.deleteSessionById(id);
     }
+
+    public void removeSpeakerFromSession(UUID sessionId, UUID speakerId) {
+        sessionRepository.removeSpeakerFromSession(sessionId, speakerId);
+    }
 }

@@ -336,4 +336,22 @@ public class SessionRepository {
             throw new RuntimeException(e);
         }
     }
+
+    public void removeSpeakerFromSession(UUID sessionId, UUID speakerId) {
+        final String delete = "DELETE FROM eventsync_app.intervene WHERE session_id = ? AND speaker_id = ?";
+
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement ps = connection.prepareStatement(delete)) {
+            ps.setObject(1, sessionId);
+            ps.setObject(2, speakerId);
+
+            int affected = ps.executeUpdate();
+            if (affected == 0) {
+                throw new NotFoundException(String.format("Intervention not found for speaker %s in session %s.", speakerId, sessionId));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

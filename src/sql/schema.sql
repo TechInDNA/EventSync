@@ -43,6 +43,14 @@ create table eventsync_app.sessions(
     room_id uuid not null references eventsync_app.rooms(id),
     capacity int not null default 0,
     event_id uuid not null references eventsync_app.events(id)
+);
 
+create table eventsync_app.intervene(
+    id uuid default gen_random_uuid() primary key,
+    speaker_id uuid not null references eventsync_app.users(id),
+    session_id uuid not null references eventsync_app.sessions(id),
+    start_time time with time zone not null,
+    end_time time with time zone not null,
+    unique (speaker_id, session_id)
 );
 
