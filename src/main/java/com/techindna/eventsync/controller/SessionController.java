@@ -157,13 +157,13 @@ public class SessionController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping({"/{id}", "/"})
     public ResponseEntity<?> deleteSession(@PathVariable String id) {
         try {
             dataValidator.validateUUID(id);
-            UUID deletedId = sessionService.deleteSessionById(UUID.fromString(id));
+            sessionService.deleteSessionById(UUID.fromString(id));
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(String.format("Session %s deleted.", deletedId));
+                    .body(String.format("Session %s deleted.", id));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -172,7 +172,7 @@ public class SessionController {
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 }

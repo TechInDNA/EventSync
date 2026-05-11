@@ -7,6 +7,7 @@ import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import javax.swing.text.html.Option;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -319,7 +320,7 @@ public class SessionRepository {
         }
     }
 
-    public UUID deleteSessionById(UUID id) {
+    public Optional<UUID> deleteSessionById(UUID id) {
         final String query = "DELETE FROM eventsync_app.sessions WHERE id = ? RETURNING id";
         try (
                 Connection connection = dataSource.getConnection();
@@ -327,10 +328,9 @@ public class SessionRepository {
         ) {
             ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return UUID.fromString(rs.getString("id"));
-                }
-                throw new NotFoundException(String.format("Session %s not found.", id));
+                return rs.next() ?
+                        Optional.of(UUID.fromString(rs.getString("id"))) :
+                        Optional.empty();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);

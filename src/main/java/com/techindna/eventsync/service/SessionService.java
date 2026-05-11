@@ -54,6 +54,7 @@ public class SessionService {
     }
 
     public UUID deleteSessionById(UUID id) {
-        return sessionRepository.deleteSessionById(id);
+        return sessionRepository.deleteSessionById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
     }
 }
