@@ -728,8 +728,9 @@ components:
     EventRefInput:
       type: object
       properties:
-        title:
+        id:
           type: string
+          format: uuid
     SessionRef:
       type: object
       properties:
@@ -913,7 +914,6 @@ components:
         - endDate
         - room
         - event
-        - speakers
       properties:
         title:
           type: string
@@ -931,10 +931,6 @@ components:
           type: integer
         event:
           $ref: '#/components/schemas/EventRefInput'
-        speakers:
-          type: array
-          items:
-            $ref: '#/components/schemas/SpeakerRefInput'
     Room:
       type: object
       properties:
@@ -972,8 +968,6 @@ components:
         id:
           type: string
           format: uuid
-        name:
-          type: string
     Speaker:
       type: object
       properties:
@@ -1030,10 +1024,6 @@ components:
         id:
           type: string
           format: uuid
-        email:
-          type: string
-          format: email
-          description: Alternative way to reference speaker by email
     ParticipantRef:
       type: object
       properties:
