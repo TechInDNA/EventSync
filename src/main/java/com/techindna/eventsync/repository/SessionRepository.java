@@ -1,6 +1,7 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.dto.SessionRequestDto;
+import com.techindna.eventsync.dto.SessionResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
@@ -24,23 +25,33 @@ import java.util.UUID;
 @Repository
 public class SessionRepository {
     private final DataSource dataSource;
+    private final RoomRepository roomRepository;
+    private final EventRepository eventRepository;
+    private static final Instant ACTUAL_DATE = Instant.now();
 
-    public SessionRepository(DataSource dataSource) {
+    public SessionRepository(DataSource dataSource, RoomRepository roomRepository, EventRepository eventRepository) {
         this.dataSource = dataSource;
+        this.roomRepository = roomRepository;
+        this.eventRepository = eventRepository;
     }
 
-    public Session createSession(SessionRequestDto sessionRequestDto) {
+    public SessionResponseDto createSession(SessionRequestDto sessionRequestDto) {
         final String query =
                 """
                 INSERT INTO eventsync_app.sessions(title, description, start_date, end_date, room_id, capacity, event_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (title) DO NOTHING
-                RETURNING id
+                RETURNING id, title, description, start_date, end_date, room_id, capacity, event_id
                 """;
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
+            Room room = roomRepository.findRoomById(sessionRequestDto.getRoomId())
+                    .orElseThrow(() -> new NotFoundException("Room not found"));
+
+            Event event = eventRepository.findEventByIdById(sessionRequestDto.getEventId())
+                    .orElseThrow(() -> new NotFoundException("Event not found"));
 
             ps.setString(1, sessionRequestDto.getTitle());
             ps.setString(2, sessionRequestDto.getDescription());
@@ -51,27 +62,22 @@ public class SessionRepository {
             ps.setObject(7, sessionRequestDto.getEventId());
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
+                if (rs.next()) {
+                    SessionResponseDto session = new SessionResponseDto();
+                    session.setId(UUID.fromString(rs.getString("id")));
+                    session.setTitle(rs.getString("title"));
+                    session.setDescription(rs.getString("description"));
+                    session.setStartDate(rs.getTimestamp("start_date").toInstant());
+                    session.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    session.setEvent(event);
+                    session.setRoom(room);
+                    session.setSpeakers(new ArrayList<>());
+                    session.setLive(ACTUAL_DATE.isBefore(session.getEndDate()) &&  ACTUAL_DATE.isAfter(session.getStartDate()));
+                    return session;
+                }
+                else {
                     throw new ConflictException(String.format("Session with title '%s' already exists", sessionRequestDto.getTitle()));
                 }
-
-                Session session = new Session();
-                session.setId(UUID.fromString(rs.getString("id")));
-                session.setTitle(sessionRequestDto.getTitle());
-                session.setDescription(sessionRequestDto.getDescription());
-                session.setStartDate(sessionRequestDto.getStartDate());
-                session.setEndDate(sessionRequestDto.getEndDate());
-                session.setCapacity(sessionRequestDto.getCapacity());
-
-                Room room = new Room();
-                room.setId(sessionRequestDto.getRoomId());
-                session.setRoom(room);
-
-                Event event = new Event();
-                event.setId(sessionRequestDto.getEventId());
-                session.setEvent(event);
-
-                return session;
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
