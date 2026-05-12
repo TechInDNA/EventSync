@@ -1,6 +1,7 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.SessionRequestDto;
+import com.techindna.eventsync.dto.SessionResponseDto;
 import com.techindna.eventsync.entity.Session;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.EventRepository;
@@ -15,17 +16,13 @@ import java.util.UUID;
 public class SessionService {
     private final SessionRepository sessionRepository;
     private final DataValidator dataValidator;
-    private final RoomRepository roomRepository;
-    private final EventRepository eventRepository;
 
-    public SessionService(SessionRepository sessionRepository, DataValidator dataValidator, RoomRepository roomRepository, EventRepository eventRepository) {
+    public SessionService(SessionRepository sessionRepository, DataValidator dataValidator) {
         this.sessionRepository = sessionRepository;
         this.dataValidator = dataValidator;
-        this.roomRepository = roomRepository;
-        this.eventRepository = eventRepository;
     }
 
-    public Session createSession(SessionRequestDto sessionRequestDto) {
+    public SessionResponseDto createSession(SessionRequestDto sessionRequestDto) {
         dataValidator.validateSessionData(
                 sessionRequestDto.getTitle(),
                 sessionRequestDto.getDescription(),
@@ -35,11 +32,6 @@ public class SessionService {
                 String.valueOf(sessionRequestDto.getEventId()),
                 sessionRequestDto.getCapacity()
         );
-        roomRepository.findRoomById(sessionRequestDto.getRoomId())
-                .orElseThrow(() -> new NotFoundException("Room not found"));
-
-        eventRepository.findEventByIdById(sessionRequestDto.getEventId())
-                .orElseThrow(() -> new NotFoundException("Event not found"));
         return sessionRepository.createSession(sessionRequestDto);
     }
 
