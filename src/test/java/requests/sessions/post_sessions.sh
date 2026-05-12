@@ -64,7 +64,7 @@ echo "--- Test 13: Missing startDate (should return 400) ---"
 curlie -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"title":"No Start Date","description":"Missing startDate","endDate":"2026-06-15T12:00:00Z","roomId":"'"$ROOM_ID"'","capacity":50,"eventId":"'"$EVENT_ID"'"}' http://localhost:8080/sessions
 
 echo ""
-echo "--- Test 14: Invalid startDate format (should return 400) ---"
+echo "--- Test 14: Invalid startDate format (should return 400) ---" # fail
 curlie -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"title":"Bad Date","description":"Wrong date format","startDate":"15-06-2026","endDate":"2026-06-15T12:00:00Z","roomId":"'"$ROOM_ID"'","capacity":50,"eventId":"'"$EVENT_ID"'"}' http://localhost:8080/sessions
 
 echo ""
@@ -72,7 +72,7 @@ echo "--- Test 15: Missing endDate (should return 400) ---"
 curlie -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"title":"No End Date","description":"Missing endDate","startDate":"2026-06-15T10:00:00Z","roomId":"'"$ROOM_ID"'","capacity":50,"eventId":"'"$EVENT_ID"'"}' http://localhost:8080/sessions
 
 echo ""
-echo "--- Test 16: Invalid endDate format (should return 400) ---"
+echo "--- Test 16: Invalid endDate format (should return 400) ---" # fail
 curlie -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"title":"Bad End Date","description":"Wrong endDate format","startDate":"2026-06-15T10:00:00Z","endDate":"2026-06-15 12:00:00","roomId":"'"$ROOM_ID"'","capacity":50,"eventId":"'"$EVENT_ID"'"}' http://localhost:8080/sessions
 
 echo ""
@@ -80,7 +80,7 @@ echo "--- Test 17: Missing roomId (should return 400) ---"
 curlie -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"title":"No Room","description":"Missing roomId","startDate":"2026-06-15T10:00:00Z","endDate":"2026-06-15T12:00:00Z","capacity":50,"eventId":"'"$EVENT_ID"'"}' http://localhost:8080/sessions
 
 echo ""
-echo "--- Test 18: Invalid roomId format (should return 400) ---"
+echo "--- Test 18: Invalid roomId format (should return 400) ---" # fail
 curlie -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"title":"Bad Room UUID","description":"Wrong room UUID","startDate":"2026-06-15T10:00:00Z","endDate":"2026-06-15T12:00:00Z","roomId":"not-a-uuid","capacity":50,"eventId":"'"$EVENT_ID"'"}' http://localhost:8080/sessions
 
 echo ""
@@ -92,7 +92,7 @@ echo "--- Test 20: Missing eventId (should return 400) ---"
 curlie -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"title":"No Event","description":"Missing eventId","startDate":"2026-06-15T10:00:00Z","endDate":"2026-06-15T12:00:00Z","roomId":"'"$ROOM_ID"'","capacity":50}' http://localhost:8080/sessions
 
 echo ""
-echo "--- Test 21: Invalid eventId format (should return 400) ---"
+echo "--- Test 21: Invalid eventId format (should return 400) ---" # fail
 curlie -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"title":"Bad Event UUID","description":"Wrong event UUID","startDate":"2026-06-15T10:00:00Z","endDate":"2026-06-15T12:00:00Z","roomId":"'"$ROOM_ID"'","capacity":50,"eventId":"bad-uuid"}' http://localhost:8080/sessions
 
 echo ""

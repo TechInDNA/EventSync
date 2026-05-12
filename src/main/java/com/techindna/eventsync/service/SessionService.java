@@ -2,10 +2,7 @@ package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.SessionRequestDto;
 import com.techindna.eventsync.dto.SessionResponseDto;
-import com.techindna.eventsync.entity.Session;
 import com.techindna.eventsync.exception.NotFoundException;
-import com.techindna.eventsync.repository.EventRepository;
-import com.techindna.eventsync.repository.RoomRepository;
 import com.techindna.eventsync.repository.SessionRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;

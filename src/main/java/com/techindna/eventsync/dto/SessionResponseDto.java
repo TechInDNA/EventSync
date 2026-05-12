@@ -1,5 +1,6 @@
 package com.techindna.eventsync.dto;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Speaker;
@@ -8,6 +9,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+@JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "room", "capacity", "event", "speakers", "isLive"})
 public class SessionResponseDto {
     private UUID id;
     private String title;
