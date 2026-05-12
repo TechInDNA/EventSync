@@ -186,20 +186,20 @@
       "bases:Create new base": false
     }
   },
-  "active": "73a6c18bdf4f9108",
+  "active": "fae3d54826eb5dba",
   "lastOpenFiles": [
-    "src/sql/session_data.sql",
-    "src/test/java/requests/sessions/speaker_sessions.sh",
     "src/test/java/requests/sessions/put_sessions.sh",
     "src/test/java/requests/sessions/post_sessions.sh",
-    "src/test/java/requests/sessions/get_sessions.sh",
     "src/test/java/requests/sessions/get_session_by_id.sh",
     "src/test/java/requests/sessions/delete_sessions.sh",
-    "src/test/java/requests/sessions",
     "src/test/java/com/techindna/eventsync/controller/SessionControllerTest.java",
     "src/test/java/com/techindna/eventsync/controller",
-    "src/sql/SessionData.sql",
+    "src/sql/session_data.sql",
+    "src/main/java/com/techindna/eventsync/dto/SessionRequestDto.java",
     "src/main/docs/test/Bienvenue.md",
+    "src/main/docs/test",
+    "src/main/java/com/techindna/eventsync/entity/SpeakerRef.java",
+    "src/test/java/requests/sessions/get_sessions.sh",
     "src/eventsync/Bienvenue.md"
   ]
 }
