@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -770.6024963958076,
-                  "y": 174.64912552220537,
-                  "zoom": -0.2984835461676844
+                  "x": -848.7879122064818,
+                  "y": -1361.7814175406506,
+                  "zoom": -1.0636595257422061
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -187,18 +187,5 @@
     }
   },
   "active": "73a6c18bdf4f9108",
-  "lastOpenFiles": [
-    "src/main/docs/test/Bienvenue.md",
-    "src/main/docs/test",
-    "src/test/java/requests/post_speakers.sh",
-    "src/test/java/requests/get_speakers.sh",
-    "src/sql/SessionData.sql",
-    "src/main/java/com/techindna/eventsync/validator/ExternalLinksValidator.java",
-    "src/sql/session_data.sql",
-    "src/test/java/requests/sessions/speaker_sessions.sh",
-    "src/test/java/requests/sessions/put_sessions.sh",
-    "src/test/java/requests/sessions/post_sessions.sh",
-    "src/test/java/requests/sessions/get_sessions.sh",
-    "src/eventsync/Bienvenue.md"
-  ]
+  "lastOpenFiles": []
 }
