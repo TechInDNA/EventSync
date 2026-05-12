@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE,"/rooms/**").hasRole("ADMIN")
 
                 .requestMatchers(HttpMethod.DELETE,"/sessions/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST,"/sessions/**").hasRole("ADMIN")
 
                 .requestMatchers("/auth/login").permitAll()
                 .anyRequest().authenticated()

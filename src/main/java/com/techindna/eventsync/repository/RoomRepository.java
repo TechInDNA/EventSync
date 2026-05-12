@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -19,6 +20,28 @@ public class RoomRepository {
     public RoomRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+
+    public Optional<Room> findRoomById(UUID id) {
+        final String query = "select id, name from eventsync_app.rooms where id = ?";
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+                ){
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()){
+                Room room = new Room();
+                if (rs.next()){
+                   room.setId(id);
+                   room.setName(rs.getString("name"));
+                   return Optional.of(room);
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public Room saveRoom(String name) {
         final String query =
