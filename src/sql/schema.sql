@@ -46,3 +46,33 @@ create table eventsync_app.sessions(
 
 );
 
+create table eventsync_app.intervene(
+    id uuid default gen_random_uuid() primary key,
+    speaker_id uuid not null references eventsync_app.users(id) on delete cascade,
+    session_id uuid not null references eventsync_app.sessions(id) on delete cascade,
+    start_time time with time zone not null,
+    end_time time with time zone not null
+);
+
+create table eventsync_app.questions(
+    id uuid default gen_random_uuid() primary key,
+    title varchar(50),
+    content text not null,
+    created_at timestamp default now() not null,
+    session_id uuid not null references eventsync_app.sessions(id) on delete cascade,
+    user_id uuid references eventsync_app.users(id) on delete set null,
+    anonymous boolean default false
+);
+
+
+
+create table eventsync_app.upvotes(
+    id uuid default gen_random_uuid() primary key,
+    user_id uuid references eventsync_app.users(id) on delete cascade,
+    question_id uuid not null references eventsync_app.questions(id) on delete cascade,
+    created_at timestamp default now() not null,
+    unique(user_id, question_id)
+);
+
+create index idx_votes_question_id on eventsync_app.upvotes(question_id);
+create index idx_questions_session_id on eventsync_app.questions(session_id);

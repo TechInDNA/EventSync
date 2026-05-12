@@ -1,13 +1,13 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.GetSessionListResponseDto;
 import com.techindna.eventsync.dto.SessionRequestDto;
-import com.techindna.eventsync.entity.Event;
+import com.techindna.eventsync.entity.EventRef;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.service.QuestionService;
 import com.techindna.eventsync.service.SessionService;
 import com.techindna.eventsync.validator.DataValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -42,6 +42,9 @@ class SessionControllerTest {
     private SessionService sessionService;
 
     @MockitoBean
+    private QuestionService questionService;
+
+    @MockitoBean
     private DataValidator dataValidator;
 
     private Session sampleSession;
@@ -55,7 +58,7 @@ class SessionControllerTest {
         room.setId(roomId);
         room.setName("Grand Ballroom");
 
-        Event event = new Event();
+        EventRef event = new EventRef();
         event.setId(eventId);
         event.setTitle("Tech Conference 2026");
 
@@ -71,18 +74,15 @@ class SessionControllerTest {
     }
 
     @Test
-    void getAllSessions_shouldReturnPaginatedList() throws Exception {
-        when(sessionService.getAllSessions(any())).thenReturn(List.of(sampleSession));
-        when(sessionService.countSessions()).thenReturn(1);
+    void getAllSessions_shouldReturnSessionList() throws Exception {
+        when(sessionService.getAllSessions(any(), any(), any(), any(), any())).thenReturn(List.of(sampleSession));
 
         mockMvc.perform(get("/sessions")
                         .param("page", "1")
                         .param("size", "20"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data[0].id").value(sessionId.toString()))
-                .andExpect(jsonPath("$.meta.total").value(1))
-                .andExpect(jsonPath("$.meta.page").value(1))
-                .andExpect(jsonPath("$.meta.size").value(20));
+                .andExpect(jsonPath("$[0].id").value(sessionId.toString()))
+                .andExpect(jsonPath("$[0].title").value("Keynote: Future of Tech"));
     }
 
     @Test
@@ -131,9 +131,13 @@ class SessionControllerTest {
         request.setDescription("A brand new session");
         request.setStartDate("2026-07-01T09:00:00Z");
         request.setEndDate("2026-07-01T11:00:00Z");
-        request.setRoomId(roomId.toString());
+        SessionRequestDto.RoomRef roomRef = new SessionRequestDto.RoomRef();
+        roomRef.setId(roomId.toString());
+        request.setRoom(roomRef);
         request.setCapacity(100);
-        request.setEventId(eventId.toString());
+        SessionRequestDto.EventRef eventRef = new SessionRequestDto.EventRef();
+        eventRef.setId(eventId.toString());
+        request.setEvent(eventRef);
 
         when(sessionService.createSession(anyString(), anyString(), any(), any(), any(), anyInt(), any()))
                 .thenReturn(sampleSession);
@@ -152,9 +156,13 @@ class SessionControllerTest {
         request.setDescription("Duplicate session");
         request.setStartDate("2026-07-01T09:00:00Z");
         request.setEndDate("2026-07-01T11:00:00Z");
-        request.setRoomId(roomId.toString());
+        SessionRequestDto.RoomRef roomRef = new SessionRequestDto.RoomRef();
+        roomRef.setId(roomId.toString());
+        request.setRoom(roomRef);
         request.setCapacity(100);
-        request.setEventId(eventId.toString());
+        SessionRequestDto.EventRef eventRef = new SessionRequestDto.EventRef();
+        eventRef.setId(eventId.toString());
+        request.setEvent(eventRef);
 
         when(sessionService.createSession(anyString(), anyString(), any(), any(), any(), anyInt(), any()))
                 .thenThrow(new ConflictException("Session with title 'Existing Session' already exists"));
@@ -172,9 +180,13 @@ class SessionControllerTest {
         request.setDescription("Bad session");
         request.setStartDate("2026-07-01T09:00:00Z");
         request.setEndDate("2026-07-01T11:00:00Z");
-        request.setRoomId(roomId.toString());
+        SessionRequestDto.RoomRef roomRef = new SessionRequestDto.RoomRef();
+        roomRef.setId(roomId.toString());
+        request.setRoom(roomRef);
         request.setCapacity(100);
-        request.setEventId(eventId.toString());
+        SessionRequestDto.EventRef eventRef = new SessionRequestDto.EventRef();
+        eventRef.setId(eventId.toString());
+        request.setEvent(eventRef);
 
         doThrow(new BadRequestException("The field title is required and cannot be blank."))
                 .when(dataValidator).validateSessionData(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyInt());
@@ -192,9 +204,13 @@ class SessionControllerTest {
         request.setDescription("Updated description");
         request.setStartDate("2026-08-01T09:00:00Z");
         request.setEndDate("2026-08-01T11:00:00Z");
-        request.setRoomId(roomId.toString());
+        SessionRequestDto.RoomRef roomRef = new SessionRequestDto.RoomRef();
+        roomRef.setId(roomId.toString());
+        request.setRoom(roomRef);
         request.setCapacity(150);
-        request.setEventId(eventId.toString());
+        SessionRequestDto.EventRef eventRef = new SessionRequestDto.EventRef();
+        eventRef.setId(eventId.toString());
+        request.setEvent(eventRef);
 
         Session updated = new Session();
         updated.setId(sessionId);
@@ -206,7 +222,7 @@ class SessionControllerTest {
         Room r = new Room();
         r.setId(roomId);
         updated.setRoom(r);
-        Event e = new Event();
+        EventRef e = new EventRef();
         e.setId(eventId);
         updated.setEvent(e);
 
@@ -228,9 +244,13 @@ class SessionControllerTest {
         request.setDescription("Wont find me");
         request.setStartDate("2026-08-01T09:00:00Z");
         request.setEndDate("2026-08-01T11:00:00Z");
-        request.setRoomId(roomId.toString());
+        SessionRequestDto.RoomRef roomRef = new SessionRequestDto.RoomRef();
+        roomRef.setId(roomId.toString());
+        request.setRoom(roomRef);
         request.setCapacity(50);
-        request.setEventId(eventId.toString());
+        SessionRequestDto.EventRef eventRef = new SessionRequestDto.EventRef();
+        eventRef.setId(eventId.toString());
+        request.setEvent(eventRef);
 
         UUID missingId = UUID.randomUUID();
         when(sessionService.updateSession(any(), anyString(), anyString(), any(), any(), any(), anyInt(), any()))
@@ -243,12 +263,11 @@ class SessionControllerTest {
     }
 
     @Test
-    void deleteSession_shouldReturnOk() throws Exception {
+    void deleteSession_shouldReturnNoContent() throws Exception {
         when(sessionService.deleteSessionById(sessionId)).thenReturn(sessionId);
 
         mockMvc.perform(delete("/sessions/{id}", sessionId))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Session " + sessionId + " deleted."));
+                .andExpect(status().isNoContent());
     }
 
     @Test

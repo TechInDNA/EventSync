@@ -139,4 +139,15 @@ public class DataValidator {
             }
         }
     }
+
+    public void validateSpeakerTimes(String startTime, String endTime){
+        checkNullData("startTime", startTime);
+        checkNullData("endTime", endTime);
+        if (startTime != null && !startTime.matches("^\\d{2}:\\d{2}(:\\d{2})?$")) {
+            throw new BadRequestException("Invalid startTime format. Use HH:mm or HH:mm:ss.");
+        }
+        if (endTime != null && !endTime.matches("^\\d{2}:\\d{2}(:\\d{2})?$")) {
+            throw new BadRequestException("Invalid endTime format. Use HH:mm or HH:mm:ss.");
+        }
+    }
 }

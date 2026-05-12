@@ -16,9 +16,9 @@ curlie -s -w "\nHTTP Status: %{http_code}\n" -X POST \
     "description": "A beginner-friendly Kubernetes workshop",
     "startDate": "2026-09-01T10:00:00Z",
     "endDate": "2026-09-01T12:00:00Z",
-    "roomId": "c1c12204-4427-4add-b755-b681719d1685",
+    "room": {"id": "c1c12204-4427-4add-b755-b681719d1685"},
     "capacity": 80,
-    "eventId": "b3b958ac-bdd7-481a-b8f7-636d43794f83"
+    "event": {"id": "b3b958ac-bdd7-481a-b8f7-636d43794f83"}
   }' http://localhost:8080/sessions
 
 # Test 2: Create with duplicate title (should return 409)
@@ -32,9 +32,9 @@ curlie -s -w "\nHTTP Status: %{http_code}\n" -X POST \
     "description": "Another attempt",
     "startDate": "2026-09-01T14:00:00Z",
     "endDate": "2026-09-01T16:00:00Z",
-    "roomId": "c1c12204-4427-4add-b755-b681719d1685",
+    "room": {"id": "c1c12204-4427-4add-b755-b681719d1685"},
     "capacity": 50,
-    "eventId": "b3b958ac-bdd7-481a-b8f7-636d43794f83"
+    "event": {"id": "b3b958ac-bdd7-481a-b8f7-636d43794f83"}
   }' http://localhost:8080/sessions
 
 # Test 3: Create with missing fields (should return 400)
@@ -57,9 +57,9 @@ curlie -s -w "\nHTTP Status: %{http_code}\n" -X POST \
     "description": "Should not be created",
     "startDate": "2026-09-01T10:00:00Z",
     "endDate": "2026-09-01T12:00:00Z",
-    "roomId": "c1c12204-4427-4add-b755-b681719d1685",
+    "room": {"id": "c1c12204-4427-4add-b755-b681719d1685"},
     "capacity": 30,
-    "eventId": "b3b958ac-bdd7-481a-b8f7-636d43794f83"
+    "event": {"id": "b3b958ac-bdd7-481a-b8f7-636d43794f83"}
   }' http://localhost:8080/sessions
 
 echo ""

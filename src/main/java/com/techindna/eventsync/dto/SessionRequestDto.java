@@ -5,9 +5,9 @@ public class SessionRequestDto {
     private String description;
     private String startDate;
     private String endDate;
-    private String roomId;
+    private RoomRef room;
     private int capacity;
-    private String eventId;
+    private EventRef event;
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -21,12 +21,29 @@ public class SessionRequestDto {
     public String getEndDate() { return endDate; }
     public void setEndDate(String endDate) { this.endDate = endDate; }
 
-    public String getRoomId() { return roomId; }
-    public void setRoomId(String roomId) { this.roomId = roomId; }
+    public RoomRef getRoom() { return room; }
+    public void setRoom(RoomRef room) { this.room = room; }
 
     public int getCapacity() { return capacity; }
     public void setCapacity(int capacity) { this.capacity = capacity; }
 
-    public String getEventId() { return eventId; }
-    public void setEventId(String eventId) { this.eventId = eventId; }
+    public EventRef getEvent() { return event; }
+    public void setEvent(EventRef event) { this.event = event; }
+
+    public String getRoomId() { return room != null ? room.getId() : null; }
+    public String getEventId() { return event != null ? event.getId() : null; }
+
+    public static class RoomRef {
+        private String id;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+    }
+
+    public static class EventRef {
+        private String id;
+
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
+    }
 }

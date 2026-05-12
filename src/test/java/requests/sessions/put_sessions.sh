@@ -17,9 +17,9 @@ curlie -s -w "\nHTTP Status: %{http_code}\n" -X PUT \
     "description": "Updated description for the session",
     "startDate": "2026-06-15T10:00:00Z",
     "endDate": "2026-06-15T12:30:00Z",
-    "roomId": "c1c12204-4427-4add-b755-b681719d1685",
+    "room": {"id": "c1c12204-4427-4add-b755-b681719d1685"},
     "capacity": 75,
-    "eventId": "b3b958ac-bdd7-481a-b8f7-636d43794f83"
+    "event": {"id": "b3b958ac-bdd7-481a-b8f7-636d43794f83"}
   }' "http://localhost:8080/sessions/$SESSION_ID"
 
 # Test 2: Update non-existent session (should return 404)
@@ -33,9 +33,9 @@ curlie -s -w "\nHTTP Status: %{http_code}\n" -X PUT \
     "description": "Does not exist",
     "startDate": "2026-06-15T10:00:00Z",
     "endDate": "2026-06-15T12:00:00Z",
-    "roomId": "c1c12204-4427-4add-b755-b681719d1685",
+    "room": {"id": "c1c12204-4427-4add-b755-b681719d1685"},
     "capacity": 50,
-    "eventId": "b3b958ac-bdd7-481a-b8f7-636d43794f83"
+    "event": {"id": "b3b958ac-bdd7-481a-b8f7-636d43794f83"}
   }' "http://localhost:8080/sessions/00000000-0000-0000-0000-000000000000"
 
 # Test 3: Update with invalid data (should return 400)
@@ -58,9 +58,9 @@ curlie -s -w "\nHTTP Status: %{http_code}\n" -X PUT \
     "description": "Should not work",
     "startDate": "2026-06-15T10:00:00Z",
     "endDate": "2026-06-15T12:00:00Z",
-    "roomId": "c1c12204-4427-4add-b755-b681719d1685",
+    "room": {"id": "c1c12204-4427-4add-b755-b681719d1685"},
     "capacity": 50,
-    "eventId": "b3b958ac-bdd7-481a-b8f7-636d43794f83"
+    "event": {"id": "b3b958ac-bdd7-481a-b8f7-636d43794f83"}
   }' "http://localhost:8080/sessions/$SESSION_ID"
 
 echo ""
