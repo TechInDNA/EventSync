@@ -15,8 +15,8 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": 331.8048145099127,
-                  "y": -1744.9399883610938,
+                  "x": -1347.9160808638974,
+                  "y": -978.9057670683726,
                   "zoom": -0.2984835461676844
                 }
               },
@@ -186,19 +186,19 @@
       "bases:Create new base": false
     }
   },
-  "active": "fae3d54826eb5dba",
+  "active": "73a6c18bdf4f9108",
   "lastOpenFiles": [
+    "src/test/java/com/techindna/eventsync/controller/SessionControllerTest.java",
+    "src/test/java/com/techindna/eventsync/controller",
+    "src/test/java/requests/sessions/post_sessions.sh~",
     "src/test/java/requests/sessions/cookies.txt",
-    "target/classes/com/techindna/eventsync/service/AuthService.class",
-    "target/classes/com/techindna/eventsync/dto/GetSessionListResponseDto.class",
-    "target/classes/com/techindna/eventsync/entity/Session.class",
-    "target/classes/com/techindna/eventsync/controller/SessionController.class",
-    "target/classes/com/techindna/eventsync/service/SessionService.class",
+    "target/classes/com/techindna/eventsync/dto/SessionResponseDto.class",
     "target/classes/com/techindna/eventsync/dto/SessionRequestDto.class",
-    "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
-    "target/classes/com/techindna/eventsync/dto/UpdateSpeakerResponseDto.class",
-    "target/classes/com/techindna/eventsync/repository/SpeakerRepository.class",
-    "target/classes/com/techindna/eventsync/dto/SpeakerRequestDto.class",
+    "src/main/java/com/techindna/eventsync/dto/SessionResponseDto.java~",
+    "src/main/java/com/techindna/eventsync/dto/SessionRequestDto.java~",
+    "target/classes/com/techindna/eventsync/service/SessionService.class",
+    "src/main/java/com/techindna/eventsync/service/SessionService.java~",
+    "target/classes/com/techindna/eventsync/controller/SessionController.class",
     "src/main/docs/test/Bienvenue.md",
     "src/eventsync/Bienvenue.md"
   ]
