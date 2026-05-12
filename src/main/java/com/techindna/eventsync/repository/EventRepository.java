@@ -24,11 +24,17 @@ public class EventRepository {
     }
 
 
-    public Optional<UUID> findEventByIdById(UUID id){
+    public Optional<Event> findEventByIdById(UUID id){
         final String query =
                 """
                 select
-                id
+                id,
+                title,
+                description,
+                start_date,
+                end_date,
+                location,
+                created_at
                 from eventsync_app.events
                 where id = ?
                 """;
@@ -39,9 +45,18 @@ public class EventRepository {
                 ){
             ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()){
-                return rs.next() ?
-                        Optional.of(UUID.fromString(rs.getString("id")))
-                        : Optional.empty();
+                if (rs.next()){
+                    Event event = new Event();
+                    event.setId(UUID.fromString(rs.getString("id")));
+                    event.setTitle(rs.getString("title"));
+                    event.setDescription(rs.getString("description"));
+                    event.setStartDate(rs.getTimestamp("start_date").toInstant());
+                    event.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    event.setLocation(rs.getString("location"));
+                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+                    return Optional.of(event);
+                }
+                return Optional.empty();
             }
 
         } catch (SQLException e){
