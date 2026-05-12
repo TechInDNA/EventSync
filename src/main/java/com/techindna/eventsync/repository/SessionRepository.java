@@ -24,9 +24,13 @@ import java.util.UUID;
 @Repository
 public class SessionRepository {
     private final DataSource dataSource;
+    private final RoomRepository roomRepository;
+    private final EventRepository eventRepository;
 
-    public SessionRepository(DataSource dataSource) {
+    public SessionRepository(DataSource dataSource, RoomRepository roomRepository, EventRepository eventRepository) {
         this.dataSource = dataSource;
+        this.roomRepository = roomRepository;
+        this.eventRepository = eventRepository;
     }
 
     public Session createSession(SessionRequestDto sessionRequestDto) {
@@ -41,6 +45,12 @@ public class SessionRepository {
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
+            roomRepository.findRoomById(sessionRequestDto.getRoomId())
+                    .orElseThrow(() -> new NotFoundException("Room not found"));
+
+            eventRepository.findEventByIdById(sessionRequestDto.getEventId())
+                    .orElseThrow(() -> new NotFoundException("Event not found"));
+
             ps.setString(1, sessionRequestDto.getTitle());
             ps.setString(2, sessionRequestDto.getDescription());
             ps.setTimestamp(3, Timestamp.from(sessionRequestDto.getStartDate()));

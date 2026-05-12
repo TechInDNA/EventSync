@@ -23,6 +23,33 @@ public class EventRepository {
         this.dataSource = dataSource;
     }
 
+
+    protected Optional<UUID> findEventByIdById(UUID id){
+        final String query =
+                """
+                select
+                id
+                from eventsync_app.events
+                where id = ?
+                """;
+
+        try(
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query);
+                ){
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()){
+                return rs.next() ?
+                        Optional.of(UUID.fromString(rs.getString("id")))
+                        : Optional.empty();
+            }
+
+        } catch (SQLException e){
+            throw new RuntimeException(e);
+        }
+    }
+
+
     public Event saveEvent(String title, String description, Instant startDate, Instant endDate, String location){
         final String query =
                 """
