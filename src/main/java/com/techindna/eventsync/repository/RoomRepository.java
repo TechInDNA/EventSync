@@ -21,8 +21,8 @@ public class RoomRepository {
         this.dataSource = dataSource;
     }
 
-    protected Optional<Room> findRoomById(UUID id) {
-        final String query = "select id, name from eventsync_app.room where id = ?";
+    public Optional<Room> findRoomById(UUID id) {
+        final String query = "select id, name from eventsync_app.rooms where id = ?";
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
