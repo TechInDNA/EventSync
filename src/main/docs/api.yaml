@@ -71,7 +71,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ParticipantRef'
+                type: object
+                properties:
+                  token:
+                    type: string
+                  participant:
+                    $ref: '#/components/schemas/ParticipantRef'
   /events:
     get:
       summary: List all events
