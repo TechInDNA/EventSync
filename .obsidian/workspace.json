@@ -15,8 +15,8 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -770.6024963958076,
-                  "y": 174.64912552220537,
+                  "x": 331.8048145099127,
+                  "y": -1744.9399883610938,
                   "zoom": -0.2984835461676844
                 }
               },
@@ -186,20 +186,20 @@
       "bases:Create new base": false
     }
   },
-  "active": "73a6c18bdf4f9108",
+  "active": "fae3d54826eb5dba",
   "lastOpenFiles": [
-    "src/main/docs/api.yaml~",
-    "src/main/java/com/techindna/eventsync/repository/SessionRepository.java~",
-    "src/main/java/com/techindna/eventsync/service/SessionService.java~",
-    "src/main/java/com/techindna/eventsync/controller/SessionController.java~",
-    "src/main/java/com/techindna/eventsync/dto/GetAllSessionsParameters.java",
-    "src/main/java/com/techindna/eventsync/dto/getAllSessionsParameters.java~",
-    "src/main/java/com/techindna/eventsync/dto/getAllSessionsParameters.java",
-    "src/main/java/com/techindna/eventsync/validator/DataValidator.java~",
+    "src/sql/SessionData.sql",
+    "src/test/java/requests/sessions/put_sessions.sh",
+    "src/test/java/requests/sessions/post_sessions.sh",
+    "src/test/java/requests/sessions/get_session_by_id.sh",
+    "src/test/java/requests/sessions/delete_sessions.sh",
     "src/test/java/com/techindna/eventsync/controller/SessionControllerTest.java",
-    "target/classes/com/techindna/eventsync/exception/UnauthorizedException.class",
-    "target/classes/com/techindna/eventsync/exception/TooManyRequestException.class",
+    "src/test/java/com/techindna/eventsync/controller",
+    "src/sql/session_data.sql",
+    "src/main/java/com/techindna/eventsync/dto/SessionRequestDto.java",
     "src/main/docs/test/Bienvenue.md",
+    "src/main/docs/test",
+    "src/main/java/com/techindna/eventsync/entity/SpeakerRef.java",
     "src/eventsync/Bienvenue.md"
   ]
 }
