@@ -1,23 +1,35 @@
 package com.techindna.eventsync.service;
 
-import com.techindna.eventsync.dto.PaginationRequestDto;
+import com.techindna.eventsync.dto.SessionRequestDto;
 import com.techindna.eventsync.entity.Session;
-import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SessionRepository;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class SessionService {
     private final SessionRepository sessionRepository;
+    private final DataValidator dataValidator;
 
-    public SessionService(SessionRepository sessionRepository) {
+    public SessionService(SessionRepository sessionRepository, DataValidator dataValidator) {
         this.sessionRepository = sessionRepository;
+        this.dataValidator = dataValidator;
+    }
+
+    public Session createSession(SessionRequestDto sessionRequestDto) {
+        dataValidator.validateSessionData(
+                sessionRequestDto.getTitle(),
+                sessionRequestDto.getDescription(),
+                String.valueOf(sessionRequestDto.getStartDate()),
+                String.valueOf(sessionRequestDto.getEndDate()),
+                String.valueOf(sessionRequestDto.getRoomId()),
+                String.valueOf(sessionRequestDto.getEventId()),
+                sessionRequestDto.getCapacity()
+        );
+        return sessionRepository.createSession(sessionRequestDto);
     }
 
     public UUID deleteSessionById(UUID id) {
