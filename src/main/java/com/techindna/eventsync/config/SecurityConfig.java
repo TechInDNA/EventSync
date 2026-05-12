@@ -40,6 +40,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/rooms/**").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/rooms/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE,"/rooms/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.GET,"/sessions/**").permitAll()
+                    .requestMatchers(HttpMethod.POST,"/sessions/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.PUT,"/sessions/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE,"/sessions/**").hasRole("ADMIN")
 
                 .requestMatchers("/auth/login").permitAll()
                 .anyRequest().authenticated()
