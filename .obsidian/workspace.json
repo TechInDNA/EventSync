@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -848.7879122064818,
-                  "y": -1361.7814175406506,
-                  "zoom": -1.0636595257422061
+                  "x": -770.6024963958076,
+                  "y": 174.64912552220537,
+                  "zoom": -0.2984835461676844
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -187,5 +187,19 @@
     }
   },
   "active": "73a6c18bdf4f9108",
-  "lastOpenFiles": []
+  "lastOpenFiles": [
+    "src/main/docs/api.yaml~",
+    "src/main/java/com/techindna/eventsync/repository/SessionRepository.java~",
+    "src/main/java/com/techindna/eventsync/service/SessionService.java~",
+    "src/main/java/com/techindna/eventsync/controller/SessionController.java~",
+    "src/main/java/com/techindna/eventsync/dto/GetAllSessionsParameters.java",
+    "src/main/java/com/techindna/eventsync/dto/getAllSessionsParameters.java~",
+    "src/main/java/com/techindna/eventsync/dto/getAllSessionsParameters.java",
+    "src/main/java/com/techindna/eventsync/validator/DataValidator.java~",
+    "src/test/java/com/techindna/eventsync/controller/SessionControllerTest.java",
+    "target/classes/com/techindna/eventsync/exception/UnauthorizedException.class",
+    "target/classes/com/techindna/eventsync/exception/TooManyRequestException.class",
+    "src/main/docs/test/Bienvenue.md",
+    "src/eventsync/Bienvenue.md"
+  ]
 }
