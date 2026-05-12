@@ -1,8 +1,11 @@
 package com.techindna.eventsync.repository;
 
+import com.techindna.eventsync.dto.SessionRequestDto;
+import com.techindna.eventsync.dto.SessionResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
+import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
@@ -22,9 +25,63 @@ import java.util.UUID;
 @Repository
 public class SessionRepository {
     private final DataSource dataSource;
+    private final RoomRepository roomRepository;
+    private final EventRepository eventRepository;
+    private static final Instant ACTUAL_DATE = Instant.now();
 
-    public SessionRepository(DataSource dataSource) {
+    public SessionRepository(DataSource dataSource, RoomRepository roomRepository, EventRepository eventRepository) {
         this.dataSource = dataSource;
+        this.roomRepository = roomRepository;
+        this.eventRepository = eventRepository;
+    }
+
+    public SessionResponseDto createSession(SessionRequestDto sessionRequestDto) {
+        final String query =
+                """
+                INSERT INTO eventsync_app.sessions(title, description, start_date, end_date, room_id, capacity, event_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (title) DO NOTHING
+                RETURNING id, title, description, start_date, end_date, room_id, capacity, event_id
+                """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            Room room = roomRepository.findRoomById(sessionRequestDto.getRoomId())
+                    .orElseThrow(() -> new NotFoundException("Room not found"));
+
+            Event event = eventRepository.findEventByIdById(sessionRequestDto.getEventId())
+                    .orElseThrow(() -> new NotFoundException("Event not found"));
+
+            ps.setString(1, sessionRequestDto.getTitle());
+            ps.setString(2, sessionRequestDto.getDescription());
+            ps.setTimestamp(3, Timestamp.from(sessionRequestDto.getStartDate()));
+            ps.setTimestamp(4, Timestamp.from(sessionRequestDto.getEndDate()));
+            ps.setObject(5, sessionRequestDto.getRoomId());
+            ps.setInt(6, sessionRequestDto.getCapacity());
+            ps.setObject(7, sessionRequestDto.getEventId());
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    SessionResponseDto session = new SessionResponseDto();
+                    session.setId(UUID.fromString(rs.getString("id")));
+                    session.setTitle(rs.getString("title"));
+                    session.setDescription(rs.getString("description"));
+                    session.setStartDate(rs.getTimestamp("start_date").toInstant());
+                    session.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    session.setEvent(event);
+                    session.setRoom(room);
+                    session.setSpeakers(new ArrayList<>());
+                    session.setLive(ACTUAL_DATE.isBefore(session.getEndDate()) &&  ACTUAL_DATE.isAfter(session.getStartDate()));
+                    return session;
+                }
+                else {
+                    throw new ConflictException(String.format("Session with title '%s' already exists", sessionRequestDto.getTitle()));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Optional<UUID> deleteSessionById(UUID id) {

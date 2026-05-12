@@ -30,6 +30,26 @@ public class SessionController {
         this.dataValidator = dataValidator;
     }
 
+    @PostMapping
+    public ResponseEntity<?> createSession(@RequestBody SessionRequestDto request) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(sessionService.createSession(request));
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
     @DeleteMapping({"/{id}", "/"})
     public ResponseEntity<?> deleteSession(@PathVariable String id) {
         try {
