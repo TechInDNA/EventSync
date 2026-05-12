@@ -24,7 +24,7 @@ public class EventRepository {
     }
 
 
-    protected Optional<UUID> findEventByIdById(UUID id){
+    public Optional<UUID> findEventByIdById(UUID id){
         final String query =
                 """
                 select
