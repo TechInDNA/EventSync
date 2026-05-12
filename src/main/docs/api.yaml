@@ -815,6 +815,19 @@ components:
           format: uuid
         title:
           type: string
+        description:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        location:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
     EventRefInput:
       type: object
       required:
