@@ -28,7 +28,7 @@ public class SessionService {
                 String.valueOf(sessionRequestDto.getEndDate()),
                 sessionRequestDto.getRoomName(),
                 sessionRequestDto.getEventTitle(),
-                sessionRequestDto.getCapacity()
+                String.valueOf(sessionRequestDto.getCapacity())
         );
         return sessionRepository.createSession(sessionRequestDto)
                 .orElseThrow(() -> new ConflictException(String.format("Session with title '%s' already exists", sessionRequestDto.getTitle())));
