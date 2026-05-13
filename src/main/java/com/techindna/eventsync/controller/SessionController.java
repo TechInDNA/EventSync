@@ -75,8 +75,8 @@ public class SessionController {
     public ResponseEntity<?> updateSession(@PathVariable String id, @RequestBody SessionRequestDto request) {
         try {
             dataValidator.validateUUID(id);
-            SessionResponseDto updatedSession = sessionService.updateSession(UUID.fromString(id), request);
-            return ResponseEntity.status(HttpStatus.OK).body(updatedSession);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(sessionService.updateSession(UUID.fromString(id), request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (NotFoundException e) {

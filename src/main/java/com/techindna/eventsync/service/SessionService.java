@@ -40,17 +40,17 @@ public class SessionService {
         return sessionRepository.getAllSessions(pagination.getOffset(), pagination.getLimit());
     }
 
-    public SessionResponseDto updateSession(UUID id, SessionRequestDto dto) {
+    public SessionResponseDto updateSession(UUID id, SessionRequestDto session) {
         dataValidator.validateSessionData(
-                dto.getTitle(),
-                dto.getDescription(),
-                String.valueOf(dto.getStartDate()),
-                String.valueOf(dto.getEndDate()),
-                dto.getRoomName(),
-                dto.getEventTitle(),
-                String.valueOf(dto.getCapacity())
+                session.getTitle(),
+                session.getDescription(),
+                String.valueOf(session.getStartDate()),
+                String.valueOf(session.getEndDate()),
+                session.getRoomName(),
+                session.getEventTitle(),
+                String.valueOf(session.getCapacity())
         );
-        return sessionRepository.updateSession(id, dto)
+        return sessionRepository.updateSession(id, session)
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
     }
 
