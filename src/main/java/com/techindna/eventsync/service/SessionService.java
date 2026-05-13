@@ -3,6 +3,8 @@ package com.techindna.eventsync.service;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.SessionRequestDto;
 import com.techindna.eventsync.dto.SessionResponseDto;
+import com.techindna.eventsync.dto.SessionSpeakerInputDto;
+import com.techindna.eventsync.dto.SessionSpeakerResponseDto;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SessionRepository;
@@ -61,5 +63,9 @@ public class SessionService {
     public UUID deleteSessionById(UUID id) {
         return sessionRepository.deleteSessionById(id)
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
+    }
+
+    public SessionSpeakerResponseDto addSpeakerToSession(UUID sessionId, UUID speakerId, SessionSpeakerInputDto input) {
+        return sessionRepository.addSpeakerToSession(sessionId, speakerId, input);
     }
 }

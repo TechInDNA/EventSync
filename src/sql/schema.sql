@@ -45,5 +45,13 @@ create table eventsync_app.sessions(
     event_id uuid references eventsync_app.events(id) on delete set null
 );
 
+create table eventsync_app.intervene(
+    id uuid default gen_random_uuid() primary key,
+    speaker_id uuid not null references eventsync_app.users(id) on delete cascade,
+    session_id uuid not null references eventsync_app.sessions(id) on delete cascade,
+    start_time time with time zone not null,
+    end_time time with time zone not null
+);
+
 
 

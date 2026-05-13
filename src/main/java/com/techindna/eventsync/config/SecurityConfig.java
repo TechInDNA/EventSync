@@ -24,8 +24,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, TokenProvider tokenProvider) {
         http
             .csrf(csrf -> csrf.disable())
+
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+
                 .requestMatchers(HttpMethod.POST, "/events/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/events/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/events/**").hasRole("ADMIN")
@@ -43,8 +45,14 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.DELETE,"/sessions/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.POST,"/sessions/**").hasRole("ADMIN")
-                    .requestMatchers(HttpMethod.PUT,"/sessions/**").permitAll()
+                    .requestMatchers(HttpMethod.PUT,"/sessions/**").hasRole("ADMIN")
                     .requestMatchers(HttpMethod.GET,"/sessions/**").permitAll()
+
+                    .requestMatchers(HttpMethod.POST, "/sessions/*/speaker/*").hasRole("ADMIN")
+
+                    .requestMatchers("/error").permitAll()
+
+
 
 
                 .requestMatchers("/auth/login").permitAll()

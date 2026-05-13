@@ -1,13 +1,15 @@
 package com.techindna.eventsync.repository;
 
+import com.techindna.eventsync.dto.SessionRefDetailDto;
 import com.techindna.eventsync.dto.SessionRequestDto;
 import com.techindna.eventsync.dto.SessionResponseDto;
+import com.techindna.eventsync.dto.SessionSpeakerInputDto;
+import com.techindna.eventsync.dto.SessionSpeakerResponseDto;
 import com.techindna.eventsync.dto.SpeakerRefDto;
 
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
-import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +20,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -305,6 +309,100 @@ public class SessionRepository {
                         Optional.of(UUID.fromString(rs.getString("id"))) :
                         Optional.empty();
             }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public SessionSpeakerResponseDto addSpeakerToSession(UUID sessionId, UUID speakerId, SessionSpeakerInputDto input) {
+        final String findSessionQuery =
+                """
+                SELECT s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
+                       r.id AS room_id, r.name AS room_name
+                FROM eventsync_app.sessions s
+                LEFT JOIN eventsync_app.rooms r ON s.room_id = r.id
+                WHERE s.id = ?
+                """;
+        final String findSpeakerQuery =
+                """
+                SELECT id, first_name, last_name, profile_picture, bio
+                FROM eventsync_app.users
+                WHERE id = ? AND "role" = 'speaker'
+                """;
+        final String insertQuery =
+                """
+                INSERT INTO eventsync_app.intervene(speaker_id, session_id, start_time, end_time)
+                VALUES (?, ?, ?, ?)
+                RETURNING id
+                """;
+        try (Connection conn = dataSource.getConnection()) {
+
+            SessionRefDetailDto sessionDetail;
+            try (PreparedStatement ps = conn.prepareStatement(findSessionQuery)) {
+                ps.setObject(1, sessionId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new NotFoundException(String.format("Session %s not found.", sessionId));
+                    }
+                    sessionDetail = new SessionRefDetailDto();
+                    sessionDetail.setId(UUID.fromString(rs.getString("id")));
+                    sessionDetail.setTitle(rs.getString("title"));
+                    sessionDetail.setDescription(rs.getString("description"));
+                    sessionDetail.setStartDate(rs.getTimestamp("start_date").toInstant());
+                    sessionDetail.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    sessionDetail.setCapacity(rs.getInt("capacity"));
+                    SessionRefDetailDto.RoomRef roomRef = new SessionRefDetailDto.RoomRef();
+                    String roomId = rs.getString("room_id");
+                    if (roomId != null) {
+                        roomRef.setId(UUID.fromString(roomId));
+                        roomRef.setName(rs.getString("room_name"));
+                    }
+                    sessionDetail.setRoom(roomRef);
+                }
+            }
+
+            SpeakerRefDto speakerRef;
+            try (PreparedStatement ps = conn.prepareStatement(findSpeakerQuery)) {
+                ps.setObject(1, speakerId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new NotFoundException(String.format("Speaker %s not found.", speakerId));
+                    }
+                    speakerRef = new SpeakerRefDto();
+                    speakerRef.setId(UUID.fromString(rs.getString("id")));
+                    speakerRef.setFirstName(rs.getString("first_name"));
+                    speakerRef.setLastName(rs.getString("last_name"));
+                    speakerRef.setProfilePicture(rs.getString("profile_picture"));
+                    speakerRef.setBio(rs.getString("bio"));
+                }
+            }
+
+            OffsetDateTime startTime = input.getStartTime();
+            OffsetDateTime endTime = input.getEndTime();
+
+            UUID interveneId;
+            try (PreparedStatement ps = conn.prepareStatement(insertQuery)) {
+                ps.setObject(1, speakerId);
+                ps.setObject(2, sessionId);
+
+                ps.setObject(3, startTime);
+                ps.setObject(4, endTime);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new RuntimeException("Failed to link speaker to session.");
+                    }
+                    interveneId = UUID.fromString(rs.getString("id"));
+                }
+            }
+
+            SessionSpeakerResponseDto response = new SessionSpeakerResponseDto();
+            response.setId(interveneId);
+            response.setSpeaker(speakerRef);
+            response.setSession(sessionDetail);
+            response.setStartTime(startTime);
+            response.setEndTime(endTime);
+            return response;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
