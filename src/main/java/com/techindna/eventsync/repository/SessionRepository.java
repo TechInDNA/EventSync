@@ -5,6 +5,7 @@ import com.techindna.eventsync.entity.EventRef;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
 
+import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -15,6 +16,7 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -337,8 +339,64 @@ public class SessionRepository {
         }
     }
 
+    public Session updateSession(UUID id, String title, String description, Instant startDate,
+                                 Instant endDate, UUID roomId, int capacity, UUID eventId) {
+        final String query =
+                """
+                update
+                    eventsync_app.sessions
+                set
+                    title = ?, description = ?, start_date = ?, end_date = ?,
+                    room_id = ?, capacity = ?, event_id = ?
+                where id = ?
+                returning id
+                """;
 
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
+            ps.setString(1, title);
+            ps.setString(2, description);
+            ps.setTimestamp(3, Timestamp.from(startDate));
+            ps.setTimestamp(4, Timestamp.from(endDate));
+            ps.setObject(5, roomId);
+            ps.setInt(6, capacity);
+            ps.setObject(7, eventId);
+            ps.setObject(8, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Session session = new Session();
+                    session.setId(id);
+                    session.setTitle(title);
+                    session.setDescription(description);
+                    session.setStartDate(startDate);
+                    session.setEndDate(endDate);
+                    session.setCapacity(capacity);
+
+                    Room room = new Room();
+                    room.setId(roomId);
+                    session.setRoom(room);
+
+                    EventRef event = new EventRef();
+                    event.setId(eventId);
+                    session.setEvent(event);
+
+                    session.setSpeakers(findSpeakersBySessionId(id));
+
+                    return session;
+                }
+                throw new NotFoundException(String.format("Session %s not found.", id));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
+
+
+
+}
 
 
 

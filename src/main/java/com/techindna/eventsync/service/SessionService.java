@@ -57,6 +57,22 @@ public class SessionService {
         return session;
     }
 
+    public Session updateSession(UUID id, String title, String description, Instant startDate,
+                                 Instant endDate, UUID roomId, int capacity, UUID eventId) {
+
+        Optional<Session> existing = sessionRepository.findSessionByTitle(title);
+        if (existing.isPresent()) {
+            Session s = existing.get();
+            if (!s.getId().equals(id)) {
+                throw new ConflictException(String.format(
+                        "A session with title '%s' already exists (ID: %s)", s.getTitle(), s.getId()));
+            }
+        }
+        sessionRepository.updateSession(id, title, description, startDate, endDate, roomId, capacity, eventId);
+
+        return getSessionById(id);
+    }
+
 
 
 }

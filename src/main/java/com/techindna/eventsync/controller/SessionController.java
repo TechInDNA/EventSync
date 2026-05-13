@@ -4,6 +4,7 @@ import com.techindna.eventsync.dto.GetSessionListResponseDto;
 
 import com.techindna.eventsync.dto.PaginationRequestDto;
 
+import com.techindna.eventsync.dto.SessionRequestDto;
 import com.techindna.eventsync.entity.Session;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.service.SessionService;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -69,6 +71,48 @@ public class SessionController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateSession(
+            @PathVariable String id,
+            @RequestBody SessionRequestDto request) {
+        try {
+            dataValidator.validateUUID(id);
+            dataValidator.validateSessionData(
+                    request.getTitle(),
+                    request.getDescription(),
+                    request.getStartDate(),
+                    request.getEndDate(),
+                    request.getRoomId(),
+                    request.getEventId(),
+                    request.getCapacity()
+            );
+
+            Session updatedSession = sessionService.updateSession(
+                    UUID.fromString(id),
+                    request.getTitle(),
+                    request.getDescription(),
+                    Instant.parse(request.getStartDate()),
+                    Instant.parse(request.getEndDate()),
+                    UUID.fromString(request.getRoomId()),
+                    request.getCapacity(),
+                    UUID.fromString(request.getEventId())
+            );
+
+            return ResponseEntity.status(HttpStatus.OK).body(updatedSession);
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
