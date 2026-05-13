@@ -80,8 +80,4 @@ public class Session {
         this.event = event;
     }
 
-    public boolean getIsLive() {
-        Instant now = Instant.now();
-        return !now.isBefore(startDate) && now.isBefore(endDate);
-    }
 }
