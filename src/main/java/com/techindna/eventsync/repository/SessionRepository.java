@@ -198,6 +198,88 @@ public class SessionRepository {
         }
     }
 
+    // ---------------------------------------------------------------
+    // FIND BY TITLE
+    // ---------------------------------------------------------------
+    public Optional<Session> findSessionByTitle(String title) {
+        final String query = "SELECT id, title FROM eventsync_app.sessions WHERE title = ?";
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setString(1, title);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Session session = new Session();
+                    session.setId(UUID.fromString(rs.getString("id")));
+                    session.setTitle(rs.getString("title"));
+                    return Optional.of(session);
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Optional<SessionResponseDto> updateSession(UUID id, SessionRequestDto dto) {
+        Room room = roomRepository.findRoomByName(dto.getRoomName())
+                .orElseThrow(() -> new NotFoundException("Room not found."));
+        Event event = eventRepository.findEventByTitle(dto.getEventTitle())
+                .orElseThrow(() -> new NotFoundException("Event not found."));
+
+        final String query = """
+            UPDATE eventsync_app.sessions
+            SET title = ?, description = ?, start_date = ?, end_date = ?, room_id = ?, capacity = ?, event_id = ?
+            WHERE id = ?
+            RETURNING id, title, description, start_date, end_date, room_id, capacity, event_id
+            """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setString(1, dto.getTitle());
+            ps.setString(2, dto.getDescription());
+            ps.setTimestamp(3, Timestamp.from(Instant.parse(dto.getStartDate())));
+            ps.setTimestamp(4, Timestamp.from(Instant.parse(dto.getEndDate())));
+            ps.setObject(5, room.getId());
+            ps.setInt(6, Integer.parseInt(dto.getCapacity()));
+            ps.setObject(7, event.getId());
+            ps.setObject(8, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    SessionResponseDto session = new SessionResponseDto();
+                    session.setId(UUID.fromString(rs.getString("id")));
+                    session.setTitle(rs.getString("title"));
+                    session.setDescription(rs.getString("description"));
+                    session.setStartDate(rs.getTimestamp("start_date").toInstant());
+                    session.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    session.setCapacity(rs.getInt("capacity"));
+
+                    Room sessionRoom = new Room();
+                    sessionRoom.setId(room.getId());
+                    sessionRoom.setName(room.getName());
+                    session.setRoom(sessionRoom);
+
+                    Event sessionEvent = new Event();
+                    sessionEvent.setId(event.getId());
+                    sessionEvent.setTitle(event.getTitle());
+                    session.setEvent(sessionEvent);
+
+                    Instant now = Instant.now();
+                    session.setLive(!now.isBefore(session.getStartDate()) && !now.isAfter(session.getEndDate()));
+
+                    session.setSpeakers(getSpeakersBySessionId(session.getId()));
+
+                    return Optional.of(session);
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public int countSessions() {
         final String query = "SELECT count(id) AS total FROM eventsync_app.sessions";
         try (

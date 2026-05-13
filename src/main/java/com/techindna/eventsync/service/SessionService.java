@@ -40,6 +40,20 @@ public class SessionService {
         return sessionRepository.getAllSessions(pagination.getOffset(), pagination.getLimit());
     }
 
+    public SessionResponseDto updateSession(UUID id, SessionRequestDto dto) {
+        dataValidator.validateSessionData(
+                dto.getTitle(),
+                dto.getDescription(),
+                String.valueOf(dto.getStartDate()),
+                String.valueOf(dto.getEndDate()),
+                dto.getRoomName(),
+                dto.getEventTitle(),
+                String.valueOf(dto.getCapacity())
+        );
+        return sessionRepository.updateSession(id, dto)
+                .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
+    }
+
     public int countSessions() {
         return sessionRepository.countSessions();
     }
