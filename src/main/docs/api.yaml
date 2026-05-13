@@ -71,7 +71,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ParticipantRef'
+                type: object
+                properties:
+                  token:
+                    type: string
+                  participant:
+                    $ref: '#/components/schemas/ParticipantRef'
   /events:
     get:
       summary: List all events
@@ -810,6 +815,19 @@ components:
           format: uuid
         title:
           type: string
+        description:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        location:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
     EventRefInput:
       type: object
       required:
@@ -931,10 +949,6 @@ components:
           type: integer
         event:
           $ref: '#/components/schemas/EventRef'
-        speakers:
-          type: array
-          items:
-            $ref: '#/components/schemas/SpeakerRef'
         isLive:
           type: boolean
           description: True if the session is live
@@ -996,6 +1010,10 @@ components:
         - $ref: '#/components/schemas/Session'
         - type: object
           properties:
+            speakers:
+              type: array
+              items:
+                $ref: '#/components/schemas/SpeakerRef'
             questions:
               type: array
               items:
@@ -1023,8 +1041,8 @@ components:
         - description
         - startDate
         - endDate
-        - room
-        - event
+        - roomName
+        - eventTitle
       properties:
         title:
           type: string
@@ -1036,12 +1054,12 @@ components:
         endDate:
           type: string
           format: date-time
-        room:
-          $ref: '#/components/schemas/RoomRefInput'
+        roomName:
+          type: string
         capacity:
           type: integer
-        event:
-          $ref: '#/components/schemas/EventRefInput'
+        eventTitle:
+          type: string
     Room:
       type: object
       properties:
@@ -1137,6 +1155,33 @@ components:
         id:
           type: string
           format: uuid
+    ParticipantInput:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
+    Participant:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+          format: email
     ParticipantRef:
       type: object
       properties:

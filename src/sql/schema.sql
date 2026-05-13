@@ -43,7 +43,6 @@ create table eventsync_app.sessions(
     room_id uuid not null references eventsync_app.rooms(id),
     capacity int not null default 0,
     event_id uuid not null references eventsync_app.events(id)
-
 );
 
 create table eventsync_app.intervene(

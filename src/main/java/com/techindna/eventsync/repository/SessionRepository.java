@@ -1,37 +1,34 @@
 package com.techindna.eventsync.repository;
 
+import com.techindna.eventsync.dto.SessionRequestDto;
+import com.techindna.eventsync.dto.SessionResponseDto;
 import com.techindna.eventsync.dto.SpeakerRefDto;
+import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.EventRef;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
-
+import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Time;
-import java.sql.Timestamp;
-
+import java.sql.*;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Repository
 public class SessionRepository {
 
-    private final DataSource dataSource;
 
-    public SessionRepository(DataSource dataSource) {
+    private final DataSource dataSource;
+    private final RoomRepository roomRepository;
+    private final EventRepository eventRepository;
+    public SessionRepository(DataSource dataSource, RoomRepository roomRepository, EventRepository eventRepository) {
         this.dataSource = dataSource;
+        this.roomRepository = roomRepository;
+        this.eventRepository = eventRepository;
     }
+
 
     private Session mapRow(ResultSet rs) throws SQLException {
         Session session = new Session();
@@ -57,13 +54,13 @@ public class SessionRepository {
 
     private List<SpeakerRefDto> findSpeakersBySessionId(UUID sessionId) {
         final String query =
-        """
-        select u.id, u.first_name, u.last_name, u.profile_picture, u.bio
-        from eventsync_app.intervene i
-        join eventsync_app.users u on i.speaker_id = u.id
-        where i.session_id = ?
-        order by u.last_name
-        """;
+                """
+                select u.id, u.first_name, u.last_name, u.profile_picture, u.bio
+                from eventsync_app.intervene i
+                join eventsync_app.users u on i.speaker_id = u.id
+                where i.session_id = ?
+                order by u.last_name
+                """;
 
         try (
                 Connection conn = dataSource.getConnection();
@@ -92,11 +89,11 @@ public class SessionRepository {
         if (sessionIds.isEmpty()) return Map.of();
 
         StringBuilder query = new StringBuilder(
-        """
-        select i.session_id, u.id as speaker_id, u.first_name, u.last_name, u.profile_picture, u.bio
-        from eventsync_app.intervene i
-        join eventsync_app.users u on i.speaker_id = u.id
-        where i.session_id in ("""
+                """
+                select i.session_id, u.id as speaker_id, u.first_name, u.last_name, u.profile_picture, u.bio
+                from eventsync_app.intervene i
+                join eventsync_app.users u on i.speaker_id = u.id
+                where i.session_id in ("""
         );
         for (int i = 0; i < sessionIds.size(); i++) {
             if (i > 0) query.append(",");
@@ -152,19 +149,19 @@ public class SessionRepository {
     }
 
     public List<Session> getAllSessions(int offset, int limit,
-                                         String room, String speaker, Boolean live, String event) {
+                                        String room, String speaker, Boolean live, String event) {
         StringBuilder q = new StringBuilder(
-        """
-        select
-            s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
-            r.id as room_id, r.name as room_name,
-            e.id as event_id, e.title as event_title
-        from
-            eventsync_app.sessions s
-            join eventsync_app.rooms r on s.room_id = r.id
-            join eventsync_app.events e on s.event_id = e.id
-        where 1=1
-        """);
+                """
+                select
+                    s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
+                    r.id as room_id, r.name as room_name,
+                    e.id as event_id, e.title as event_title
+                from
+                    eventsync_app.sessions s
+                    join eventsync_app.rooms r on s.room_id = r.id
+                    join eventsync_app.events e on s.event_id = e.id
+                where 1=1
+                """);
 
         List<Object> params = new ArrayList<>();
 
@@ -224,13 +221,13 @@ public class SessionRepository {
 
     public int countSessions(String room, String speaker, Boolean live, String event) {
         StringBuilder q = new StringBuilder(
-        """
-        select count(s.id) as total
-        from eventsync_app.sessions s
-        join eventsync_app.rooms r on s.room_id = r.id
-        join eventsync_app.events e on s.event_id = e.id
-        where 1=1
-        """);
+                """
+                select count(s.id) as total
+                from eventsync_app.sessions s
+                join eventsync_app.rooms r on s.room_id = r.id
+                join eventsync_app.events e on s.event_id = e.id
+                where 1=1
+                """);
 
         List<Object> params = new ArrayList<>();
 
@@ -277,17 +274,17 @@ public class SessionRepository {
 
     public Optional<Session> findSessionById(UUID id) {
         final String query =
-        """
-        select
-            s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
-            r.id as room_id, r.name as room_name,
-            e.id as event_id, e.title as event_title
-        from
-            eventsync_app.sessions s
-            join eventsync_app.rooms r on s.room_id = r.id
-            join eventsync_app.events e on s.event_id = e.id
-        where s.id = ?
-        """;
+                """
+                select
+                    s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
+                    r.id as room_id, r.name as room_name,
+                    e.id as event_id, e.title as event_title
+                from
+                    eventsync_app.sessions s
+                    join eventsync_app.rooms r on s.room_id = r.id
+                    join eventsync_app.events e on s.event_id = e.id
+                where s.id = ?
+                """;
 
         try (
                 Connection conn = dataSource.getConnection();
@@ -309,17 +306,17 @@ public class SessionRepository {
 
     public Optional<Session> findSessionByTitle(String title) {
         final String query =
-        """
-        select
-            s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
-            r.id as room_id, r.name as room_name,
-            e.id as event_id, e.title as event_title
-        from
-            eventsync_app.sessions s
-            join eventsync_app.rooms r on s.room_id = r.id
-            join eventsync_app.events e on s.event_id = e.id
-        where s.title = ?
-        """;
+                """
+                select
+                    s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
+                    r.id as room_id, r.name as room_name,
+                    e.id as event_id, e.title as event_title
+                from
+                    eventsync_app.sessions s
+                    join eventsync_app.rooms r on s.room_id = r.id
+                    join eventsync_app.events e on s.event_id = e.id
+                where s.title = ?
+                """;
 
         try (
                 Connection conn = dataSource.getConnection();
@@ -393,18 +390,79 @@ public class SessionRepository {
             throw new RuntimeException(e);
         }
     }
+    public SessionResponseDto createSession(SessionRequestDto sessionRequestDto) {
+        final String query =
+                """
+                INSERT INTO eventsync_app.sessions(title, description, start_date, end_date, room_id, capacity, event_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (title) DO NOTHING
+                RETURNING id, title, description, start_date, end_date, room_id, capacity, event_id
+                """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            UUID roomId = UUID.fromString(sessionRequestDto.getRoomId());
+            UUID eventId = UUID.fromString(sessionRequestDto.getEventId());
+            Instant start = Instant.parse(sessionRequestDto.getStartDate());
+            Instant end = Instant.parse(sessionRequestDto.getEndDate());
 
 
+            Room room = roomRepository.findRoomById(roomId)
+                    .orElseThrow(() -> new NotFoundException("Room not found"));
 
+            Event event = eventRepository.findEventByIdById(eventId)
+                    .orElseThrow(() -> new NotFoundException("Event not found"));
+
+            ps.setString(1, sessionRequestDto.getTitle());
+            ps.setString(2, sessionRequestDto.getDescription());
+            ps.setTimestamp(3, Timestamp.from(start));
+            ps.setTimestamp(4, Timestamp.from(end));
+            ps.setObject(5, roomId);
+            ps.setInt(6, sessionRequestDto.getCapacity());
+            ps.setObject(7, eventId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    SessionResponseDto session = new SessionResponseDto();
+                    session.setId(UUID.fromString(rs.getString("id")));
+                    session.setTitle(rs.getString("title"));
+                    session.setDescription(rs.getString("description"));
+                    session.setStartDate(rs.getTimestamp("start_date").toInstant());
+                    session.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    session.setEvent(event);
+                    session.setRoom(room);
+                    session.setSpeakers(new ArrayList<>());
+
+                    Instant now = Instant.now();
+                    session.setLive(now.isBefore(session.getEndDate()) && now.isAfter(session.getStartDate()));
+
+                    return session;
+                }
+                else {
+                    throw new ConflictException(String.format("Session with title '%s' already exists", sessionRequestDto.getTitle()));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    public Optional<UUID> deleteSessionById(UUID id) {
+        final String query = "DELETE FROM eventsync_app.sessions WHERE id = ? RETURNING id";
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ?
+                        Optional.of(UUID.fromString(rs.getString("id"))) :
+                        Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
