@@ -1,8 +1,10 @@
 package com.techindna.eventsync.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.techindna.eventsync.entity.Session;
 
+@JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "room", "capacity", "event", "speakers", "isLive"})
 public class SessionResponseDto extends Session {
     private boolean isLive;
 

@@ -1,19 +1,17 @@
 package com.techindna.eventsync.dto;
 
-import com.techindna.eventsync.entity.Session;
-
 import java.util.List;
 
 public class GetSessionListResponseDto {
-    private final List<Session> data;
+    private final List<SessionResponseDto> data;
     private final Meta meta;
 
-    public GetSessionListResponseDto(List<Session> data, int total, int page, int size) {
+    public GetSessionListResponseDto(List<SessionResponseDto> data, int total, int page, int size) {
         this.data = data;
         this.meta = new Meta(total, page, size);
     }
 
-    public List<Session> getData() {
+    public List<SessionResponseDto> getData() {
         return data;
     }
 
