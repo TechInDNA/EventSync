@@ -1,16 +1,15 @@
 package com.techindna.eventsync.dto;
 
 import java.time.Instant;
-import java.util.UUID;
 
 public class SessionRequestDto {
     private String title;
     private String description;
     private Instant startDate;
     private Instant endDate;
-    private UUID roomId;
+    private String roomName;
     private int capacity;
-    private UUID eventId;
+    private String eventTitle;
 
     public String getTitle() {
         return title;
@@ -44,12 +43,12 @@ public class SessionRequestDto {
         this.endDate = endDate;
     }
 
-    public UUID getRoomId() {
-        return roomId;
+    public String getRoomName() {
+        return roomName;
     }
 
-    public void setRoomId(UUID roomId) {
-        this.roomId = roomId;
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
     public int getCapacity() {
@@ -60,11 +59,11 @@ public class SessionRequestDto {
         this.capacity = capacity;
     }
 
-    public UUID getEventId() {
-        return eventId;
+    public String getEventTitle() {
+        return eventTitle;
     }
 
-    public void setEventId(UUID eventId) {
-        this.eventId = eventId;
+    public void setEventTitle(String eventTitle) {
+        this.eventTitle = eventTitle;
     }
 }
