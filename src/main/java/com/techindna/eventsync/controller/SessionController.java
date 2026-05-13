@@ -110,6 +110,27 @@ public class SessionController {
         }
     }
 
+    @DeleteMapping("/{sessionId}/speaker/{speakerId}")
+    public ResponseEntity<?> removeSpeakerFromSession(
+            @PathVariable String sessionId,
+            @PathVariable String speakerId) {
+        try {
+            dataValidator.validateUUID(sessionId);
+            dataValidator.validateUUID(speakerId);
+            sessionService.removeSpeakerFromSession(
+                    UUID.fromString(sessionId),
+                    UUID.fromString(speakerId));
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
     @PostMapping("/{sessionId}/speaker/{speakerId}")
     public ResponseEntity<?> addSpeakerToSession(
             @PathVariable String sessionId,

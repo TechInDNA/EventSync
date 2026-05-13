@@ -65,6 +65,10 @@ public class SessionService {
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
     }
 
+    public void removeSpeakerFromSession(UUID sessionId, UUID speakerId) {
+        sessionRepository.removeSpeakerFromSession(sessionId, speakerId);
+    }
+
     public SessionSpeakerResponseDto addSpeakerToSession(UUID sessionId, UUID speakerId, SessionSpeakerInputDto input) {
         return sessionRepository.addSpeakerToSession(sessionId, speakerId, input);
     }

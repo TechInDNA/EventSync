@@ -27,7 +27,6 @@ public class SecurityConfig {
 
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-
                 .requestMatchers(HttpMethod.POST, "/events/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/events/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/events/**").hasRole("ADMIN")
@@ -49,6 +48,9 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET,"/sessions/**").permitAll()
 
                     .requestMatchers(HttpMethod.POST, "/sessions/*/speaker/*").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.DELETE,"/sessions/*/speaker/*").hasRole("ADMIN")
+
+
 
                     .requestMatchers("/error").permitAll()
 

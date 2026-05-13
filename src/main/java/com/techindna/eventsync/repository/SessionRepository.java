@@ -314,6 +314,30 @@ public class SessionRepository {
         }
     }
 
+    public void removeSpeakerFromSession(UUID sessionId, UUID speakerId) {
+        final String query =
+            """
+            DELETE FROM eventsync_app.intervene
+            WHERE session_id = ? AND speaker_id = ?
+            """;
+        try (
+            Connection connection = dataSource.getConnection();
+            PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setObject(1, sessionId);
+            ps.setObject(2, speakerId);
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new NotFoundException(
+                    String.format("Speaker %s is not linked to session %s.", speakerId, sessionId)
+                );
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public SessionSpeakerResponseDto addSpeakerToSession(UUID sessionId, UUID speakerId, SessionSpeakerInputDto input) {
         final String findSessionQuery =
                 """
