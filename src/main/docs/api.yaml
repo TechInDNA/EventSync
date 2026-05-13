@@ -1041,8 +1041,8 @@ components:
         - description
         - startDate
         - endDate
-        - room
-        - event
+        - roomName
+        - eventTitle
       properties:
         title:
           type: string
@@ -1054,12 +1054,12 @@ components:
         endDate:
           type: string
           format: date-time
-        room:
-          $ref: '#/components/schemas/RoomRefInput'
+        roomName:
+          type: string
         capacity:
           type: integer
-        event:
-          $ref: '#/components/schemas/EventRefInput'
+        eventTitle:
+          type: string
     Room:
       type: object
       properties:
