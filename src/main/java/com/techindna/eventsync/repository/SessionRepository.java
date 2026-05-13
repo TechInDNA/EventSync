@@ -77,13 +77,14 @@ public class SessionRepository {
         }
     }
 
-    public Optional<Session> findSessionByTitle(String title) {
-        final String query = "SELECT id, title FROM eventsync_app.sessions WHERE title = ?";
+    public Optional<Session> findSessionByTitleExcludingId(String title, UUID excludeId) {
+        final String query = "SELECT id, title FROM eventsync_app.sessions WHERE title = ? AND id != ?";
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
             ps.setString(1, title);
+            ps.setObject(2, excludeId);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Session session = new Session();
@@ -135,7 +136,7 @@ public class SessionRepository {
                     session.setCapacity(rs.getInt("capacity"));
                     session.setRoom(room);
                     session.setEvent(event);
-                    session.setLive(ACTUAL_DATE.isBefore(session.getStartDate()) && ACTUAL_DATE.isAfter(session.getEndDate()));
+                    session.setLive(ACTUAL_DATE.isAfter(session.getStartDate()) && ACTUAL_DATE.isBefore(session.getEndDate()));
                     return Optional.of(session);
                 }
                 return Optional.empty();
