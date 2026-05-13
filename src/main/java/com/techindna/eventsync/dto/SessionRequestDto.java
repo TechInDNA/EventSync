@@ -1,16 +1,13 @@
 package com.techindna.eventsync.dto;
 
-import java.time.Instant;
-import java.util.UUID;
-
 public class SessionRequestDto {
     private String title;
     private String description;
-    private Instant startDate;
-    private Instant endDate;
-    private UUID roomId;
-    private int capacity;
-    private UUID eventId;
+    private String startDate;
+    private String endDate;
+    private String roomName;
+    private String capacity;
+    private String eventTitle;
 
     public String getTitle() {
         return title;
@@ -28,43 +25,43 @@ public class SessionRequestDto {
         this.description = description;
     }
 
-    public Instant getStartDate() {
+    public String getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Instant startDate) {
+    public void setStartDate(String startDate) {
         this.startDate = startDate;
     }
 
-    public Instant getEndDate() {
+    public String getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Instant endDate) {
+    public void setEndDate(String endDate) {
         this.endDate = endDate;
     }
 
-    public UUID getRoomId() {
-        return roomId;
+    public String getRoomName() {
+        return roomName;
     }
 
-    public void setRoomId(UUID roomId) {
-        this.roomId = roomId;
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
     }
 
-    public int getCapacity() {
+    public String getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(int capacity) {
+    public void setCapacity(String capacity) {
         this.capacity = capacity;
     }
 
-    public UUID getEventId() {
-        return eventId;
+    public String getEventTitle() {
+        return eventTitle;
     }
 
-    public void setEventId(UUID eventId) {
-        this.eventId = eventId;
+    public void setEventTitle(String eventTitle) {
+        this.eventTitle = eventTitle;
     }
 }
