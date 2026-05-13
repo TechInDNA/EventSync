@@ -4,6 +4,7 @@ import com.techindna.eventsync.dto.SessionRequestDto;
 import com.techindna.eventsync.dto.SessionResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
+import com.techindna.eventsync.entity.Session;
 import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
@@ -76,7 +77,28 @@ public class SessionRepository {
         }
     }
 
-    public Optional<SessionResponseDto> updateSession(UUID id, SessionRequestDto sessionRequestDto) {
+    public Optional<Session> findSessionByTitle(String title) {
+        final String query = "SELECT id, title FROM eventsync_app.sessions WHERE title = ?";
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setString(1, title);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Session session = new Session();
+                    session.setId(UUID.fromString(rs.getString("id")));
+                    session.setTitle(rs.getString("title"));
+                    return Optional.of(session);
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Optional<SessionResponseDto> updateSessionById(UUID id, SessionRequestDto sessionRequestDto) {
         final String query =
             """
             UPDATE eventsync_app.sessions

@@ -44,7 +44,9 @@ public class SessionService {
                 session.getEventTitle(),
                 String.valueOf(session.getCapacity())
         );
-        return sessionRepository.updateSession(id, session)
+        sessionRepository.findSessionByTitle(session.getTitle())
+                .orElseThrow(() -> new ConflictException(String.format("Session with title '%s' already exists", session.getTitle())));
+        return sessionRepository.updateSessionById(id, session)
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
     }
 
