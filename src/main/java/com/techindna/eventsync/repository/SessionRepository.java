@@ -4,7 +4,7 @@ import com.techindna.eventsync.dto.SpeakerRefDto;
 import com.techindna.eventsync.entity.EventRef;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
-import com.techindna.eventsync.exception.NotFoundException;
+
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -14,8 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalTime;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +53,38 @@ public class SessionRepository {
         return session;
     }
 
+    private List<SpeakerRefDto> findSpeakersBySessionId(UUID sessionId) {
+        final String query =
+        """
+        select u.id, u.first_name, u.last_name, u.profile_picture, u.bio
+        from eventsync_app.intervene i
+        join eventsync_app.users u on i.speaker_id = u.id
+        where i.session_id = ?
+        order by u.last_name
+        """;
 
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
+            ps.setObject(1, sessionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<SpeakerRefDto> speakers = new ArrayList<>();
+                while (rs.next()) {
+                    SpeakerRefDto s = new SpeakerRefDto();
+                    s.setId(UUID.fromString(rs.getString("id")));
+                    s.setFirstName(rs.getString("first_name"));
+                    s.setLastName(rs.getString("last_name"));
+                    s.setProfilePicture(rs.getString("profile_picture"));
+                    s.setBio(rs.getString("bio"));
+                    speakers.add(s);
+                }
+                return speakers;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private Map<UUID, List<SpeakerRefDto>> findSpeakersBySessionIds(List<UUID> sessionIds) {
         if (sessionIds.isEmpty()) return Map.of();
@@ -243,6 +273,80 @@ public class SessionRepository {
 
 
 
+    public Optional<Session> findSessionById(UUID id) {
+        final String query =
+        """
+        select
+            s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
+            r.id as room_id, r.name as room_name,
+            e.id as event_id, e.title as event_title
+        from
+            eventsync_app.sessions s
+            join eventsync_app.rooms r on s.room_id = r.id
+            join eventsync_app.events e on s.event_id = e.id
+        where s.id = ?
+        """;
+
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Session session = mapRow(rs);
+                    session.setSpeakers(findSpeakersBySessionId(id));
+                    return Optional.of(session);
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public Optional<Session> findSessionByTitle(String title) {
+        final String query =
+        """
+        select
+            s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
+            r.id as room_id, r.name as room_name,
+            e.id as event_id, e.title as event_title
+        from
+            eventsync_app.sessions s
+            join eventsync_app.rooms r on s.room_id = r.id
+            join eventsync_app.events e on s.event_id = e.id
+        where s.title = ?
+        """;
+
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
+            ps.setString(1, title);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Session session = mapRow(rs);
+                    session.setSpeakers(findSpeakersBySessionId(session.getId()));
+                    return Optional.of(session);
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
-}
+    }
+
+
+
+
+
+
+
+
+
+
+

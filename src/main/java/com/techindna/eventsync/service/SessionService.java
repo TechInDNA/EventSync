@@ -46,4 +46,17 @@ public class SessionService {
         return sessionRepository.countSessions(room, speaker, live, event);
     }
 
+    public Session getSessionById(UUID id) {
+        Session session = sessionRepository.findSessionById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
+
+        List<Question> questions = questionService.getQuestionsBySessionIds(List.of(id))
+                .getOrDefault(id, List.of());
+        session.setQuestions(questions);
+
+        return session;
+    }
+
+
+
 }
