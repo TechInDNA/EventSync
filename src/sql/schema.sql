@@ -45,3 +45,5 @@ create table eventsync_app.sessions(
     event_id uuid references eventsync_app.events(id) on delete set null
 );
 
+
+
