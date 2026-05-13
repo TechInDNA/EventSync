@@ -949,10 +949,6 @@ components:
           type: integer
         event:
           $ref: '#/components/schemas/EventRef'
-        speakers:
-          type: array
-          items:
-            $ref: '#/components/schemas/SpeakerRef'
         isLive:
           type: boolean
           description: True if the session is live
@@ -1014,6 +1010,10 @@ components:
         - $ref: '#/components/schemas/Session'
         - type: object
           properties:
+            speakers:
+              type: array
+              items:
+                $ref: '#/components/schemas/SpeakerRef'
             questions:
               type: array
               items:
