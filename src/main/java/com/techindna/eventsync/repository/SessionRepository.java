@@ -55,10 +55,10 @@ public class SessionRepository {
 
             ps.setString(1, sessionRequestDto.getTitle());
             ps.setString(2, sessionRequestDto.getDescription());
-            ps.setTimestamp(3, Timestamp.from(sessionRequestDto.getStartDate()));
-            ps.setTimestamp(4, Timestamp.from(sessionRequestDto.getEndDate()));
+            ps.setTimestamp(3, Timestamp.from(Instant.parse(sessionRequestDto.getStartDate())));
+            ps.setTimestamp(4, Timestamp.from(Instant.parse(sessionRequestDto.getEndDate())));
             ps.setObject(5, room.getId());
-            ps.setInt(6, sessionRequestDto.getCapacity());
+            ps.setInt(6, Integer.parseInt(sessionRequestDto.getCapacity()));
             ps.setObject(7, event.getId());
 
             try (ResultSet rs = ps.executeQuery()) {
