@@ -25,8 +25,8 @@ public class SessionService {
                 sessionRequestDto.getDescription(),
                 String.valueOf(sessionRequestDto.getStartDate()),
                 String.valueOf(sessionRequestDto.getEndDate()),
-                String.valueOf(sessionRequestDto.getRoomId()),
-                String.valueOf(sessionRequestDto.getEventId()),
+                String.valueOf(sessionRequestDto.getRoomName()),
+                String.valueOf(sessionRequestDto.getEventTitle()),
                 sessionRequestDto.getCapacity()
         );
         return sessionRepository.createSession(sessionRequestDto);
