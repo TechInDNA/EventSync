@@ -69,6 +69,7 @@ public class SessionRepository {
                     session.setDescription(rs.getString("description"));
                     session.setStartDate(rs.getTimestamp("start_date").toInstant());
                     session.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    session.setCapacity(rs.getInt("capacity"));
                     session.setEvent(event);
                     session.setRoom(room);
                     session.setLive(ACTUAL_DATE.isBefore(session.getEndDate()) &&  ACTUAL_DATE.isAfter(session.getStartDate()));
