@@ -23,7 +23,6 @@ public class SessionRepository {
     private final DataSource dataSource;
     private final RoomRepository roomRepository;
     private final EventRepository eventRepository;
-    private static final Instant ACTUAL_DATE = Instant.now();
 
     public SessionRepository(DataSource dataSource, RoomRepository roomRepository, EventRepository eventRepository) {
         this.dataSource = dataSource;
@@ -217,6 +216,7 @@ public class SessionRepository {
             ps.setInt(6, Integer.parseInt(sessionRequestDto.getCapacity()));
             ps.setObject(7, event.getId());
 
+            Instant now = Instant.now();
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     SessionResponseDto session = new SessionResponseDto();
@@ -228,7 +228,7 @@ public class SessionRepository {
                     session.setCapacity(rs.getInt("capacity"));
                     session.setEvent(event);
                     session.setRoom(room);
-                    session.setLive(ACTUAL_DATE.isAfter(session.getStartDate()) && ACTUAL_DATE.isBefore(session.getEndDate()));
+                    session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
                     return Optional.of(session);
                 }
                 return Optional.empty();
@@ -287,6 +287,7 @@ public class SessionRepository {
             ps.setObject(8, id);
 
             try (ResultSet rs = ps.executeQuery()) {
+                Instant now = Instant.now();
                 if (rs.next()) {
                     SessionResponseDto session = new SessionResponseDto();
                     session.setId(UUID.fromString(rs.getString("id")));
@@ -297,7 +298,7 @@ public class SessionRepository {
                     session.setCapacity(rs.getInt("capacity"));
                     session.setRoom(room);
                     session.setEvent(event);
-                    session.setLive(ACTUAL_DATE.isAfter(session.getStartDate()) && ACTUAL_DATE.isBefore(session.getEndDate()));
+                    session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
                     return Optional.of(session);
                 }
                 return Optional.empty();
