@@ -1,6 +1,7 @@
 package com.techindna.eventsync.validator;
 
 import com.techindna.eventsync.dto.ExternalLinkDto;
+import com.techindna.eventsync.dto.GetSessionRequestDto;
 import com.techindna.eventsync.dto.SpeakerRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
@@ -133,6 +134,19 @@ public class DataValidator {
         if (!EMAIL_MATCHER.matches()){
             throw new BadRequestException(String.format("Invalid email format: '%s'", email));
         }
+    }
+
+    public void validateSessionRequestData(GetSessionRequestDto getSessionRequestDto){
+        if (getSessionRequestDto.getRoomName() != null){
+            validateString("roomName", getSessionRequestDto.getRoomName());
+        }
+        if (getSessionRequestDto.getEventTitle() != null){
+            validateString("eventTitle", getSessionRequestDto.getEventTitle());
+        }
+        if (getSessionRequestDto.getSpeakerName() != null){
+            validateString("speakerName", getSessionRequestDto.getSpeakerName());
+        }
+        validateString("isLive", String.valueOf(getSessionRequestDto.isLive()));
     }
 
     public void validateExternalLinks(List<ExternalLinkDto> links){
