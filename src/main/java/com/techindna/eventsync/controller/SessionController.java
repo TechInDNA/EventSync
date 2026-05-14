@@ -97,7 +97,7 @@ public class SessionController {
     }
 
     @DeleteMapping({"/{id}", "/"})
-    public ResponseEntity<?> deleteSession(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteSession(@PathVariable String id) {
         try {
             sessionService.deleteSessionById(id);
             return ResponseEntity.status(HttpStatus.OK)

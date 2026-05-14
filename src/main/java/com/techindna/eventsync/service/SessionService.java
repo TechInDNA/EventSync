@@ -60,9 +60,9 @@ public class SessionService {
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
     }
 
-    public void deleteSessionById(UUID id) {
-        dataValidator.validateUUID(String.valueOf(id));
-        sessionRepository.deleteSessionById(id)
+    public void deleteSessionById(String id) {
+        dataValidator.validateUUID(id);
+        sessionRepository.deleteSessionById(UUID.fromString(id))
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
     }
 }
