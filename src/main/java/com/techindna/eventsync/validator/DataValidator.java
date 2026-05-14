@@ -1,6 +1,7 @@
 package com.techindna.eventsync.validator;
 
 import com.techindna.eventsync.dto.ExternalLinkDto;
+import com.techindna.eventsync.dto.GetSessionRequestDto;
 import com.techindna.eventsync.dto.SpeakerRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
@@ -95,14 +96,18 @@ public class DataValidator {
         validateString("name", name);
     }
 
-    public void validateSessionData(String title, String description, String startDate, String endDate, String roomId, String eventId, int capacity) {
+    public void validateSessionData(String title, String description, String startDate, String endDate, String roomName, String eventTitle, String capacity) {
         lengthValidation("title", 50, title);
         validateString("title", title);
         validateString("description", description);
         validateDate("startDate", startDate);
         validateDate("endDate", endDate);
-        validateUUID(roomId);
-        validateUUID(eventId);
+        validateString("eventTitle", eventTitle);
+        validateString("roomName", roomName);
+        final Matcher data = VALID_INTEGER.matcher(capacity);
+        if (!data.matches()){
+            throw new BadRequestException("The capacity parameter must be a digit greater than 0.");
+        }
     }
 
     public void validateUUID(String uuid){
@@ -129,6 +134,19 @@ public class DataValidator {
         if (!EMAIL_MATCHER.matches()){
             throw new BadRequestException(String.format("Invalid email format: '%s'", email));
         }
+    }
+
+    public void validateSessionRequestData(GetSessionRequestDto getSessionRequestDto){
+        if (getSessionRequestDto.getRoomName() != null){
+            validateString("roomName", getSessionRequestDto.getRoomName());
+        }
+        if (getSessionRequestDto.getEventTitle() != null){
+            validateString("eventTitle", getSessionRequestDto.getEventTitle());
+        }
+        if (getSessionRequestDto.getSpeakerName() != null){
+            validateString("speakerName", getSessionRequestDto.getSpeakerName());
+        }
+        validateString("isLive", String.valueOf(getSessionRequestDto.isLive()));
     }
 
     public void validateExternalLinks(List<ExternalLinkDto> links){
