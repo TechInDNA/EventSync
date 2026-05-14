@@ -1,5 +1,7 @@
 package com.techindna.eventsync.controller;
 
+import com.techindna.eventsync.dto.GetSessionRequestDto;
+import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.SessionRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
@@ -23,6 +25,38 @@ public class SessionController {
         this.sessionService = sessionService;
         this.dataValidator = dataValidator;
     }
+
+    @GetMapping
+    public ResponseEntity<?> getSessions(
+            @RequestParam(required = false, defaultValue = "1") String page,
+            @RequestParam(required = false, defaultValue = "5") String size,
+            @RequestParam(required = false) String speakerName,
+            @RequestParam(required = false, defaultValue = "false") boolean isLive,
+            @RequestParam(required = false) String eventTitle,
+            @RequestParam(required = false) String roomName
+    ) {
+        try{
+            GetSessionRequestDto request = new GetSessionRequestDto();
+            request.setRoomName(roomName);
+            request.setSpeakerName(speakerName);
+            request.setEventTitle(eventTitle);
+            request.setLive(isLive);
+
+            dataValidator.validatePageAndSize(page, size);
+
+            PaginationRequestDto pagination = new PaginationRequestDto(Integer.parseInt(page), Integer.parseInt(size));
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(sessionService.getAllSessions(request, pagination));
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
 
     @PostMapping
     public ResponseEntity<?> createSession(@RequestBody SessionRequestDto request) {

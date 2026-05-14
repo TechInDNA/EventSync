@@ -949,6 +949,10 @@ components:
           type: integer
         event:
           $ref: '#/components/schemas/EventRef'
+        speakers:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpeakerRef'
         isLive:
           type: boolean
           description: True if the session is live
