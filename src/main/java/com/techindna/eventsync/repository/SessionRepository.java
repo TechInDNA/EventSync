@@ -302,7 +302,7 @@ public class SessionRepository {
 
                     session.setEvent(event);
 
-                    session.setSpeakers(getInterventionById(session.getId()));
+                    session.setSpeakers(getInterventionById(session.getId()).isEmpty() ? null : getInterventionById(session.getId()));
 
                     return Optional.of(session);
                 }
