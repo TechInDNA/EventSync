@@ -4,6 +4,7 @@ echo "Testing PUT /sessions/{id}"
 echo "========================"
 
 SESSION_ID="4e64d605-7a24-40aa-aea1-87c183fa4036"
+SESSION_WITH_SPEAKERS="3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f"
 INVALID_UUID="00000000-0000-0000-0000-000000000000"
 MALFORMED_UUID="not-a-valid-uuid"
 
@@ -167,9 +168,19 @@ echo ""
 echo "--- Test 31: EventTitle with invalid character '#' (should return 400) ---"
 curlie -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"Bad Event","description":"Invalid eventTitle","startDate":"2026-06-16T14:00:00Z","endDate":"2026-06-16T16:00:00Z","roomName":"Session PUT Room","capacity":10,"eventTitle":"Bad#Event"}' http://localhost:8080/sessions/$SESSION_ID
 
-# Step 33: Restore original data (should return 200)
+# Step 33: PUT on session with speakers (should return 200 with non-null speakers)
 echo ""
-echo "--- Test 32: Restore original test data (should return 200) ---"
+echo "--- Test 33: PUT on session with speakers (should return 200 with speakers) ---"
+curlie -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"Keynote: Future of Tech","description":"Updated keynote description for speakers test","startDate":"2026-06-16T10:00:00Z","endDate":"2026-06-16T12:00:00Z","roomName":"Main Hall","capacity":200,"eventTitle":"Summer Tech Fest"}' http://localhost:8080/sessions/$SESSION_WITH_SPEAKERS
+
+# Step 34: Restore session with speakers original data (should return 200)
+echo ""
+echo "--- Test 34: Restore speakers session original data (should return 200) ---"
+curlie -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"Keynote: Future of Tech","description":"Opening keynote about technology trends","startDate":"2026-05-10T10:00:00Z","endDate":"2026-05-10T12:00:00Z","roomName":"Main Hall","capacity":200,"eventTitle":"Summer Tech Fest"}' http://localhost:8080/sessions/$SESSION_WITH_SPEAKERS
+
+# Step 35: Restore original data (should return 200)
+echo ""
+echo "--- Test 35: Restore original test data (should return 200) ---"
 curlie -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"Session to Update via PUT","description":"Session for testing PUT endpoint","startDate":"2026-06-15T10:00:00Z","endDate":"2026-06-15T12:00:00Z","roomName":"Session PUT Room","capacity":30,"eventTitle":"Session PUT Event"}' http://localhost:8080/sessions/$SESSION_ID
 
 # Cleanup
