@@ -97,10 +97,9 @@ public class SessionController {
     }
 
     @DeleteMapping({"/{id}", "/"})
-    public ResponseEntity<?> deleteSession(@PathVariable String id) {
+    public ResponseEntity<?> deleteSession(@PathVariable UUID id) {
         try {
-            dataValidator.validateUUID(id);
-            sessionService.deleteSessionById(UUID.fromString(id));
+            sessionService.deleteSessionById(id);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(String.format("Session %s deleted.", id));
         } catch (BadRequestException e) {
