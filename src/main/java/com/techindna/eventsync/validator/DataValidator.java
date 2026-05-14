@@ -95,6 +95,20 @@ public class DataValidator {
         validateString("name", name);
     }
 
+    public void validateSessionData(String title, String description, String startDate, String endDate, String roomName, String eventTitle, String capacity) {
+        lengthValidation("title", 50, title);
+        validateString("title", title);
+        validateString("description", description);
+        validateDate("startDate", startDate);
+        validateDate("endDate", endDate);
+        validateString("eventTitle", eventTitle);
+        validateString("roomName", roomName);
+        final Matcher data = VALID_INTEGER.matcher(capacity);
+        if (!data.matches()){
+            throw new BadRequestException("The capacity parameter must be a digit greater than 0.");
+        }
+    }
+
     public void validateUUID(String uuid){
         if (uuid == null || uuid.isEmpty()){
             throw new BadRequestException("UUID path variable cannot be null or blank.");

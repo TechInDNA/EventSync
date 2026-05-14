@@ -40,9 +40,10 @@ create table eventsync_app.sessions(
     description text not null,
     start_date timestamp not null,
     end_date timestamp not null,
-    room_id uuid not null references eventsync_app.rooms(id),
+    room_id uuid references eventsync_app.rooms(id) on delete set null,
     capacity int not null default 0,
-    event_id uuid not null references eventsync_app.events(id)
-
+    event_id uuid references eventsync_app.events(id) on delete set null
 );
+
+
 

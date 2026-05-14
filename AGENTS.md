@@ -4,55 +4,70 @@
 
 ```bash
 mvn spring-boot:run          # Start app on :8080
-mvn clean install            # Build
-mvn test                     # JUnit tests (currently only EventSyncApplicationTests)
-```
-
-Manual API tests (require running app + curlie):
-
-```bash
-chmod +x src/test/java/requests/*.sh
-./src/test/java/requests/post_auth_login.sh
-./src/test/java/requests/post_events.sh
+mvn clean install            # Full build
+mvn test                     # All JUnit tests
+mvn test -Dtest=SessionControllerTest  # Single test class
 ```
 
 ## Environment
 
-- Copy `.env.example` or create `.env` from README variables (`JWT_TOKEN`, `DB_URL`, `DB_USER`, `DB_PASSWORD`)
-- App loads `.env` via `spring.config.import=optional:file:.env[.properties]` in `src/main/resources/application.properties`
+- Create `.env` in project root with `JWT_TOKEN`, `DB_URL`, `DB_USER`, `DB_PASSWORD`
+- Loaded via `spring.config.import=optional:file:.env[.properties]` in `application.properties`
 - Both `.env` and `application.properties` are gitignored
 
-## Database
+## Database (PostgreSQL)
 
-PostgreSQL required. Initialize in order:
+Run scripts in this exact order:
 
 ```bash
-psql -U eventsync_manager -d eventsync_db -f src/sql/init_db.sql
-psql -U eventsync_manager -d eventsync_db -f src/sql/schema.sql
-psql -U eventsync_manager -d eventsync_db -f src/sql/room_data.sql
-psql -U eventsync_manager -d eventsync_db -f src/sql/event_data.sql
-psql -U eventsync_manager -d eventsync_db -f src/sql/data.sql
-psql -U eventsync_manager -d eventsync_db -f src/sql/SessionData.sql
+for f in init_db.sql schema.sql room_data.sql event_data.sql data.sql session_data.sql speaker_data.sql; do
+  psql -U eventsync_manager -d eventsync_db -f src/sql/"$f"
+done
 ```
 
-## Architecture Notes
+## Manual API tests (curlie, require running app)
 
-- **Spring JDBC, not JPA** — no `@Entity` classes; repositories use `RowMapper` and `JdbcTemplate`
-- **Argon2** password hashing via Bouncy Castle (not bcrypt)
-- **JWT** auth via Auth0 library; secret key in `security.jwt.token.secret-key` property
-- Single Maven project, package: `com.techindna.eventsync`
+```bash
+# Auth
+./src/test/java/requests/auth/post_auth_login.sh
+
+# Events (CRUD)
+for s in post get put delete; do ./src/test/java/requests/events/${s}_events.sh; done
+
+# Sessions (CRUD)
+for s in post get put delete; do ./src/test/java/requests/sessions/${s}_sessions.sh; done
+
+# Rooms (CRUD)
+for s in post get put delete; do ./src/test/java/requests/room/${s}_rooms.sh; done
+
+# Speakers (CRUD)
+for s in post get put delete; do ./src/test/java/requests/speaker/${s}_speakers.sh; done
+```
+
+## Architecture
+
+- **Spring JDBC** (no JPA) — repositories use `RowMapper` + `JdbcTemplate`
+- **Argon2** password hashing via Bouncy Castle (`bcpkix-jdk18on`)
+- **JWT auth** via Auth0 `java-jwt`; secret key in `security.jwt.token.secret-key`
+- Single Maven module, Java 17, Spring Boot 4.0.6
+- Package root: `com.techindna.eventsync`
+
+| Package | Contents |
+|---------|----------|
+| `config` | `JwtAuthenticationFilter`, `SecurityConfig`, `TokenProvider` |
+| `controller` | `Auth`, `Event`, `Session`, `Room`, `Speakers` |
+| `repository` | JDBC repos (`Auth`, `Event`, `Session`, `Room`, `Speaker`) |
+| `entity` | Domain POJOs + `enums/Role` |
+| `validator` | `DataValidator` — validates page/size, UUID, session data |
+| `exception` | `BadRequestException` (400), `UnauthorizedException` (401), `ConflictException` (409), `NotFoundException` (404) |
+
+## Tests
+
+- One `@WebMvcTest(SessionController.class)` — mocks `SessionService` + `DataValidator`, uses `MockMvc`
+- One `@SpringBootTest` context-load sanity check
+- All unit tests (no integration tests requiring DB)
+
+## Docs
+
 - API spec: `src/main/docs/api.yaml` (OpenAPI 3.0.3)
-- Conceptual schema: `src/main/docs/mcd.canvas` (Obsidian Canvas JSON)
-
-## Packages
-
-| Package | Role |
-|---------|------|
-| `config` | JWT filter, Spring Security config, TokenProvider |
-| `controller` | REST endpoints (Auth, Events) |
-| `dto` | Request/response payloads |
-| `entity` | Domain objects + `enums/Role` |
-| `repository` | JDBC query interfaces |
-| `service` | Business logic |
-| `validator` | Request validation |
-| `exception` | Custom HTTP errors (400, 401, 409, 500) |
+- Conceptual schema: `src/main/docs/mcd.canvas` (Obsidian Canvas)

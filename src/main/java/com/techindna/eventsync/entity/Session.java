@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.time.Instant;
 import java.util.UUID;
 
-@JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "room", "capacity", "event", "isLive"})
+@JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "room", "capacity", "event"})
 public class Session {
     private UUID id;
     private String title;
@@ -80,8 +80,4 @@ public class Session {
         this.event = event;
     }
 
-    public boolean getIsLive() {
-        Instant now = Instant.now();
-        return !now.isBefore(startDate) && now.isBefore(endDate);
-    }
 }

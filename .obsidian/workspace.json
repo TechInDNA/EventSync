@@ -15,8 +15,8 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -770.6024963958076,
-                  "y": 174.64912552220537,
+                  "x": -1238.8119626996554,
+                  "y": -1571.1239927402228,
                   "zoom": -0.2984835461676844
                 }
               },
@@ -186,20 +186,6 @@
       "bases:Create new base": false
     }
   },
-  "active": "fae3d54826eb5dba",
-  "lastOpenFiles": [
-    "src/sql/SessionData.sql",
-    "src/test/java/requests/sessions/put_sessions.sh",
-    "src/test/java/requests/sessions/post_sessions.sh",
-    "src/test/java/requests/sessions/get_session_by_id.sh",
-    "src/test/java/requests/sessions/delete_sessions.sh",
-    "src/test/java/com/techindna/eventsync/controller/SessionControllerTest.java",
-    "src/test/java/com/techindna/eventsync/controller",
-    "src/sql/session_data.sql",
-    "src/main/java/com/techindna/eventsync/dto/SessionRequestDto.java",
-    "src/main/docs/test/Bienvenue.md",
-    "src/main/docs/test",
-    "src/main/java/com/techindna/eventsync/entity/SpeakerRef.java",
-    "src/eventsync/Bienvenue.md"
-  ]
+  "active": "73a6c18bdf4f9108",
+  "lastOpenFiles": []
 }

@@ -36,16 +36,11 @@ public class RoomService {
     }
 
     public Room updateRoom(UUID id, String name) {
-        Room existingRoom = roomRepository.findRoomByName(name);
-        if (existingRoom != null && !existingRoom.getId().equals(id)) {
-            throw new ConflictException(String.format("Room '%s' already exists", name));
+        if (roomRepository.findRoomByName(name).isPresent()){
+            throw new ConflictException(String.format("Room '%s' already exists.", name));
         }
-
-        Room updatedRoom = roomRepository.updateRoom(id, name);
-        if (updatedRoom == null) {
-            throw new NotFoundException(String.format("Room %s not found", id));
-        }
-        return updatedRoom;
+        return roomRepository.updateRoomById(id, name)
+                .orElseThrow(()  -> new NotFoundException(String.format("Room %s not found.", id)));
     }
 
     public void deleteRoomById(UUID id) {
