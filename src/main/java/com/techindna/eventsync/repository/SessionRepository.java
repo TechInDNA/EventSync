@@ -31,59 +31,74 @@ public class SessionRepository {
         this.eventRepository = eventRepository;
     }
 
-    private String getAllSessionsQueryHandler(GetSessionRequestDto request){
-        final StringBuilder query = new StringBuilder(
-                """
-                select
-                sessions.id as session_id,
-                sessions.title as session_title,
-                sessions.description as session_description,
-                sessions.start_date as session_start_date,
-                sessions.end_date as session_end_date,
-                rooms.id as room_id,
-                rooms.name as room_name,
-                sessions.capacity,
-                events.id as event_id,
-                events.title as event_title,
-                events.description as event_description,
-                events.start_date as event_start_date,
-                events.end_date as event_end_date,
-                events.location,
-                events.created_at
-                from eventsync_app.intervene
-                join eventsync_app.sessions
-                on intervene.session_id = sessions.id
-                join eventsync_app.users
-                on intervene.speaker_id = users.id
-                join eventsync_app.rooms
-                on sessions.room_id = rooms.id
-                join eventsync_app.events
-                on events.id = sessions.event_id
-                where users."role" = 'speaker'
-                """);
+    private String buildFilterWhereClause(GetSessionRequestDto request) {
+        StringBuilder where = new StringBuilder("WHERE 1=1");
         if (request.getEventTitle() != null) {
-            query.append(" and events.title ilike ?");
-        }
-        if (request.getSpeakerName() != null) {
-            query.append(" and (users.first_name ilike ? or users.last_name ilike ?)");
+            where.append(" AND e.title ILIKE ?");
         }
         if (request.getRoomName() != null) {
-            query.append(" and rooms.name ilike ?");
+            where.append(" AND r.name ILIKE ?");
+        }
+        if (request.getSpeakerName() != null) {
+            where.append(" AND EXISTS (SELECT 1 FROM eventsync_app.intervene i JOIN eventsync_app.users u ON i.speaker_id = u.id WHERE i.session_id = s.id AND u.role = 'speaker' AND (u.first_name ILIKE ? OR u.last_name ILIKE ?))");
         }
         if (request.isLive()){
-            query.append(" ? between sessions.start_date and sessions.end_date");
+            where.append(" AND ? BETWEEN s.start_date AND s.end_date");
         }
-        query.append(" limit ? offset ?");
-        return String.valueOf(query);
+        return where.toString();
     }
 
-    public int countSession(){
-        final String query = "select count(sessions.id) as total from eventsync_app.sessions";
-        try(
+    private int setFilterParameters(PreparedStatement ps, GetSessionRequestDto request, int startIndex) throws SQLException {
+        int idx = startIndex;
+        if (request.getEventTitle() != null) {
+            ps.setString(idx++, "%" + request.getEventTitle() + "%");
+        }
+        if (request.getRoomName() != null) {
+            ps.setString(idx++, "%" + request.getRoomName() + "%");
+        }
+        if (request.getSpeakerName() != null) {
+            ps.setString(idx++, "%" + request.getSpeakerName() + "%");
+            ps.setString(idx++, "%" + request.getSpeakerName() + "%");
+        }
+        if (request.isLive()){
+            ps.setTimestamp(idx++, Timestamp.from(Instant.now()));
+        }
+        return idx;
+    }
+
+    private String getAllSessionsQuery(GetSessionRequestDto request) {
+        return """
+            SELECT s.id as session_id, s.title as session_title,
+                   s.description as session_description,
+                   s.start_date as session_start_date,
+                   s.end_date as session_end_date,
+                   r.id as room_id, r.name as room_name,
+                   s.capacity,
+                   e.id as event_id, e.title as event_title,
+                   e.description as event_description,
+                   e.start_date as event_start_date,
+                   e.end_date as event_end_date,
+                   e.location, e.created_at
+            FROM eventsync_app.sessions s
+            JOIN eventsync_app.rooms r ON s.room_id = r.id
+            JOIN eventsync_app.events e ON e.id = s.event_id
+        """ + buildFilterWhereClause(request) + " ORDER BY s.id LIMIT ? OFFSET ?";
+    }
+
+    public int countFilteredSessions(GetSessionRequestDto request) {
+        String query = """
+                    SELECT COUNT(*) as total
+                    FROM eventsync_app.sessions s
+                    JOIN eventsync_app.rooms r ON s.room_id = r.id
+                    JOIN eventsync_app.events e ON e.id = s.event_id
+                """ + buildFilterWhereClause(request);
+
+        try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
-        ){
-            try (ResultSet rs = ps.executeQuery()){
+        ) {
+            setFilterParameters(ps, request, 1);
+            try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt("total") : 0;
             }
         } catch (SQLException e) {
@@ -127,27 +142,16 @@ public class SessionRepository {
     }
 
     public List<SessionResponseDto> getAllSessions(GetSessionRequestDto request, PaginationRequestDto pagination){
+        final String query = getAllSessionsQuery(request);
         try(
                 Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(getAllSessionsQueryHandler(request))
+                PreparedStatement ps = connection.prepareStatement(query)
         ){
-            int paramIndex = 1;
-            if (request.getEventTitle() != null) {
-                ps.setString(paramIndex++, String.format("%%%s%%", request.getEventTitle()));
-            }
-            if (request.getSpeakerName() != null) {
-                ps.setString(paramIndex++, String.format("%%%s%%", request.getSpeakerName()));
-                ps.setString(paramIndex++, String.format("%%%s%%", request.getSpeakerName()));
-            }
-            if (request.getRoomName() != null) {
-                ps.setString(paramIndex++, String.format("%%%s%%", request.getRoomName()));
-            }
-            if (request.isLive()){
-                ps.setTimestamp(paramIndex++, Timestamp.from(ACTUAL_DATE));
-            }
+            int paramIndex = setFilterParameters(ps, request, 1);
             ps.setInt(paramIndex++, pagination.getLimit());
             ps.setInt(paramIndex, pagination.getOffset());
 
+            Instant now = Instant.now();
             List<SessionResponseDto> sessions = new ArrayList<>();
             try (ResultSet rs = ps.executeQuery()){
                 while(rs.next()){
@@ -162,7 +166,6 @@ public class SessionRepository {
                     Room room = new Room();
                     room.setId(UUID.fromString(rs.getString("room_id")));
                     room.setName(rs.getString("room_name"));
-
                     session.setRoom(room);
 
                     Event event = new Event();
@@ -171,10 +174,13 @@ public class SessionRepository {
                     event.setDescription(rs.getString("event_description"));
                     event.setStartDate(rs.getTimestamp("event_start_date").toInstant());
                     event.setEndDate(rs.getTimestamp("event_end_date").toInstant());
-
                     session.setEvent(event);
 
                     session.setSpeakers(getInterventionById(session.getId()));
+
+                    Instant start = session.getStartDate();
+                    Instant end = session.getEndDate();
+                    session.setLive(now.isAfter(start) && now.isBefore(end));
 
                     sessions.add(session);
                 }

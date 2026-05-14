@@ -37,7 +37,7 @@ public class SessionService {
         dataValidator.validateSessionRequestData(request);
         return new GetSessionListResponseDto(
                 sessionRepository.getAllSessions(request, pagination),
-                sessionRepository.countSession(),
+                sessionRepository.countFilteredSessions(request),
                 pagination.getPage(),
                 pagination.getSize()
         );
