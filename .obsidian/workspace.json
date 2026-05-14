@@ -15,8 +15,8 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -1238.8119626996554,
-                  "y": -1571.1239927402228,
+                  "x": -988.4890498206171,
+                  "y": -1729.7672780709313,
                   "zoom": -0.2984835461676844
                 }
               },
@@ -81,7 +81,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "6f4d6d5bfe41f054",
@@ -186,19 +187,19 @@
       "bases:Create new base": false
     }
   },
-  "active": "fae3d54826eb5dba",
+  "active": "73a6c18bdf4f9108",
   "lastOpenFiles": [
+    "target/classes/com/techindna/eventsync/dto/GetSessionListResponseDto.class",
+    "target/classes/com/techindna/eventsync/controller/SessionController.class",
+    "target/classes/com/techindna/eventsync/dto/SpeakerResponseDto.class",
+    "target/classes/com/techindna/eventsync/service/SessionService.class",
+    "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
+    "target/classes/com/techindna/eventsync/entity/Event.class",
+    "target/classes/com/techindna/eventsync/dto/SessionResponseDto.class",
+    "target/classes/com/techindna/eventsync/repository/SessionRepository.class",
+    "src/main/resources/application.properties~",
     "src/test/java/requests/sessions/cookies.txt",
     "target/classes/com/techindna/eventsync/service/AuthService.class",
-    "target/classes/com/techindna/eventsync/dto/GetSessionListResponseDto.class",
-    "target/classes/com/techindna/eventsync/entity/Session.class",
-    "target/classes/com/techindna/eventsync/controller/SessionController.class",
-    "target/classes/com/techindna/eventsync/service/SessionService.class",
-    "target/classes/com/techindna/eventsync/dto/SessionRequestDto.class",
-    "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
-    "target/classes/com/techindna/eventsync/dto/UpdateSpeakerResponseDto.class",
-    "target/classes/com/techindna/eventsync/repository/SpeakerRepository.class",
-    "target/classes/com/techindna/eventsync/dto/SpeakerRequestDto.class",
     "src/main/docs/test/Bienvenue.md",
     "src/eventsync/Bienvenue.md"
   ]
