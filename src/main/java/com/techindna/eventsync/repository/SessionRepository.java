@@ -226,9 +226,14 @@ public class SessionRepository {
                     session.setStartDate(rs.getTimestamp("start_date").toInstant());
                     session.setEndDate(rs.getTimestamp("end_date").toInstant());
                     session.setCapacity(rs.getInt("capacity"));
-                    session.setEvent(event);
-                    session.setRoom(room);
                     session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
+
+                    session.setEvent(event);
+
+                    session.setRoom(room);
+
+                    session.setSpeakers(getInterventionById(session.getId()).isEmpty() ? null : getInterventionById(session.getId()));
+
                     return Optional.of(session);
                 }
                 return Optional.empty();
