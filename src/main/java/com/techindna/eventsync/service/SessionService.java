@@ -1,7 +1,6 @@
 package com.techindna.eventsync.service;
 
-import com.techindna.eventsync.dto.SessionRequestDto;
-import com.techindna.eventsync.dto.SessionResponseDto;
+import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SessionRepository;
@@ -32,6 +31,16 @@ public class SessionService {
         );
         return sessionRepository.createSession(sessionRequestDto)
                 .orElseThrow(() -> new ConflictException(String.format("Session with title '%s' already exists", sessionRequestDto.getTitle())));
+    }
+
+    public GetSessionListResponseDto getAllSessions(GetSessionRequestDto request, PaginationRequestDto pagination){
+        dataValidator.validateSessionRequestData(request);
+        return new GetSessionListResponseDto(
+                sessionRepository.getAllSessions(request, pagination),
+                sessionRepository.countSession(),
+                pagination.getPage(),
+                pagination.getSize()
+        );
     }
 
     public SessionResponseDto updateSession(UUID id, SessionRequestDto session) {
