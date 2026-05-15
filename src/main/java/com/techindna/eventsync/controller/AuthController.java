@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final int COOKIE_MAX_AGE = 86400;
+    private static final int COOKIE_MAX_AGE = 86400;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -39,7 +39,7 @@ public class AuthController {
 
             ResponseCookie jwtCookie = ResponseCookie.from("jwt", token)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .path("/")
                     .maxAge(COOKIE_MAX_AGE)
                     .sameSite("Strict")
