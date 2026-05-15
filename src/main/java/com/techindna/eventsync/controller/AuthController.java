@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private static final int COOKIE_MAX_AGE = 86400;
+    private static final int COOKIE_MAX_AGE = 43200;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
