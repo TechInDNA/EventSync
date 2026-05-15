@@ -50,8 +50,8 @@ public class AuthService {
             if (loggingAttempt == 1) {
                 firstFailureTime = Instant.now();
             }
+            return Optional.empty();
         }
-
         return admin;
     }
 
