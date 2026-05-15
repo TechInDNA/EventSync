@@ -1,6 +1,7 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Room;
+import com.techindna.eventsync.exception.InternalServerErrorException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -38,7 +39,7 @@ public class RoomRepository {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -67,7 +68,7 @@ public class RoomRepository {
                 return room;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -97,7 +98,7 @@ public class RoomRepository {
                 return rooms;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -111,7 +112,7 @@ public class RoomRepository {
         ) {
             return rs.next() ? rs.getInt("total") : 0;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -133,7 +134,7 @@ public class RoomRepository {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -156,7 +157,7 @@ public class RoomRepository {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -173,7 +174,7 @@ public class RoomRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 

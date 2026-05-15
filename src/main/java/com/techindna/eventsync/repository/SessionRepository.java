@@ -4,6 +4,7 @@ import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
+import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
@@ -101,7 +102,7 @@ public class SessionRepository {
                 return rs.next() ? rs.getInt("total") : 0;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -136,7 +137,7 @@ public class SessionRepository {
                 return interventions;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -186,7 +187,7 @@ public class SessionRepository {
                 return sessions;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -239,7 +240,7 @@ public class SessionRepository {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -261,7 +262,7 @@ public class SessionRepository {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -314,7 +315,7 @@ public class SessionRepository {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -331,7 +332,7 @@ public class SessionRepository {
                         Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 }
