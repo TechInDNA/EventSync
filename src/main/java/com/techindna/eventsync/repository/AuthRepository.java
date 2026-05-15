@@ -1,6 +1,7 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Administrator;
+import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import org.springframework.stereotype.Repository;
 
@@ -53,7 +54,7 @@ public class AuthRepository {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 }

@@ -5,6 +5,7 @@ import com.techindna.eventsync.dto.SpeakerRequestDto;
 import com.techindna.eventsync.dto.SpeakerResponseDto;
 import com.techindna.eventsync.dto.UpdateSpeakerResponseDto;
 import com.techindna.eventsync.exception.ConflictException;
+import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
@@ -44,7 +45,7 @@ public class SpeakerRepository {
             }
             return results;
         }catch (SQLException e){
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -89,7 +90,7 @@ public class SpeakerRepository {
             }
 
         }catch (SQLException e){
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -110,7 +111,7 @@ public class SpeakerRepository {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -161,10 +162,10 @@ public class SpeakerRepository {
                         String.format("Speaker with email %s already exists", speakerRequestDto.getEmail())
                     );
                 }
-                throw new RuntimeException(e);
+                throw new InternalServerErrorException("Database error: " + e.getMessage());
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -186,7 +187,7 @@ public class SpeakerRepository {
             if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
                 throw new ConflictException("One or more external links URL already exist.");
             }
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -239,7 +240,7 @@ public class SpeakerRepository {
             return updateSpeakerResponseDto;
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
 
     }
@@ -287,7 +288,7 @@ public class SpeakerRepository {
                 }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 }

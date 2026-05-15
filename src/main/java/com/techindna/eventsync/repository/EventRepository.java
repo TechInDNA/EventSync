@@ -1,6 +1,7 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Event;
+import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
@@ -60,7 +61,7 @@ public class EventRepository {
             }
 
         } catch (SQLException e){
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -99,7 +100,7 @@ public class EventRepository {
             }
         }
         catch (SQLException e){
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -140,7 +141,7 @@ public class EventRepository {
                 return events;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -178,7 +179,7 @@ public class EventRepository {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -221,7 +222,7 @@ public class EventRepository {
                 throw new NotFoundException(String.format("Event %s not found.", id));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -241,7 +242,7 @@ public class EventRepository {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -259,7 +260,7 @@ public class EventRepository {
                 throw new NotFoundException(String.format("Event %s not found.", id));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
