@@ -3,6 +3,7 @@
 EventSync is a Spring Boot-based event management system with JWT authentication, PostgreSQL database integration, and RESTful APIs for user authentication and event management.
 
 ## Table of Contents
+- [HTTPS Configuration](#https-configuration)
 - [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
 - [Configuration](#configuration)
@@ -13,6 +14,47 @@ EventSync is a Spring Boot-based event management system with JWT authentication
 - [Running Tests](#running-tests)
 - [Curlie Installation](#curlie-installation)
 - [Dependencies](#dependencies)
+
+## HTTPS Configuration
+
+### 1. Generate SSL Certificate
+
+Run the following command to generate a PKCS12 keystore with a self-signed certificate:
+
+```bash
+keytool -genkey -alias eventsync -storetype PKCS12 -keyalg RSA -keysize 4096 -keystore eventsync.p12 -validity 3650
+```
+
+You will be prompted for a password and certificate details (name, organization, etc.). Remember the password — it will be used as `HTTPS_PASS` in the `.env` file.
+
+### 2. Configure Environment Variables
+
+Add the following variables to your `.env` file:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `HTTPS_PASS` | Password used during keystore generation | `your_keystore_password` |
+| `KEY_STORE` | Path to the PKCS12 keystore file | `file:eventsync.p12` |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated list of allowed origins | `http://localhost:4444,http://localhost:3000` |
+
+Example:
+```env
+HTTPS_PASS=your_keystore_password
+KEY_STORE=file:eventsync.p12
+CORS_ALLOWED_ORIGINS=http://localhost:4444,http://localhost:3000
+```
+
+### 3. Start the Application with HTTPS
+
+Run Spring Boot with `sudo` (required for binding to port 443):
+
+```bash
+sudo ./mvnw spring-boot:run
+```
+
+The application will be available at `https://localhost`.
+
+---
 
 ## Project Structure
 
@@ -56,6 +98,9 @@ The application loads the following variables:
 | `DB_URL` | JDBC URL for PostgreSQL connection. Format: `jdbc:postgresql://host:port/database_name` | `jdbc:postgresql://localhost:5432/eventsync_db` |
 | `DB_USER` | PostgreSQL username with access to the database. | `eventsync_manager` |
 | `DB_PASSWORD` | PostgreSQL password for the above user. | `secure_password_here` |
+| `HTTPS_PASS` | Password for the PKCS12 keystore | `your_keystore_password` |
+| `KEY_STORE` | Path to the PKCS12 keystore file | `file:eventsync.p12` |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated list of allowed CORS origins | `http://localhost:4444,http://localhost:3000` |
 
 Example `.env` file:
 ```env
@@ -63,6 +108,9 @@ JWT_TOKEN=a1b2c3d4-5678-90ab-cdef-1234567890ab
 DB_URL=jdbc:postgresql://localhost:5432/eventsync_db
 DB_USER=eventsync_manager
 DB_PASSWORD=secure_password_here
+HTTPS_PASS=your_keystore_password
+KEY_STORE=file:eventsync.p12
+CORS_ALLOWED_ORIGINS=http://localhost:4444,http://localhost:3000
 ```
 
 ### Logging Configuration
@@ -95,28 +143,36 @@ The application enables debug logging for Spring Security and JDBC by default. T
    ```
 
 ## Running the Application
-Start the Spring Boot application:
+
+### Development (HTTP on port 8080)
 ```bash
 mvn spring-boot:run
 ```
 The application will run on `http://localhost:8080`.
 
+### Production (HTTPS on port 443)
+Generate a keystore and configure `.env` as described in [HTTPS Configuration](#https-configuration), then start with `sudo`:
+```bash
+sudo ./mvnw spring-boot:run
+```
+The application will run on `https://localhost`.
+
 ## Running Tests
 The project includes manual API test scripts in `src/test/java/requests/` that use `curlie` to test endpoints. Prerequisites:
-- The application is running on `http://localhost:8080`
+- The application is running (on `https://localhost` with the `-k` flag for self-signed certificates)
 - `curlie` is installed (see [Curlie Installation](#curlie-installation))
 
 ### Test Scripts
 1. **Login Tests**: `post_auth_login.sh` tests the `POST /auth/login` endpoint with valid/invalid credentials and malformed requests.
    ```bash
-   chmod +x src/test/java/requests/post_auth_login.sh
-   ./src/test/java/requests/post_auth_login.sh
+   chmod +x src/test/java/requests/auth/post_auth_login.sh
+   ./src/test/java/requests/auth/post_auth_login.sh
    ```
 
 2. **Event Tests**: `post_events.sh` tests the `POST /events` endpoint (requires authentication via login first). It uses a `cookies.txt` file to store the JWT cookie, which is automatically cleaned up after execution.
    ```bash
-   chmod +x src/test/java/requests/post_events.sh
-   ./src/test/java/requests/post_events.sh
+   chmod +x src/test/java/requests/events/post_events.sh
+   ./src/test/java/requests/events/post_events.sh
    ```
 
 ## Curlie Installation
