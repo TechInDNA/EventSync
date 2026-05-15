@@ -11,7 +11,7 @@ mvn test -Dtest=SessionControllerTest  # Single test class
 
 ## Environment
 
-- Create `.env` in project root with `JWT_TOKEN`, `DB_URL`, `DB_USER`, `DB_PASSWORD`
+- Create `.env` in project root with `JWT_TOKEN`, `DB_URL`, `DB_USER`, `DB_PASSWORD`, `CORS_ALLOWED_ORIGINS`
 - Loaded via `spring.config.import=optional:file:.env[.properties]` in `application.properties`
 - Both `.env` and `application.properties` are gitignored
 
