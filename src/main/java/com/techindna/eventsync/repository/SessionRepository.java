@@ -244,6 +244,27 @@ public class SessionRepository {
         }
     }
 
+    public Optional<Session> findSessionById(UUID id) {
+        final String query = "SELECT id, title FROM eventsync_app.sessions WHERE id = ?";
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Session session = new Session();
+                    session.setId(UUID.fromString(rs.getString("id")));
+                    session.setTitle(rs.getString("title"));
+                    return Optional.of(session);
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
     public Optional<Session> findSessionByTitleExcludingId(String title, UUID excludeId) {
         final String query = "SELECT id, title FROM eventsync_app.sessions WHERE title = ? AND id != ?";
         try (
