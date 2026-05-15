@@ -47,6 +47,6 @@ public class TokenProvider {
     }
 
     private Instant genAccessExpirationDate() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.UTC);
+        return LocalDateTime.now().plusHours(12).toInstant(ZoneOffset.UTC);
     }
 }
