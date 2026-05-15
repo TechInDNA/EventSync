@@ -1,23 +1,107 @@
--- Questions for testing GET /sessions/{id}/questions endpoint
+-- Test data for GET /sessions/{id}/questions endpoint
+-- This endpoint retrieves paginated questions for a session, with sorting by creationDate (default) or upvotes,
+-- and supports anonymous questions (participant info hidden).
 
-insert into eventsync_app.question (id, title, content, created_at, session_id, user_id, anonymous)
+-- Participant users who will ask questions (also used by upvotes)
+insert into eventsync_app.users (id, first_name, last_name, email, "role")
 values
-    ('a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d', 'Will AI replace developers?', 'I am curious about the impact of AI on software development jobs in the next 5 years.', '2026-05-10 10:05:00', '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', false),
-    ('b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e', 'What is the best language for AI?', 'Which programming language is recommended for beginners in AI development?', '2026-05-10 10:12:00', '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f', '4f17fb62-25cc-4758-a747-8f7df562d425', false),
-    ('c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f', 'Anonymous question about salary', 'What is the average salary for a senior developer in Europe?', '2026-05-10 10:20:00', '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f', '0a635d21-c174-4525-9031-19848bed99a4', true),
-    ('d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a', 'Remote work trends', 'How is remote work shaping the future of tech companies?', '2026-05-10 10:30:00', '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f', 'b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e', false)
+    ('43005ca0-37f7-4942-86ac-695a29a6a3b1', 'Alice', 'Johnson', 'alice.participant@eventsync.com', 'participant'),
+    ('ad279f61-3883-42b1-8b03-1ebbeda3e4bf', 'Bob', 'Smith', 'bob.participant@eventsync.com', 'participant'),
+    ('dd307c1a-c674-4969-99e3-91ad37cc64dd', 'Charlie', 'Brown', 'charlie.participant@eventsync.com', 'participant'),
+    ('97bc7f5d-1e00-4cef-a661-4133ab0e1667', 'Diana', 'Miller', 'diana.participant@eventsync.com', 'participant'),
+    ('017cdf3d-fa6e-42f5-958d-91a192c90118', 'Eve', 'Davis', 'eve.participant@eventsync.com', 'participant')
 on conflict (id) do nothing;
 
--- Questions for session: Web Development Basics (4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a)
-insert into eventsync_app.question (id, title, content, created_at, session_id, user_id, anonymous)
-values
-    ('e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b', 'React vs Angular in 2026?', 'Which framework is more popular for enterprise applications this year?', '2026-05-14 09:15:00', '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a', 'c2d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f', false),
-    ('f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c', 'Best CSS framework?', 'What CSS framework do you recommend for rapid prototyping?', '2026-05-14 10:00:00', '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a', 'd3e4f5a6-b7c8-4d9e-0f1a-2b3c4d5e6f7a', false)
+-- Room for the test session
+insert into eventsync_app.rooms (id, name)
+values ('26ecdf60-70e9-41ec-80f4-4e88571661ce', 'Questions Test Room')
 on conflict (id) do nothing;
 
--- Questions for session: Testing Strategies (7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d)
+-- Event for the test session
+insert into eventsync_app.events (id, title, description, start_date, end_date, location)
+values (
+    '73362766-dc21-4ced-9ec4-db0819ea442f',
+    'Questions Test Event',
+    'Event for testing GET /sessions/{id}/questions endpoint',
+    '2026-06-10 09:00:00',
+    '2026-06-10 18:00:00',
+    'Question Test Center'
+)
+on conflict (id) do nothing;
+
+-- Session whose questions will be fetched via GET /sessions/{id}/questions
+insert into eventsync_app.sessions (id, title, description, start_date, end_date, room_id, capacity, event_id)
+values (
+    'a34e0e08-9c8d-4a86-aa87-dd1e3a385bbb',
+    'Questions Test Session',
+    'Session for testing the questions retrieval endpoint',
+    '2026-06-10 10:00:00',
+    '2026-06-10 12:00:00',
+    '26ecdf60-70e9-41ec-80f4-4e88571661ce',
+    100,
+    '73362766-dc21-4ced-9ec4-db0819ea442f'
+)
+on conflict (id) do nothing;
+
+-- Questions for the session (mix of regular and anonymous)
 insert into eventsync_app.question (id, title, content, created_at, session_id, user_id, anonymous)
 values
-    ('a7b8c9d0-e1f2-4a3b-5c6d-7e8f9a0b1c2d', 'Mocking best practices?', 'What are the best practices for mocking external services in Spring Boot tests?', '2026-05-14 10:30:00', '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d', '4f17fb62-25cc-4758-a747-8f7df562d425', false),
-    ('b8c9d0e1-f2a3-4b5c-6d7e-8f9a0b1c2d3e', 'Test coverage target?', 'What is a good test coverage percentage to aim for?', '2026-05-14 11:00:00', '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d', '0a635d21-c174-4525-9031-19848bed99a4', false)
+    ('ddf75918-e752-4fb1-b316-cb4574da81de', 'Question about the topic',
+     'Will this session cover microservices architecture patterns?',
+     '2026-06-10 10:05:00',
+     'a34e0e08-9c8d-4a86-aa87-dd1e3a385bbb',
+     '43005ca0-37f7-4942-86ac-695a29a6a3b1',
+     false),
+    ('20919e99-f2ff-429d-a6af-8cba749af27a', 'Anonymous question',
+     'Is there any prerequisite knowledge required for this session?',
+     '2026-06-10 10:10:00',
+     'a34e0e08-9c8d-4a86-aa87-dd1e3a385bbb',
+     'ad279f61-3883-42b1-8b03-1ebbeda3e4bf',
+     true),
+    ('2110b88d-b648-44fb-a2c0-6a2f5a674eb7', 'Slides availability',
+     'Will the presentation slides be shared after the session?',
+     '2026-06-10 10:15:00',
+     'a34e0e08-9c8d-4a86-aa87-dd1e3a385bbb',
+     'dd307c1a-c674-4969-99e3-91ad37cc64dd',
+     false),
+    ('0067a56e-84d8-443a-a686-b5b124b01342', 'Hands-on exercise question',
+     'Will there be any hands-on coding exercises during this session?',
+     '2026-06-10 10:20:00',
+     'a34e0e08-9c8d-4a86-aa87-dd1e3a385bbb',
+     '97bc7f5d-1e00-4cef-a661-4133ab0e1667',
+     false),
+    ('a6631e77-eeeb-4551-aefc-11b17b681e46', 'Anonymous feedback question',
+     'Is the session going to be recorded for later viewing?',
+     '2026-06-10 10:25:00',
+     'a34e0e08-9c8d-4a86-aa87-dd1e3a385bbb',
+     '017cdf3d-fa6e-42f5-958d-91a192c90118',
+     true),
+    ('403dea58-0f1b-4c6f-81dd-5d6cb7dcd790', 'Recommended reading',
+     'Are there any recommended books or articles to read before this session?',
+     '2026-06-10 10:30:00',
+     'a34e0e08-9c8d-4a86-aa87-dd1e3a385bbb',
+     '43005ca0-37f7-4942-86ac-695a29a6a3b1',
+     false)
+on conflict (id) do nothing;
+
+-- Upvotes on questions (to test upvote_count sorting)
+insert into eventsync_app.upvote (id, user_id, question_id)
+values
+    -- ddf75918 gets 3 upvotes (most popular)
+    ('69666a9b-34c8-4929-9ab2-a2c88e058a11', 'ad279f61-3883-42b1-8b03-1ebbeda3e4bf', 'ddf75918-e752-4fb1-b316-cb4574da81de'),
+    ('637fb91c-fb1a-4403-9c3d-abd79e0b1c95', 'dd307c1a-c674-4969-99e3-91ad37cc64dd', 'ddf75918-e752-4fb1-b316-cb4574da81de'),
+    ('21d5abd2-88a6-4172-bde7-2e07b8431a44', '97bc7f5d-1e00-4cef-a661-4133ab0e1667', 'ddf75918-e752-4fb1-b316-cb4574da81de'),
+
+    -- 2110b88d gets 2 upvotes
+    ('cbc5d7ef-a308-4b84-8344-c704f3e0bbeb', '43005ca0-37f7-4942-86ac-695a29a6a3b1', '2110b88d-b648-44fb-a2c0-6a2f5a674eb7'),
+    ('88882c47-6495-46b6-a861-e8e68e46912a', 'ad279f61-3883-42b1-8b03-1ebbeda3e4bf', '2110b88d-b648-44fb-a2c0-6a2f5a674eb7'),
+
+    -- 20919e99 gets 1 upvote (anonymous question)
+    ('b97e7a6c-f02f-47b2-8332-c4ea9a2df018', 'dd307c1a-c674-4969-99e3-91ad37cc64dd', '20919e99-f2ff-429d-a6af-8cba749af27a'),
+
+    -- 0067a56e gets 0 upvotes
+    -- a6631e77 gets 0 upvotes
+
+    -- 403dea58 gets 1 upvote
+    ('c39f8185-f077-4d8d-9706-00f882cb309a', '97bc7f5d-1e00-4cef-a661-4133ab0e1667', '403dea58-0f1b-4c6f-81dd-5d6cb7dcd790')
 on conflict (id) do nothing;
