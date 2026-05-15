@@ -1,5 +1,6 @@
 package com.techindna.eventsync.repository;
 
+import com.techindna.eventsync.dto.ParticipantDto;
 import com.techindna.eventsync.dto.QuestionResponseDto;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import org.springframework.stereotype.Repository;
@@ -22,11 +23,11 @@ public class QuestionRepository {
     }
 
     public List<QuestionResponseDto> getQuestionsBySessionId(UUID sessionId, String sort, int offset, int limit) {
-        String orderClause = "createdAt".equals(sort)
+        final String orderClause = "creationDate".equals(sort)
                 ? "ORDER BY q.created_at DESC"
                 : "ORDER BY upvote_count DESC, q.created_at DESC";
 
-        String query = """
+        final String query = """
             SELECT q.id, q.title, q.content, q.created_at, q.anonymous,
                    u.id as user_id, u.first_name, u.last_name, u.email,
                    COUNT(up.id) as upvote_count
@@ -38,8 +39,10 @@ public class QuestionRepository {
                      u.id, u.first_name, u.last_name, u.email
             """ + orderClause + " LIMIT ? OFFSET ?";
 
-        try (Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(query)) {
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
 
             ps.setObject(1, sessionId);
             ps.setInt(2, limit);
@@ -56,12 +59,18 @@ public class QuestionRepository {
                     q.setAnonymous(rs.getBoolean("anonymous"));
                     q.setUpvotes(rs.getInt("upvote_count"));
 
-                    QuestionResponseDto.ParticipantDto participant = new QuestionResponseDto.ParticipantDto();
-                    participant.setId(UUID.fromString(rs.getString("user_id")));
-                    participant.setFirstName(rs.getString("first_name"));
-                    participant.setLastName(rs.getString("last_name"));
-                    participant.setEmail(rs.getString("email"));
-                    q.setParticipant(participant);
+                    ParticipantDto participant = new ParticipantDto();
+                    if (q.isAnonymous()) {
+                        q.setParticipant(null);
+                    }
+
+                    else {
+                        participant.setId(UUID.fromString(rs.getString("user_id")));
+                        participant.setFirstName(rs.getString("first_name"));
+                        participant.setLastName(rs.getString("last_name"));
+                        participant.setEmail(rs.getString("email"));
+                        q.setParticipant(participant);
+                    }
 
                     questions.add(q);
                 }
@@ -73,7 +82,7 @@ public class QuestionRepository {
     }
 
     public int countQuestionsBySessionId(UUID sessionId) {
-        String query = "SELECT COUNT(*) as total FROM eventsync_app.question WHERE session_id = ?";
+        String query = "SELECT COUNT(id) as total FROM eventsync_app.question WHERE session_id = ?";
 
         try (Connection connection = dataSource.getConnection();
              PreparedStatement ps = connection.prepareStatement(query)) {

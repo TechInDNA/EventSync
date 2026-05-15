@@ -24,16 +24,14 @@ public class QuestionService {
 
     public GetQuestionListResponseDto getQuestionsBySessionId(String sessionId, String sort, PaginationRequestDto pagination) {
         dataValidator.validateUUID(sessionId);
-        UUID uuid = UUID.fromString(sessionId);
+        dataValidator.validateSortByQuestion(sort);
 
-        sessionRepository.findSessionById(uuid)
+        sessionRepository.findSessionById(UUID.fromString(sessionId))
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", sessionId)));
 
-        String sortField = (sort != null && sort.equals("upvote")) ? "upvote" : "createdAt";
-
         return new GetQuestionListResponseDto(
-                questionRepository.getQuestionsBySessionId(uuid, sortField, pagination.getOffset(), pagination.getLimit()),
-                questionRepository.countQuestionsBySessionId(uuid),
+                questionRepository.getQuestionsBySessionId(UUID.fromString(sessionId), sort, pagination.getOffset(), pagination.getLimit()),
+                questionRepository.countQuestionsBySessionId(UUID.fromString(sessionId)),
                 pagination.getPage(),
                 pagination.getSize()
         );

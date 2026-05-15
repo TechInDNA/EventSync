@@ -29,9 +29,9 @@ public class QuestionController {
     @GetMapping("/{id}/questions")
     public ResponseEntity<?> getQuestionsBySessionId(
             @PathVariable String id,
-            @RequestParam(required = false, defaultValue = "createdAt") String sort,
+            @RequestParam(required = false, defaultValue = "creationDate") String sort,
             @RequestParam(required = false, defaultValue = "1") String page,
-            @RequestParam(required = false, defaultValue = "20") String size) {
+            @RequestParam(required = false, defaultValue = "5") String size) {
         try {
             dataValidator.validatePageAndSize(page, size);
 

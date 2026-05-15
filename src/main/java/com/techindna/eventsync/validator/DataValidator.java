@@ -149,6 +149,13 @@ public class DataValidator {
         validateString("isLive", String.valueOf(getSessionRequestDto.isLive()));
     }
 
+    public void validateSortByQuestion(String sortType){
+        checkNullData("sortType", sortType);
+        if (!sortType.equals("creationDate") && !sortType.equals("upvotes")){
+            throw new BadRequestException("Invalid sort type.");
+        }
+    }
+
     public void validateExternalLinks(List<ExternalLinkDto> links){
         if (links != null){
             for (ExternalLinkDto l : links){
