@@ -45,7 +45,7 @@ public class SpeakersController {
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred.");
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 
@@ -60,9 +60,9 @@ public class SpeakersController {
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(e.getMessage());
-        } catch (Exception e) {
+        } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred");
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 
@@ -83,9 +83,9 @@ public class SpeakersController {
         catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
-        } catch (Exception e) {
+        } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred");
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 
@@ -102,9 +102,9 @@ public class SpeakersController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
-        } catch (Exception e) {
+        } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred");
+                    .body("An unexpected error occurred, please try again later");
         }
 
     }
