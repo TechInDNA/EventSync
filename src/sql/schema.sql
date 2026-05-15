@@ -52,6 +52,21 @@ create table eventsync_app.intervene(
     start_time timetz not null,
     end_time timetz not null
 );
+create table eventsync_app.question(
+    id uuid default gen_random_uuid() primary key,
+    title varchar not null,
+    content text not null,
+    created_at timestamp default now(),
+    session_id uuid not null references eventsync_app.sessions(id) on delete cascade,
+    user_id uuid not null references eventsync_app.users(id) on delete cascade,
+    anonymous boolean default false
+);
 
 
+create table eventsync_app.upvote(
+    id uuid default gen_random_uuid() primary key,
+    user_id uuid not null references eventsync_app.users(id) on delete cascade,
+    question_id uuid not null references eventsync_app.question(id) on delete cascade,
+    created_at timestamp default now()
+);
 

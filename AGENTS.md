@@ -20,7 +20,7 @@ mvn test -Dtest=SessionControllerTest  # Single test class
 Run scripts in this exact order:
 
 ```bash
-for f in init_db.sql schema.sql room_data.sql event_data.sql data.sql session_data.sql speaker_data.sql; do
+for f in init_db.sql schema.sql room_data.sql event_data.sql data.sql session_data.sql speaker_data.sql question_data.sql upvote_data.sql; do
   psql -U eventsync_manager -d eventsync_db -f src/sql/"$f"
 done
 ```
@@ -42,6 +42,9 @@ for s in post get put delete; do ./src/test/java/requests/room/${s}_rooms.sh; do
 
 # Speakers (CRUD)
 for s in post get put delete; do ./src/test/java/requests/speaker/${s}_speakers.sh; done
+
+# Session Questions (GET)
+./src/test/java/requests/sessions/get_session_questions.sh
 ```
 
 ## Architecture
