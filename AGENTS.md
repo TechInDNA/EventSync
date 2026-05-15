@@ -3,55 +3,39 @@
 ## Commands
 
 ```bash
-mvn spring-boot:run          # Start app on :8080
-mvn clean install            # Full build
-mvn test                     # All JUnit tests
-mvn test -Dtest=SessionControllerTest  # Single test class
+sudo ./mvnw spring-boot:run   # HTTPS on :443 (needs keystore + .env, see README)
+mvn spring-boot:run           # HTTP on :8080 (if application.properties overrides SSL)
+mvn clean install             # Full build
+mvn test                      # All JUnit tests
 ```
 
 ## Environment
 
-- Create `.env` in project root with `JWT_TOKEN`, `DB_URL`, `DB_USER`, `DB_PASSWORD`, `CORS_ALLOWED_ORIGINS`
-- Loaded via `spring.config.import=optional:file:.env[.properties]` in `application.properties`
-- Both `.env` and `application.properties` are gitignored
+- Create `.env` in project root (gitignored) with: `JWT_TOKEN`, `DB_URL`, `DB_USER`, `DB_PASSWORD`, `HTTPS_PASS`, `KEY_STORE=file:eventsync.p12`, `CORS_ALLOWED_ORIGINS`
+- `application.properties` is also gitignored — the local copy may differ from the repo template. HTTPS SSL config + `server.port=443` live there.
+- `.env` loaded via `spring.config.import=optional:file:.env[.properties]`
 
 ## Database (PostgreSQL)
 
-Run scripts in this exact order:
+Run scripts in this order:
 
 ```bash
-for f in init_db.sql schema.sql room_data.sql event_data.sql data.sql session_data.sql speaker_data.sql question_data.sql upvote_data.sql; do
+for f in init_db.sql schema.sql room_data.sql event_data.sql data.sql session_data.sql speaker_data.sql; do
   psql -U eventsync_manager -d eventsync_db -f src/sql/"$f"
 done
 ```
 
-## Manual API tests (curlie, require running app)
+## Tests
 
-```bash
-# Auth
-./src/test/java/requests/auth/post_auth_login.sh
-
-# Events (CRUD)
-for s in post get put delete; do ./src/test/java/requests/events/${s}_events.sh; done
-
-# Sessions (CRUD)
-for s in post get put delete; do ./src/test/java/requests/sessions/${s}_sessions.sh; done
-
-# Rooms (CRUD)
-for s in post get put delete; do ./src/test/java/requests/room/${s}_rooms.sh; done
-
-# Speakers (CRUD)
-for s in post get put delete; do ./src/test/java/requests/speaker/${s}_speakers.sh; done
-
-# Session Questions (GET)
-./src/test/java/requests/sessions/get_session_questions.sh
-```
+- Single `@SpringBootTest`: `EventSyncApplicationTests` — context-load sanity check only
+- No unit tests currently exist
+- Manual API test scripts at `src/test/java/requests/**/*.sh` (require app running + [curlie](https://github.com/rs/curlie))
 
 ## Architecture
 
-- **Spring JDBC** (no JPA) — repositories use `RowMapper` + `JdbcTemplate`
-- **Argon2** password hashing via Bouncy Castle (`bcpkix-jdk18on`)
-- **JWT auth** via Auth0 `java-jwt`; secret key in `security.jwt.token.secret-key`
+- **Spring JDBC** (no JPA) — `RowMapper` + `JdbcTemplate`
+- **Argon2** via Bouncy Castle (`bcpkix-jdk18on`)
+- **JWT** via Auth0 `java-jwt`; secret key: `security.jwt.token.secret-key`
 - Single Maven module, Java 17, Spring Boot 4.0.6
 - Package root: `com.techindna.eventsync`
 
@@ -61,14 +45,8 @@ for s in post get put delete; do ./src/test/java/requests/speaker/${s}_speakers.
 | `controller` | `Auth`, `Event`, `Session`, `Room`, `Speakers` |
 | `repository` | JDBC repos (`Auth`, `Event`, `Session`, `Room`, `Speaker`) |
 | `entity` | Domain POJOs + `enums/Role` |
-| `validator` | `DataValidator` — validates page/size, UUID, session data |
-| `exception` | `BadRequestException` (400), `UnauthorizedException` (401), `ConflictException` (409), `NotFoundException` (404) |
-
-## Tests
-
-- One `@WebMvcTest(SessionController.class)` — mocks `SessionService` + `DataValidator`, uses `MockMvc`
-- One `@SpringBootTest` context-load sanity check
-- All unit tests (no integration tests requiring DB)
+| `validator` | `DataValidator` — validates page/size, UUID, session/speaker data |
+| `exception` | `BadRequestException` (400), `UnauthorizedException` (401), `NotFoundException` (404), `ConflictException` (409), `TooManyRequestException` (429), `InternalServerErrorException` (500) |
 
 ## Docs
 
