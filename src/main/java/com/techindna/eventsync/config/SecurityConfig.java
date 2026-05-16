@@ -49,7 +49,6 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers(HttpMethod.POST, "/questions/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/events/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/events/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/events/**").hasRole("ADMIN")
@@ -70,8 +69,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT,"/sessions/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET,"/sessions/**").permitAll()
 
+                .requestMatchers(HttpMethod.POST, "/questions/**").permitAll()
 
                 .requestMatchers("/auth/login").permitAll()
+                .requestMatchers("/auth/participant").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(new JwtAuthenticationFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);

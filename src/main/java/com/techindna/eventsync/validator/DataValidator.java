@@ -1,5 +1,6 @@
 package com.techindna.eventsync.validator;
 
+import com.techindna.eventsync.dto.AuthParticipantRequestDto;
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.GetSessionRequestDto;
 import com.techindna.eventsync.dto.SpeakerRequestDto;
@@ -154,6 +155,15 @@ public class DataValidator {
         if (!sortType.equals("creationDate") && !sortType.equals("upvotes")){
             throw new BadRequestException("Invalid sort type.");
         }
+    }
+
+    public void validateParticipantData(AuthParticipantRequestDto request){
+        lengthValidation("lastName", 50, request.getLastName());
+        lengthValidation("firstName", 50, request.getFirstName());
+        lengthValidation("email", 50, request.getEmail());
+        validateString("lastName", request.getLastName());
+        validateString("firstName", request.getFirstName());
+        validateEmail(request.getEmail());
     }
 
     public void validateExternalLinks(List<ExternalLinkDto> links){
