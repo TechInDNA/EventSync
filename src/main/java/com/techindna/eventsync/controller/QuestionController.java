@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +43,23 @@ public class QuestionController {
 
             return ResponseEntity.status(HttpStatus.OK)
                     .body(questionService.getQuestionsBySessionId(id, sort, pagination));
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
+    @PostMapping("/{id}/questions/{qid}/upvote")
+    public ResponseEntity<?> upvoteQuestion(@PathVariable String id, @PathVariable String qid) {
+        try {
+            questionService.upvoteQuestion(id, qid);
+            return ResponseEntity.status(HttpStatus.OK).body("Question upvoted successfully.");
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

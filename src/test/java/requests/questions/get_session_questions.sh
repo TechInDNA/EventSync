@@ -8,7 +8,7 @@ echo "===================================="
 # Test 1: Get questions default params (sort=creationDate, page=1, size=5)
 echo ""
 echo "--- Test 1: Get questions (default pagination & sort) ---"
-curlie -k -w "\nHTTP Status: %{http_code}\n" GET "https://localhost:443/sessions/${SESSION_ID}/questions"
+curl -k -w "\nHTTP Status: %{http_code}\n" GET "https://localhost:8443/sessions/${SESSION_ID}/questions"
 
 # Test 2: Get questions sorted by upvotes (most upvoted first)
 echo ""
