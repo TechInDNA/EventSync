@@ -64,11 +64,11 @@ curlie -k -H "Content-Type: application/json" -d '{"firstName": "John", "lastNam
 
 echo ""
 echo "--- Test 15: firstName exceeding 50 characters (should return 400) ---"
-curlie -k -H "Content-Type: application/json" -d '{"firstName": "JohnathanAlexanderMichaelChristopherBenjamin", "lastName": "Doe", "email": "long.first@example.com"}' https://localhost:443/auth/participant
+curlie -k -H "Content-Type: application/json" -d '{"firstName": "JohnathanAlexanderMichaelChristopherBenjaminBalackMiller", "lastName": "Doe", "email": "long.first@example.com"}' https://localhost:443/auth/participant
 
 echo ""
 echo "--- Test 16: lastName exceeding 50 characters (should return 400) ---"
-curlie -k -H "Content-Type: application/json" -d '{"firstName": "John", "lastName": "MontgomeryRichardsonWellingtonHarringtonIII", "email": "long.last@example.com"}' https://localhost:443/auth/participant
+curlie -k -H "Content-Type: application/json" -d '{"firstName": "John", "lastName": "MontgomeryRichardsonWellingtonHarringtonMichaelChristopherBenjaminIII", "email": "long.last@example.com"}' https://localhost:443/auth/participant
 
 echo ""
 echo "==========  DONE  =========="

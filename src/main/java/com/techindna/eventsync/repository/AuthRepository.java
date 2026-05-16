@@ -87,17 +87,19 @@ public class AuthRepository {
         }
     }
 
-    public Optional<Participant> findParticipantByEmail(String email) {
+    public Optional<Participant> findParticipant(String email, String firstName, String lastName) {
         final String selectQuery = """
             SELECT id, first_name, last_name, email
             FROM eventsync_app.users
-            WHERE email = ? AND role = 'participant'::eventsync_app.role
+            WHERE email = ? AND first_name = ? AND last_name = ?
             """;
         try (
                 Connection conn = dataSource.getConnection();
                 PreparedStatement ps = conn.prepareStatement(selectQuery)
         ) {
             ps.setString(1, email);
+            ps.setString(2, firstName);
+            ps.setString(3, lastName);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Participant p = new Participant();
