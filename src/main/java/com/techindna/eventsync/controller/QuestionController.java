@@ -56,6 +56,23 @@ public class QuestionController {
         }
     }
 
+    @GetMapping("/{id}/questions/{qid}/upvote")
+    public ResponseEntity<?> getUpvoteCount(@PathVariable String id, @PathVariable String qid) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(questionService.getUpvoteCount(id, qid));
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
     @PostMapping("/{id}/questions/{qid}/upvote")
     public ResponseEntity<?> upvoteQuestion(@PathVariable String id, @PathVariable String qid) {
         try {

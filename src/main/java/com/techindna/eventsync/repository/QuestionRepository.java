@@ -138,6 +138,21 @@ public class QuestionRepository {
         }
     }
 
+    public int getUpvoteCount(UUID questionId) {
+        final String query = "SELECT COUNT(*) AS upvote FROM eventsync_app.upvote WHERE question_id = ?";
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
+            ps.setObject(1, questionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt("upvote") : 0;
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
     public int countQuestionsBySessionId(UUID sessionId) {
         String query = "SELECT COUNT(id) as total FROM eventsync_app.question WHERE session_id = ?";
 
