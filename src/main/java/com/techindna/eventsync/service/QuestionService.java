@@ -42,6 +42,19 @@ public class QuestionService {
         );
     }
 
+    public int getUpvoteCount(String sessionId, String questionId) {
+        dataValidator.validateUUID(sessionId);
+        dataValidator.validateUUID(questionId);
+
+        sessionRepository.findSessionById(UUID.fromString(sessionId))
+                .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", sessionId)));
+
+        questionRepository.findQuestionByIdAndSessionId( UUID.fromString(questionId), UUID.fromString(sessionId))
+                .orElseThrow(() -> new NotFoundException(String.format("Question %s not found.", questionId)));
+
+        return questionRepository.getUpvoteCount(UUID.fromString(questionId));
+    }
+
     public int upvoteQuestion(String sessionId, String questionId) {
         dataValidator.validateUUID(sessionId);
         dataValidator.validateUUID(questionId);
