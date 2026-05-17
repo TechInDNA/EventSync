@@ -4,6 +4,7 @@ import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.QuestionService;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
@@ -65,6 +66,9 @@ public class QuestionController {
                     .body(e.getMessage());
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -24,7 +24,7 @@ public class QuestionRepository {
     }
 
     public Optional<UUID> findQuestionByIdAndSessionId(UUID questionId, UUID sessionId) {
-        final String query = "SELECT id FROM eventsync_app.question WHERE id = ? AND session_id = ? RETURNING id";
+        final String query = "SELECT id FROM eventsync_app.question WHERE id = ? AND session_id = ?";
         try (
                 Connection conn = dataSource.getConnection();
                 PreparedStatement ps = conn.prepareStatement(query)
