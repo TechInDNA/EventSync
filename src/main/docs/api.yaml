@@ -508,6 +508,30 @@ paths:
         '401':
           description: Unauthorized
   /sessions/{id}/questions/{qid}/upvote:
+    get:
+      summary: Get number of upvotes for a question
+      tags:
+        - Questions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the session
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the question
+      responses:
+        '200':
+          description: Number of upvotes
+          content:
+            application/json:
+              schema:
+                type: integer
     post:
       summary: Upvote a question
       tags:
