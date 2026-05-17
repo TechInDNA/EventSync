@@ -88,24 +88,20 @@ public class QuestionRepository {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     QuestionResponseDto q = new QuestionResponseDto();
-                    // Correction ici : getObject au lieu de getString + UUID.fromString
-                    q.setId(rs.getObject("id", UUID.class));
+                    q.setId(UUID.fromString(rs.getString("id")));
                     q.setTitle(rs.getString("title"));
                     q.setContent(rs.getString("content"));
-
-                    // Correction ici : Utilisation de OffsetDateTime plus robuste avec JDBC
-                    if (rs.getTimestamp("created_at") != null) {
-                        q.setCreatedAt(rs.getObject("created_at", OffsetDateTime.class).toInstant());
-                    }
-
+                    q.setCreatedAt(rs.getTimestamp("created_at").toInstant());
                     q.setAnonymous(rs.getBoolean("anonymous"));
                     q.setUpvotes(rs.getInt("upvote_count"));
 
                     if (q.isAnonymous()) {
                         q.setParticipant(null);
-                    } else {
+                    }
+
+                    else {
                         ParticipantDto participant = new ParticipantDto();
-                        participant.setId(rs.getObject("user_id", UUID.class));
+                        participant.setId(UUID.fromString(rs.getString("user_id")));
                         participant.setFirstName(rs.getString("first_name"));
                         participant.setLastName(rs.getString("last_name"));
                         participant.setEmail(rs.getString("email"));
