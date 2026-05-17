@@ -58,8 +58,8 @@ public class QuestionController {
     @PostMapping("/{id}/questions/{qid}/upvote")
     public ResponseEntity<?> upvoteQuestion(@PathVariable String id, @PathVariable String qid) {
         try {
-            questionService.upvoteQuestion(id, qid);
-            return ResponseEntity.status(HttpStatus.OK).body("Question upvoted successfully.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(questionService.upvoteQuestion(id, qid));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

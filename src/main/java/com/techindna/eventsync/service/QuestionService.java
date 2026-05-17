@@ -2,6 +2,7 @@ package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.GetQuestionListResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
+import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.repository.QuestionRepository;
 import com.techindna.eventsync.repository.SessionRepository;
 import com.techindna.eventsync.exception.NotFoundException;
@@ -41,24 +42,20 @@ public class QuestionService {
         );
     }
 
-    public void upvoteQuestion(String sessionId, String questionId) {
+    public int upvoteQuestion(String sessionId, String questionId) {
         dataValidator.validateUUID(sessionId);
         dataValidator.validateUUID(questionId);
 
-        UUID sid = UUID.fromString(sessionId);
-        UUID qid = UUID.fromString(questionId);
-
-        if (!questionRepository.existsByIdAndSessionId(qid, sid)) {
-            throw new NotFoundException(String.format("Question %s not found in session %s.", questionId, sessionId));
-        }
-
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
-            throw new org.springframework.security.authentication.InsufficientAuthenticationException("User is not authenticated");
+            throw new UnauthorizedException("Unauthorized.");
         }
 
         UUID userId = UUID.fromString(auth.getName());
 
-        questionRepository.upvoteQuestion(qid, userId);
+        questionRepository.findQuestionByIdAndSessionId(UUID.fromString(questionId), UUID.fromString(sessionId))
+                .orElseThrow(() -> new NotFoundException(String.format("Question %s not found.", questionId)));
+
+        return questionRepository.upvoteQuestion(UUID.fromString(questionId), userId);
     }
 }

@@ -10,9 +10,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -23,8 +23,8 @@ public class QuestionRepository {
         this.dataSource = dataSource;
     }
 
-    public boolean existsByIdAndSessionId(UUID questionId, UUID sessionId) {
-        final String query = "SELECT 1 FROM eventsync_app.question WHERE id = ? AND session_id = ?";
+    public Optional<UUID> findQuestionByIdAndSessionId(UUID questionId, UUID sessionId) {
+        final String query = "SELECT id FROM eventsync_app.question WHERE id = ? AND session_id = ? RETURNING id";
         try (
                 Connection conn = dataSource.getConnection();
                 PreparedStatement ps = conn.prepareStatement(query)
@@ -32,27 +32,48 @@ public class QuestionRepository {
             ps.setObject(1, questionId);
             ps.setObject(2, sessionId);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+                return rs.next() ? Optional.of(UUID.fromString(rs.getString("id"))) : Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
-    public void upvoteQuestion(UUID questionId, UUID userId) {
+    private int countUpvoteQuestion(Connection connection, UUID questionId) throws SQLException {
+        final String query = "SELECT COUNT(*) AS upvote FROM eventsync_app.upvote WHERE question_id = ?";
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, questionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("upvote");
+                }
+            }
+            throw new InternalServerErrorException("Database error: " + query);
+        }
+    }
 
+    public int upvoteQuestion(UUID questionId, UUID userId) {
         final String query = """
-            INSERT INTO eventsync_app.upvote (question_id, user_id)
-            VALUES (?, ?)
-            ON CONFLICT (question_id, user_id) DO NOTHING
+                WITH deleted AS (
+                   DELETE FROM eventsync_app.upvote
+                   WHERE question_id = ? AND user_id = ?
+                   RETURNING 1
+                 )
+                 INSERT INTO eventsync_app.upvote (question_id, user_id)
+                 SELECT ?, ?
+                 WHERE NOT EXISTS (TABLE deleted);
             """;
+
         try (
                 Connection conn = dataSource.getConnection();
                 PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setObject(1, questionId);
             ps.setObject(2, userId);
-            ps.executeUpdate(); // Utilisation de executeUpdate si on retire le RETURNING id qui n'est pas strictement vital ici
+            ps.setObject(3, questionId);
+            ps.setObject(4, userId);
+            ps.executeUpdate();
+            return countUpvoteQuestion(conn, questionId);
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
