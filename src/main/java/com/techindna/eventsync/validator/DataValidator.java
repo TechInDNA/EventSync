@@ -1,6 +1,7 @@
 package com.techindna.eventsync.validator;
 
 import com.techindna.eventsync.dto.AuthParticipantRequestDto;
+import com.techindna.eventsync.dto.CreateQuestionRequestDto;
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.GetSessionRequestDto;
 import com.techindna.eventsync.dto.SpeakerRequestDto;
@@ -172,6 +173,13 @@ public class DataValidator {
                 validateString("name", l.getName());
                 validateUrl(l.getUrl());
             }
+        }
+    }
+
+    public void validateQuestionData(CreateQuestionRequestDto request) {
+        validateString("content", request.getContent());
+        if (request.getTitle() != null && !request.getTitle().isBlank()) {
+            validateString("title", request.getTitle());
         }
     }
 }

@@ -1,7 +1,11 @@
 package com.techindna.eventsync.service;
 
+import com.techindna.eventsync.dto.CreateQuestionRequestDto;
 import com.techindna.eventsync.dto.GetQuestionListResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
+import com.techindna.eventsync.dto.QuestionResponseDto;
+import com.techindna.eventsync.entity.Session;
+import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.repository.QuestionRepository;
 import com.techindna.eventsync.repository.SessionRepository;
@@ -11,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -53,6 +58,30 @@ public class QuestionService {
                 .orElseThrow(() -> new NotFoundException(String.format("Question %s not found.", questionId)));
 
         return questionRepository.getUpvoteCount(UUID.fromString(questionId));
+    }
+
+    public QuestionResponseDto createQuestion(String sessionId, CreateQuestionRequestDto request) {
+        dataValidator.validateUUID(sessionId);
+        dataValidator.validateQuestionData(request);
+
+        UUID sid = UUID.fromString(sessionId);
+
+        Session session = sessionRepository.findSessionByIdWithDates(sid)
+                .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", sessionId)));
+
+        Instant now = Instant.now();
+        if (now.isBefore(session.getStartDate()) || now.isAfter(session.getEndDate())) {
+            throw new BadRequestException("Session is not live.");
+        }
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new UnauthorizedException("Unauthorized.");
+        }
+
+        UUID userId = UUID.fromString(auth.getName());
+
+        return questionRepository.createQuestion(sid, userId, request.getTitle(), request.getContent(), request.isAnonymous());
     }
 
     public int upvoteQuestion(String sessionId, String questionId) {

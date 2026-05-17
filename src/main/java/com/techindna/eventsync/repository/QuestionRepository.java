@@ -168,4 +168,63 @@ public class QuestionRepository {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
+
+    public QuestionResponseDto createQuestion(UUID sessionId, UUID userId, String title, String content, boolean anonymous) {
+        final String insertQuery = """
+            INSERT INTO eventsync_app.question (title, content, session_id, user_id, anonymous)
+            VALUES (?, ?, ?, ?, ?)
+            RETURNING id, title, content, created_at, anonymous
+            """;
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(insertQuery)
+        ) {
+            ps.setString(1, title != null ? title : "");
+            ps.setString(2, content);
+            ps.setObject(3, sessionId);
+            ps.setObject(4, userId);
+            ps.setBoolean(5, anonymous);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new InternalServerErrorException("Failed to create question.");
+                }
+
+                QuestionResponseDto question = new QuestionResponseDto();
+                question.setId(UUID.fromString(rs.getString("id")));
+                question.setTitle(rs.getString("title"));
+                question.setContent(rs.getString("content"));
+                question.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+                question.setAnonymous(rs.getBoolean("anonymous"));
+                question.setUpvotes(0);
+
+                if (!anonymous) {
+                    ParticipantDto participant = fetchParticipantById(conn, userId);
+                    question.setParticipant(participant);
+                }
+
+                return question;
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    private ParticipantDto fetchParticipantById(Connection conn, UUID userId) throws SQLException {
+        final String query = "SELECT id, first_name, last_name, email FROM eventsync_app.users WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setObject(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    ParticipantDto participant = new ParticipantDto();
+                    participant.setId(UUID.fromString(rs.getString("id")));
+                    participant.setFirstName(rs.getString("first_name"));
+                    participant.setLastName(rs.getString("last_name"));
+                    participant.setEmail(rs.getString("email"));
+                    return participant;
+                }
+                throw new InternalServerErrorException("User not found.");
+            }
+        }
+    }
 }

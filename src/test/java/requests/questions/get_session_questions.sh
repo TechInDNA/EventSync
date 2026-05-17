@@ -85,9 +85,9 @@ echo ""
 echo "--- Test 16: Invalid sort value 'invalid' - should return 400 ---"
 curlie -k -w "\nHTTP Status: %{http_code}\n" GET "https://localhost:443/sessions/${SESSION_ID}/questions?sort=invalid"
 
-# Test 17: POST method — should return 403 or 405
+# Test 17: POST method (no auth) — should return 401
 echo ""
-echo "--- Test 17: POST method (should return 403 or 405) ---"
+echo "--- Test 17: POST method without auth (should return 401) ---"
 curlie -k -w "\nHTTP Status: %{http_code}\n" POST "https://localhost:443/sessions/${SESSION_ID}/questions" --data '{}'
 
 # Test 18: PUT method — should return 403 or 405
