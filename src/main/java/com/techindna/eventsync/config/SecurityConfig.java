@@ -2,6 +2,7 @@ package com.techindna.eventsync.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -47,6 +48,12 @@ public class SecurityConfig {
         http
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Unauthorized.");
+                })
+            )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/events/**").hasRole("ADMIN")
@@ -64,12 +71,12 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/rooms/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE,"/rooms/**").hasRole("ADMIN")
 
+                .requestMatchers(HttpMethod.POST, "/sessions/*/questions/*/upvote").hasAnyRole("PARTICIPANT", "SPEAKER")
+
                 .requestMatchers(HttpMethod.DELETE,"/sessions/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST,"/sessions/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT,"/sessions/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.GET,"/sessions/**").permitAll()
-
-                .requestMatchers(HttpMethod.POST, "/questions/**").permitAll()
 
                 .requestMatchers("/auth/login").permitAll()
                 .requestMatchers("/auth/participant").permitAll()

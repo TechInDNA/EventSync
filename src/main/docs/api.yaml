@@ -481,6 +481,8 @@ paths:
       summary: Ask a question on a session
       tags:
         - Questions
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -503,11 +505,15 @@ paths:
                 $ref: '#/components/schemas/Question'
         '400':
           description: Session not live - questions disabled
+        '401':
+          description: Unauthorized
   /sessions/{id}/questions/{qid}/upvote:
     post:
       summary: Upvote a question
       tags:
         - Questions
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -528,6 +534,8 @@ paths:
             application/json:
               schema:
                 type: integer
+        '401':
+          description: Unauthorized
   /rooms:
     get:
       summary: List all rooms

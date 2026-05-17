@@ -87,21 +87,11 @@ on conflict (id) do nothing;
 -- Upvotes on questions (to test upvote_count sorting)
 insert into eventsync_app.upvote (id, user_id, question_id)
 values
-    -- ddf75918 gets 3 upvotes (most popular)
     ('69666a9b-34c8-4929-9ab2-a2c88e058a11', 'ad279f61-3883-42b1-8b03-1ebbeda3e4bf', 'ddf75918-e752-4fb1-b316-cb4574da81de'),
     ('637fb91c-fb1a-4403-9c3d-abd79e0b1c95', 'dd307c1a-c674-4969-99e3-91ad37cc64dd', 'ddf75918-e752-4fb1-b316-cb4574da81de'),
     ('21d5abd2-88a6-4172-bde7-2e07b8431a44', '97bc7f5d-1e00-4cef-a661-4133ab0e1667', 'ddf75918-e752-4fb1-b316-cb4574da81de'),
-
-    -- 2110b88d gets 2 upvotes
     ('cbc5d7ef-a308-4b84-8344-c704f3e0bbeb', '43005ca0-37f7-4942-86ac-695a29a6a3b1', '2110b88d-b648-44fb-a2c0-6a2f5a674eb7'),
     ('88882c47-6495-46b6-a861-e8e68e46912a', 'ad279f61-3883-42b1-8b03-1ebbeda3e4bf', '2110b88d-b648-44fb-a2c0-6a2f5a674eb7'),
-
-    -- 20919e99 gets 1 upvote (anonymous question)
     ('b97e7a6c-f02f-47b2-8332-c4ea9a2df018', 'dd307c1a-c674-4969-99e3-91ad37cc64dd', '20919e99-f2ff-429d-a6af-8cba749af27a'),
-
-    -- 0067a56e gets 0 upvotes
-    -- a6631e77 gets 0 upvotes
-
-    -- 403dea58 gets 1 upvote
     ('c39f8185-f077-4d8d-9706-00f882cb309a', '97bc7f5d-1e00-4cef-a661-4133ab0e1667', '403dea58-0f1b-4c6f-81dd-5d6cb7dcd790')
 on conflict (id) do nothing;
