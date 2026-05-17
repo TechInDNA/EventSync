@@ -27,6 +27,11 @@ public class RoomService {
         return newRoom;
     }
 
+    public Room getRoomById(UUID id) {
+        return roomRepository.findRoomById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Room %s not found.", id)));
+    }
+
     public List<Room> getAllRooms(PaginationRequestDto pagination) {
         return roomRepository.getAllRooms(pagination.getOffset(), pagination.getLimit());
     }

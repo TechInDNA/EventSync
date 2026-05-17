@@ -244,8 +244,25 @@ public class SessionRepository {
         }
     }
 
-    public Optional<Session> findSessionById(UUID id) {
-        final String query = "SELECT id, title FROM eventsync_app.sessions WHERE id = ?";
+    public Optional<SessionResponseDto> findSessionById(UUID id) {
+        final String query =
+                """
+                SELECT s.id as session_id, s.title as session_title,
+                       s.description as session_description,
+                       s.start_date as session_start_date,
+                       s.end_date as session_end_date,
+                       r.id as room_id, r.name as room_name,
+                       s.capacity,
+                       e.id as event_id, e.title as event_title,
+                       e.description as event_description,
+                       e.start_date as event_start_date,
+                       e.end_date as event_end_date,
+                       e.location, e.created_at
+                FROM eventsync_app.sessions s
+                JOIN eventsync_app.rooms r ON s.room_id = r.id
+                JOIN eventsync_app.events e ON e.id = s.event_id
+                WHERE s.id = ?
+                """;
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
@@ -253,9 +270,34 @@ public class SessionRepository {
             ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Session session = new Session();
-                    session.setId(UUID.fromString(rs.getString("id")));
-                    session.setTitle(rs.getString("title"));
+                    Instant now = Instant.now();
+                    SessionResponseDto session = new SessionResponseDto();
+                    session.setId(UUID.fromString(rs.getString("session_id")));
+                    session.setTitle(rs.getString("session_title"));
+                    session.setDescription(rs.getString("session_description"));
+                    session.setStartDate(rs.getTimestamp("session_start_date").toInstant());
+                    session.setEndDate(rs.getTimestamp("session_end_date").toInstant());
+                    session.setCapacity(rs.getInt("capacity"));
+
+                    Room room = new Room();
+                    room.setId(UUID.fromString(rs.getString("room_id")));
+                    room.setName(rs.getString("room_name"));
+                    session.setRoom(room);
+
+                    Event event = new Event();
+                    event.setId(UUID.fromString(rs.getString("event_id")));
+                    event.setTitle(rs.getString("event_title"));
+                    event.setDescription(rs.getString("event_description"));
+                    event.setStartDate(rs.getTimestamp("event_start_date").toInstant());
+                    event.setEndDate(rs.getTimestamp("event_end_date").toInstant());
+                    session.setEvent(event);
+
+                    session.setSpeakers(getInterventionById(session.getId()));
+
+                    Instant start = session.getStartDate();
+                    Instant end = session.getEndDate();
+                    session.setLive(now.isAfter(start) && now.isBefore(end));
+
                     return Optional.of(session);
                 }
                 return Optional.empty();

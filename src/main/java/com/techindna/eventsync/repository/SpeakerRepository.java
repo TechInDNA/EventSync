@@ -94,6 +94,47 @@ public class SpeakerRepository {
         }
     }
 
+    public Optional<SpeakerResponseDto> findSpeakerById(UUID id) {
+        final String query =
+                """
+                select
+                    users.id,
+                    users.first_name,
+                    users.last_name,
+                    users.email,
+                    users.profile_picture,
+                    users.bio
+                from
+                    eventsync_app.users
+                where
+                    users.id = ?
+                    and users."role" = 'speaker'
+                """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    SpeakerResponseDto speaker = new SpeakerResponseDto();
+                    UUID userId = UUID.fromString(rs.getString("id"));
+                    speaker.setId(userId);
+                    speaker.setFirstName(rs.getString("first_name"));
+                    speaker.setLastName(rs.getString("last_name"));
+                    speaker.setEmail(rs.getString("email"));
+                    speaker.setProfilePicture(rs.getString("profile_picture"));
+                    speaker.setBio(rs.getString("bio"));
+                    speaker.setExternalLinks(getExternalLinksByUserId(userId));
+                    return Optional.of(speaker);
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
     public int countSpeakers() {
         String query =
             """

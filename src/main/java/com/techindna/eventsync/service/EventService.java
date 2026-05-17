@@ -3,6 +3,7 @@ package com.techindna.eventsync.service;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.ConflictException;
+import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.EventRepository;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +31,11 @@ public class EventService {
             throw new ConflictException(String.format("Event %s already exist", title));
         }
         return newEvent;
+    }
+
+    public Event getEventById(UUID id) {
+        return eventRepository.findEventByIdById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", id)));
     }
 
     public List<Event> getAllEvents(PaginationRequestDto pagination) {

@@ -19,6 +19,11 @@ public class SpeakerService {
         this.dataValidator = dataValidator;
     }
 
+    public SpeakerResponseDto getSpeakerById(UUID id) {
+        return speakerRepository.findSpeakerById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Speaker %s not found.", id)));
+    }
+
     public List<SpeakerResponseDto> getAllSpeakers(PaginationRequestDto paginationRequestDto){
         return speakerRepository.getAllSpeakers(paginationRequestDto.getOffset(), paginationRequestDto.getLimit());
     }

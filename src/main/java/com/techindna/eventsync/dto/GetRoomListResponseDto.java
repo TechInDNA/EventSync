@@ -1,24 +1,31 @@
 package com.techindna.eventsync.dto;
 
 import com.techindna.eventsync.entity.Room;
+
 import java.util.List;
 
 public class GetRoomListResponseDto {
-    private List<Room> rooms;
-    private int total;
-    private int page;
-    private int size;
+    private List<Room> data;
+    private Meta meta;
 
-    public GetRoomListResponseDto(List<Room> rooms, int total, int page, int size) {
-        this.rooms = rooms;
-        this.total = total;
-        this.page = page;
-        this.size = size;
+    public GetRoomListResponseDto(List<Room> data, int total, int page, int size) {
+        this.data = data;
+        this.meta = new Meta(total, page, size);
     }
 
+    public List<Room> getData() {
+        return data;
+    }
 
-    public List<Room> getRooms() { return rooms; }
-    public int getTotal() { return total; }
-    public int getPage() { return page; }
-    public int getSize() { return size; }
+    public void setData(List<Room> data) {
+        this.data = data;
+    }
+
+    public Meta getMeta() {
+        return meta;
+    }
+
+    public void setMeta(Meta meta) {
+        this.meta = meta;
+    }
 }

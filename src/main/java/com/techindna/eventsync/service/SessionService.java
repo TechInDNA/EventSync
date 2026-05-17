@@ -33,6 +33,11 @@ public class SessionService {
                 .orElseThrow(() -> new ConflictException(String.format("Session with title '%s' already exists", sessionRequestDto.getTitle())));
     }
 
+    public SessionResponseDto getSessionById(UUID id) {
+        return sessionRepository.findSessionById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
+    }
+
     public GetSessionListResponseDto getAllSessions(GetSessionRequestDto request, PaginationRequestDto pagination){
         dataValidator.validateSessionRequestData(request);
         return new GetSessionListResponseDto(
