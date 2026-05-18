@@ -23,3 +23,19 @@ values
 insert into eventsync_app.events (id, title, description, start_date, end_date, location)
 values
     ('c1b957ac-bdd7-481a-b8f7-636d43794f82','Event to Update', 'Original description for testing PUT endpoint', '2026-12-01 09:00:00', '2026-12-01 18:00:00', 'Test Location');
+
+-- Event with attached sessions for testing PUT /events/{id} endpoint (verifies sessions are returned in response)
+insert into eventsync_app.events (id, title, description, start_date, end_date, location)
+values
+    ('e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b', 'Event with Sessions', 'Event that has multiple sessions attached for PUT testing', '2026-11-10 09:00:00', '2026-11-10 18:00:00', 'Session Test Hall');
+
+insert into eventsync_app.rooms (id, name)
+values
+    ('a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 'Room Alpha'),
+    ('b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e', 'Room Beta')
+on conflict (id) do nothing;
+
+insert into eventsync_app.sessions (id, title, description, start_date, end_date, room_id, capacity, event_id)
+values
+    ('c3d4e5f6-a7b8-9c0d-1e2f-3a4b5c6d7e8f', 'Morning Session', 'Morning session for PUT event testing', '2026-11-10 09:00:00', '2026-11-10 12:00:00', 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 100, 'e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b'),
+    ('d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a', 'Afternoon Workshop', 'Afternoon workshop for PUT event testing', '2026-11-10 14:00:00', '2026-11-10 17:00:00', 'b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e', 50, 'e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b');
