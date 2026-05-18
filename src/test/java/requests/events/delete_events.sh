@@ -39,5 +39,11 @@ echo -e "\n"
 echo "--- Test 6: Delete with malformed UUID (should return 400) ---"
 curlie -k -b cookies.txt -H "Content-Type: application/json" -X DELETE https://localhost:443/events/12345
 
+# Step 8: Delete event with attached sessions (should return 200 and cascade delete sessions)
+EVENT_WITH_SESSIONS_ID="e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"
+echo -e "\n"
+echo "--- Test 7: Delete event with attached sessions (should return 200, cascade delete sessions) ---"
+curlie -k -b cookies.txt -H "Content-Type: application/json" -X DELETE https://localhost:443/events/$EVENT_WITH_SESSIONS_ID
+
 # Cleanup
 rm -f cookies.txt
