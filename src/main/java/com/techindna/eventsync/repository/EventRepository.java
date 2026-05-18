@@ -69,7 +69,7 @@ public class EventRepository {
     }
 
 
-    public Optional<EventResponseDto> saveEvent(EventRequestDto request){
+    public Optional<EventResponseDto> saveEvent(EventRequestDto request, Connection connection){
         final String query =
                 """
                     insert into
@@ -79,7 +79,6 @@ public class EventRepository {
                     returning id, title, description, start_date, end_date, location, created_at
                 """;
         try(
-                Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ){
             EventMapper.mapRequestDtoToStatement(request, ps);

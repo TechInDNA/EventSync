@@ -47,8 +47,12 @@ public class EventService {
                 request.getLocation()
         );
 
-        return eventRepository.saveEvent(request)
-                .orElseThrow(() -> new ConflictException(String.format("Event %s already exist.", request.getTitle())));
+        try (Connection connection = dataSource.getConnection()){
+            return eventRepository.saveEvent(request, connection)
+                    .orElseThrow(() -> new ConflictException(String.format("Event %s already exist.", request.getTitle())));
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
     }
 
     public List<Event> getAllEvents(PaginationRequestDto pagination) {
