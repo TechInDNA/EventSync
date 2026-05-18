@@ -1,5 +1,7 @@
 package com.techindna.eventsync.repository;
 
+import com.techindna.eventsync.dto.events.EventRequestDto;
+import com.techindna.eventsync.dto.events.EventResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
@@ -66,7 +68,7 @@ public class EventRepository {
     }
 
 
-    public Event saveEvent(String title, String description, Instant startDate, Instant endDate, String location){
+    public Optional<EventResponseDto> saveEvent(EventRequestDto request){
         final String query =
                 """
                     insert into
@@ -79,24 +81,26 @@ public class EventRepository {
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ){
-            ps.setString(1, title);
-            ps.setString(2, description);
-            ps.setTimestamp(3, Timestamp.from(startDate));
-            ps.setTimestamp(4, Timestamp.from(endDate));
-            ps.setString(5, location);
+            ps.setString(1, request.getTitle());
+            ps.setString(2, request.getDescription());
+            ps.setTimestamp(3, Timestamp.from(Instant.parse(request.getStartDate())));
+            ps.setTimestamp(4, Timestamp.from(Instant.parse(request.getEndDate())));
+            ps.setString(5, request.getLocation());
+
             try (ResultSet rs = ps.executeQuery()) {
                 Event event = new Event();
-                event.setTitle(title);
-                event.setDescription(description);
-                event.setStartDate(startDate);
-                event.setEndDate(endDate);
-                event.setLocation(location);
+                event.setTitle(event.getTitle());
+                event.setDescription(event.getDescription());
+                event.setStartDate(event.getStartDate());
+                event.setEndDate(event.getEndDate());
+                event.setLocation(event.getLocation());
 
-                while (rs.next()) {
+                if (rs.next()) {
                     event.setId(UUID.fromString(rs.getString("id")));
                     event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+                    return Optional.of(new EventResponseDto(event, null));
                 }
-                return event;
+                return Optional.empty();
             }
         }
         catch (SQLException e){
