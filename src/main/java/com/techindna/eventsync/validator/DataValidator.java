@@ -4,7 +4,6 @@ import com.techindna.eventsync.dto.AuthParticipantRequestDto;
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.GetSessionRequestDto;
 import com.techindna.eventsync.dto.SpeakerRequestDto;
-import com.techindna.eventsync.dto.events.EventRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 

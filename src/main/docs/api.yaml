@@ -628,8 +628,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Room'
+        '400':
+          description: Bad request
         '401':
           description: Unauthorized
+        '409':
+          description: Conflict
   /rooms/{id}:
     put:
       summary: Update a room

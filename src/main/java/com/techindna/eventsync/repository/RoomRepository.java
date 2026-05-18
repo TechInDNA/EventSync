@@ -22,36 +22,14 @@ public class RoomRepository {
         this.dataSource = dataSource;
     }
 
-    public Optional<Room> findRoomById(UUID id) {
-        final String query = "select id, name from eventsync_app.rooms where id = ?";
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-                ){
-            ps.setObject(1, id);
-            try (ResultSet rs = ps.executeQuery()){
-                Room room = new Room();
-                if (rs.next()){
-                   room.setId(id);
-                   room.setName(rs.getString("name"));
-                   return Optional.of(room);
-                }
-                return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        }
-    }
-
-
-    public Room saveRoom(String name) {
+    public Optional<Room> saveRoom(String name) {
         final String query =
         """
         insert into
             eventsync_app.rooms(name)
         values(?) on conflict (name)
         do nothing
-        returning id
+        returning id, name
         """;
 
         try (
@@ -60,12 +38,13 @@ public class RoomRepository {
         ) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
-                Room room = new Room();
-                room.setName(name);
                 if (rs.next()) {
+                    Room room = new Room();
                     room.setId(UUID.fromString(rs.getString("id")));
+                    room.setName(rs.getString("name"));
+                    return Optional.of(room);
                 }
-                return room;
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());

@@ -5,6 +5,7 @@ import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.RoomRepository;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,19 +13,19 @@ import java.util.UUID;
 
 @Service
 public class RoomService {
+    private final DataValidator dataValidator;
     private final RoomRepository roomRepository;
 
-    public RoomService(RoomRepository roomRepository) {
+    public RoomService(RoomRepository roomRepository, DataValidator dataValidator) {
         this.roomRepository = roomRepository;
+        this.dataValidator = dataValidator;
     }
 
     public Room createRoom(String name) {
-        Room newRoom = roomRepository.saveRoom(name);
+        dataValidator.validateRoomData(name);
 
-        if (newRoom.getId() == null) {
-            throw new ConflictException(String.format("Room '%s' already exists", name));
-        }
-        return newRoom;
+        return roomRepository.saveRoom(name)
+                .orElseThrow(() -> new ConflictException(String.format("Room '%s' already exists.", name)));
     }
 
     public List<Room> getAllRooms(PaginationRequestDto pagination) {
