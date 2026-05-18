@@ -4,6 +4,7 @@ import com.techindna.eventsync.dto.GetEventListResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.events.EventRequestDto;
 import com.techindna.eventsync.dto.events.EventResponseDto;
+import com.techindna.eventsync.dto.events.PutEventRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
@@ -79,27 +80,10 @@ public class EventController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateEvent(
             @PathVariable String id,
-            @RequestBody EventRequestDto request) {
+            @RequestBody PutEventRequestDto request) {
         try {
-            dataValidator.validateUUID(id);
-            dataValidator.validateEventData(
-                    request.getTitle(),
-                    request.getDescription(),
-                    request.getStartDate(),
-                    request.getEndDate(),
-                    request.getLocation()
-            );
-
-            Event updatedEvent = eventService.updateEvent(
-                    UUID.fromString(id),
-                    request.getTitle(),
-                    request.getDescription(),
-                    Instant.parse(request.getStartDate()),
-                    Instant.parse(request.getEndDate()),
-                    request.getLocation()
-            );
-
-            return ResponseEntity.status(HttpStatus.OK).body(updatedEvent);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(eventService.updateEvent(id, request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

@@ -1,11 +1,13 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.dto.*;
+import com.techindna.eventsync.dto.events.EventSessionResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.mapper.SessionMapper;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -351,6 +353,28 @@ public class SessionRepository {
                 return rs.next() ?
                         Optional.of(UUID.fromString(rs.getString("id"))) :
                         Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public List<EventSessionResponseDto> findSessionsByEventId(Connection connection, UUID eventId) {
+        final String query = """
+            select s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
+                   r.id as room_id, r.name as room_name
+            from eventsync_app.sessions s
+            left join eventsync_app.rooms r on r.id = s.room_id
+            where s.event_id = ?
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, eventId);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<EventSessionResponseDto> sessions = new ArrayList<>();
+                while (rs.next()) {
+                    sessions.add(SessionMapper.mapResultSetToEventSessionDto(rs));
+                }
+                return sessions.isEmpty() ? null : sessions;
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
