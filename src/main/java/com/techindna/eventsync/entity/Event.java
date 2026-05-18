@@ -1,12 +1,10 @@
 package com.techindna.eventsync.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.time.Instant;
 import java.util.UUID;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "location", "createdAt"})
 public class Event {
     private UUID id;
