@@ -120,7 +120,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Event'
+                $ref: '#/components/schemas/EventDetail'
         '401':
           description: Unauthorized
   /events/{id}:
@@ -169,7 +169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Event'
+                $ref: '#/components/schemas/EventDetail'
         '401':
           description: Unauthorized
         '404':
@@ -1033,10 +1033,6 @@ components:
           $ref: '#/components/schemas/Room'
         capacity:
           type: integer
-        speakers:
-          type: array
-          items:
-            $ref: '#/components/schemas/SpeakerRef'
         isLive:
           type: boolean
           description: True if the session is live
