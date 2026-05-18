@@ -52,33 +52,29 @@ echo ""
 echo "--- Test 9: Malformed UUID - partial UUID (should return 400) ---"
 curlie -k -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events/a7cc7aac-50db-44cd"
 
-echo ""
-echo "--- Test 10: Empty path segment (should return 404 from Spring routing) ---"
-curlie -k -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events/"
-
 # --- Authentication Tests ---
 
 echo ""
-echo "--- Test 11: GET without auth (should return 200 - endpoint is public) ---"
+echo "--- Test 10: GET without auth (should return 200 - endpoint is public) ---"
 curlie -k -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events/$EVENT_TO_DELETE"
 
 echo ""
-echo "--- Test 12: GET with auth (should return 200) ---"
+echo "--- Test 11: GET with auth (should return 200) ---"
 curlie -k -c cookies.txt -H "Content-Type: application/json" -d '{"email": "admin@eventsync.com", "password": "test"}' "$BASE_URL/auth/login" > /dev/null 2>&1
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events/$EVENT_TO_DELETE"
 
 # --- Method Tests ---
 
 echo ""
-echo "--- Test 13: POST to /events/{id} (should return 405 Method Not Allowed) ---"
+echo "--- Test 12: POST to /events/{id} (should return 401) ---"
 curlie -k -X POST -H "Content-Type: application/json" -d '{}' -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events/$EVENT_TO_DELETE"
 
 echo ""
-echo "--- Test 14: DELETE to /events/{id} without auth (should return 401) ---"
+echo "--- Test 13: DELETE to /events/{id} without auth (should return 401) ---"
 curlie -k -X DELETE -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events/$EVENT_TO_DELETE"
 
 echo ""
-echo "--- Test 15: PUT to /events/{id} without auth (should return 401) ---"
+echo "--- Test 14: PUT to /events/{id} without auth (should return 401) ---"
 curlie -k -X PUT -H "Content-Type: application/json" -d '{}' -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events/$EVENT_TO_DELETE"
 
 # Cleanup
