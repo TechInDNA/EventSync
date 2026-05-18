@@ -3,28 +3,39 @@ package com.techindna.eventsync.service;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.ConflictException;
+import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.RoomRepository;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class RoomService {
+    private final DataValidator dataValidator;
     private final RoomRepository roomRepository;
+    private final DataSource dataSource;
 
-    public RoomService(RoomRepository roomRepository) {
+    public RoomService(RoomRepository roomRepository, DataValidator dataValidator, DataSource dataSource) {
         this.roomRepository = roomRepository;
+        this.dataValidator = dataValidator;
+        this.dataSource = dataSource;
     }
 
     public Room createRoom(String name) {
-        Room newRoom = roomRepository.saveRoom(name);
+        dataValidator.validateRoomData(name);
 
-        if (newRoom.getId() == null) {
-            throw new ConflictException(String.format("Room '%s' already exists", name));
+        try(Connection connection = dataSource.getConnection()){
+            return roomRepository.saveRoom(name, connection)
+                    .orElseThrow(() -> new ConflictException(String.format("Room '%s' already exists", name)));
+        } catch (SQLException e){
+            throw new InternalServerErrorException(e.getMessage());
         }
-        return newRoom;
     }
 
     public List<Room> getAllRooms(PaginationRequestDto pagination) {
