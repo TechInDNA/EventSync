@@ -34,8 +34,8 @@ public class RoomRepository {
         returning id, name
         """;
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection conn = DataSourceUtils.getConnection(dataSource);
                 PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
@@ -50,21 +50,23 @@ public class RoomRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     public List<Room> getAllRooms(int offset, int limit) {
         final String query =
         """
-        SELECT id, name 
-        FROM eventsync_app.rooms 
-        ORDER BY name ASC 
+        SELECT id, name
+        FROM eventsync_app.rooms
+        ORDER BY name ASC
         LIMIT ? OFFSET ?
         """;
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = DataSourceUtils.getConnection(dataSource);
-                PreparedStatement ps = connection.prepareStatement(query)
+                PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setInt(1, limit);
             ps.setInt(2, offset);
@@ -80,28 +82,32 @@ public class RoomRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     public int countRooms() {
         final String query = "SELECT count(id) as total FROM eventsync_app.rooms";
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = DataSourceUtils.getConnection(dataSource);
-                PreparedStatement ps = connection.prepareStatement(query);
+                PreparedStatement ps = conn.prepareStatement(query);
                 ResultSet rs = ps.executeQuery()
         ) {
             return rs.next() ? rs.getInt("total") : 0;
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     public Optional<Room> findRoomByName(String name) {
         final String query = "SELECT id as room_id, name as room_name FROM eventsync_app.rooms WHERE name = ?";
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection conn = DataSourceUtils.getConnection(dataSource);
                 PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
@@ -111,14 +117,16 @@ public class RoomRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     public Optional<Room> updateRoomById(UUID id, String name) {
         final String query = "UPDATE eventsync_app.rooms SET name = ? WHERE id = ? RETURNING id as room_id, name as room_name";
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection conn = DataSourceUtils.getConnection(dataSource);
                 PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
@@ -129,23 +137,26 @@ public class RoomRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     public UUID deleteRoomById(UUID id) {
         final String query = "DELETE FROM eventsync_app.rooms WHERE id = ? RETURNING id";
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = DataSourceUtils.getConnection(dataSource);
-                PreparedStatement ps = connection.prepareStatement(query)
+                PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setObject(1, id);
             try(ResultSet rs = ps.executeQuery()){
                 return rs.next() ? UUID.fromString(rs.getString("id")) : null;
             }
-
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
