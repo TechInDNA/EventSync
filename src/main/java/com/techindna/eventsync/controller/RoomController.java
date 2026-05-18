@@ -32,7 +32,7 @@ public class RoomController {
     public ResponseEntity<?> createRoom(@RequestBody RoomRequestDto request) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(roomService.createRoom(request.getName()));
+                    .body(roomService.createRoom(request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -75,7 +75,7 @@ public class RoomController {
     public ResponseEntity<?> updateRoom(@PathVariable String id, @RequestBody RoomRequestDto request) {
         try {
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(roomService.updateRoomById(UUID.fromString(id), request.getName()));
+                    .body(roomService.updateRoomById(id, request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -84,9 +84,6 @@ public class RoomController {
                     .body(e.getMessage());
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(e.getMessage());
-        } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.internalServerError()

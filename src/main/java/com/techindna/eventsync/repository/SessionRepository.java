@@ -206,7 +206,7 @@ public class SessionRepository {
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
 
-            Room room = roomRepository.findRoomByName(sessionRequestDto.getRoomName(), connection)
+            Room room = roomRepository.findRoomByName(sessionRequestDto.getRoomName())
                     .orElseThrow(() -> new NotFoundException("Room not found."));
             Event event = eventRepository.findEventByTitle(connection, sessionRequestDto.getEventTitle())
                     .orElseThrow(() -> new NotFoundException("Event not found."));
@@ -301,7 +301,7 @@ public class SessionRepository {
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
-            Room room = roomRepository.findRoomByName(sessionRequestDto.getRoomName(), connection)
+            Room room = roomRepository.findRoomByName(sessionRequestDto.getRoomName())
                     .orElseThrow(() -> new NotFoundException("Room not found."));
             Event event = eventRepository.findEventByTitle(connection, sessionRequestDto.getEventTitle())
                     .orElseThrow(() -> new NotFoundException("Event not found."));

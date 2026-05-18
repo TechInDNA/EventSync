@@ -4,7 +4,10 @@ import com.techindna.eventsync.dto.AuthParticipantRequestDto;
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.GetSessionRequestDto;
 import com.techindna.eventsync.dto.SpeakerRequestDto;
+import com.techindna.eventsync.dto.rooms.RoomRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -99,10 +102,13 @@ public class DataValidator {
         }
     }
 
-    public void validateRoomData(String name){
-        checkNullData("name", name);
-        lengthValidation("name", 50, name);
-        validateString("name", name);
+    public void validateRoomData(RoomRequestDto request){
+        if (request == null) {
+            throw new BadRequestException("Request body is required.");
+        }
+        checkNullData("name", request.getName());
+        lengthValidation("name", 50, request.getName());
+        validateString("name", request.getName());
     }
 
     public void validateSessionData(String title, String description, String startDate, String endDate, String roomName, String eventTitle, String capacity) {

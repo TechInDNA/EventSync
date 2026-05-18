@@ -3,6 +3,7 @@ package com.techindna.eventsync.repository;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.mapper.RoomMapper;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -34,7 +35,7 @@ public class RoomRepository {
         """;
 
         try (
-                Connection conn = dataSource.getConnection();
+                Connection conn = DataSourceUtils.getConnection(dataSource);
                 PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
@@ -62,7 +63,7 @@ public class RoomRepository {
         """;
 
         try (
-                Connection connection = dataSource.getConnection();
+                Connection connection = DataSourceUtils.getConnection(dataSource);
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
             ps.setInt(1, limit);
@@ -86,7 +87,7 @@ public class RoomRepository {
         final String query = "SELECT count(id) as total FROM eventsync_app.rooms";
 
         try (
-                Connection connection = dataSource.getConnection();
+                Connection connection = DataSourceUtils.getConnection(dataSource);
                 PreparedStatement ps = connection.prepareStatement(query);
                 ResultSet rs = ps.executeQuery()
         ) {
@@ -96,11 +97,12 @@ public class RoomRepository {
         }
     }
 
-    public Optional<Room> findRoomByName(String name, Connection connection) {
+    public Optional<Room> findRoomByName(String name) {
         final String query = "SELECT id as room_id, name as room_name FROM eventsync_app.rooms WHERE name = ?";
 
         try (
-                PreparedStatement ps = connection.prepareStatement(query)
+                Connection conn = DataSourceUtils.getConnection(dataSource);
+                PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
@@ -112,11 +114,12 @@ public class RoomRepository {
         }
     }
 
-    public Optional<Room> updateRoomById(UUID id, String name, Connection connection) {
+    public Optional<Room> updateRoomById(UUID id, String name) {
         final String query = "UPDATE eventsync_app.rooms SET name = ? WHERE id = ? RETURNING id as room_id, name as room_name";
 
         try (
-                PreparedStatement ps = connection.prepareStatement(query)
+                Connection conn = DataSourceUtils.getConnection(dataSource);
+                PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
             ps.setObject(2, id);
@@ -133,7 +136,7 @@ public class RoomRepository {
         final String query = "DELETE FROM eventsync_app.rooms WHERE id = ? RETURNING id";
 
         try (
-                Connection connection = dataSource.getConnection();
+                Connection connection = DataSourceUtils.getConnection(dataSource);
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
             ps.setObject(1, id);
