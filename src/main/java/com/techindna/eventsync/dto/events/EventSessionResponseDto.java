@@ -1,17 +1,20 @@
 package com.techindna.eventsync.dto.events;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.techindna.eventsync.entity.Room;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+@JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "rooms", "capacity", "live"})
 public class EventSessionResponseDto {
     private UUID id;
     private String title;
     private String description;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private Instant startTime;
+    private Instant endTime;
     private List<Room> rooms;
     private int capacity;
     private boolean isLive;
@@ -40,19 +43,19 @@ public class EventSessionResponseDto {
         this.description = description;
     }
 
-    public LocalDateTime getStartTime() {
+    public Instant getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public void setStartTime(Instant startTime) {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getEndTime() {
+    public Instant getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
+    public void setEndTime(Instant endTime) {
         this.endTime = endTime;
     }
 

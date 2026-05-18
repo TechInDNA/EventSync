@@ -11,7 +11,7 @@ echo ""
 echo "--- Authenticating to get JWT cookie ---"
 curlie -k -c cookies.txt -H "Content-Type: application/json" -d '{"email": "admin@eventsync.com", "password": "test"}' https://localhost:443/auth/login
 
-# Step 2: Unauthenticated request (no cookie, should return 403)
+# Step 2: Unauthenticated request (no cookie, should return 401)
 echo ""
 echo "--- Test 1: Unauthenticated request (should return 403) ---"
 curlie -k -H "Content-Type: application/json" -d '{"title":"UpdatedEvent","description":"UpdatedDesc","startDate":"2026-12-02T10:00:00Z","endDate":"2026-12-02T18:00:00Z","location":"UpdatedLoc"}' https://localhost:443/events/$EVENT_ID
