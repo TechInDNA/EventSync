@@ -7,6 +7,8 @@ import com.techindna.eventsync.dto.SpeakerRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,6 +66,12 @@ public class DataValidator {
 
         if (!DATE_MATCHER.matches()){
             throw new BadRequestException(String.format("Invalid Date format or %s field contain forbidden characters.", fieldName));
+        }
+
+        try{
+            Instant.parse(date);
+        } catch (DateTimeParseException e){
+            throw new BadRequestException("Invalid date.");
         }
 
     }

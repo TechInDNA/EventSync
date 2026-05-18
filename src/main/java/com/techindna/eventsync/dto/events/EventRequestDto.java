@@ -1,4 +1,4 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.events;
 
 public class EventRequestDto {
     private String id;
