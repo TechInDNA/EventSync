@@ -2,7 +2,7 @@ package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.GetRoomListResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.dto.RoomRequestDto;
+import com.techindna.eventsync.dto.rooms.RoomRequestDto;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.service.RoomService;
@@ -74,12 +74,8 @@ public class RoomController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateRoom(@PathVariable String id, @RequestBody RoomRequestDto request) {
         try {
-            dataValidator.validateUUID(id);
-            dataValidator.validateRoomData(request.getName());
-
-            Room updatedRoom = roomService.updateRoom(UUID.fromString(id), request.getName());
-            return ResponseEntity.status(HttpStatus.OK).body(updatedRoom);
-
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(roomService.updateRoomById(UUID.fromString(id), request.getName()));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

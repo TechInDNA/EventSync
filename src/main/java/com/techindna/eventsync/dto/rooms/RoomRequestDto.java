@@ -1,4 +1,4 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.rooms;
 
 public class RoomRequestDto {
     private String name;

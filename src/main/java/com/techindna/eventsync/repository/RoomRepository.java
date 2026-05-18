@@ -2,6 +2,7 @@ package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.mapper.RoomMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -95,45 +96,33 @@ public class RoomRepository {
         }
     }
 
-    public Optional<Room> findRoomByName(String name) {
-        final String query = "SELECT id, name FROM eventsync_app.rooms WHERE name = ?";
+    public Optional<Room> findRoomByName(String name, Connection connection) {
+        final String query = "SELECT id as room_id, name as room_name FROM eventsync_app.rooms WHERE name = ?";
 
         try (
-                Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Room room = new Room();
-                    room.setId(UUID.fromString(rs.getString("id")));
-                    room.setName(rs.getString("name"));
-                    return Optional.of(room);
-                }
-                return Optional.empty();
+                return rs.next() ? Optional.of(RoomMapper.mapResultSetToRoom(rs))
+                        : Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
-    public Optional<Room> updateRoomById(UUID id, String name) {
-        final String query = "UPDATE eventsync_app.rooms SET name = ? WHERE id = ? RETURNING id, name";
+    public Optional<Room> updateRoomById(UUID id, String name, Connection connection) {
+        final String query = "UPDATE eventsync_app.rooms SET name = ? WHERE id = ? RETURNING id as room_id, name as room_name";
 
         try (
-                Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
             ps.setString(1, name);
             ps.setObject(2, id);
             try (ResultSet rs = ps.executeQuery()) {
-                Room room = new Room();
-                if (rs.next()) {
-                    room.setId(UUID.fromString(rs.getString("id")));
-                    room.setName(rs.getString("name"));
-                    return Optional.of(room);
-                }
-                return Optional.empty();
+                return rs.next() ? Optional.of(RoomMapper.mapResultSetToRoom(rs))
+                        : Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
