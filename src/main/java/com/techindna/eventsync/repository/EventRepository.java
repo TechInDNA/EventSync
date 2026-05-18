@@ -1,6 +1,7 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Event;
+import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import org.springframework.stereotype.Repository;
 
@@ -22,6 +23,48 @@ public class EventRepository {
     public EventRepository(DataSource dataSource){
         this.dataSource = dataSource;
     }
+
+
+    public Optional<Event> findEventByIdById(UUID id){
+        final String query =
+                """
+                select
+                id,
+                title,
+                description,
+                start_date,
+                end_date,
+                location,
+                created_at
+                from eventsync_app.events
+                where id = ?
+                """;
+
+        try(
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query);
+                ){
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()){
+                if (rs.next()){
+                    Event event = new Event();
+                    event.setId(UUID.fromString(rs.getString("id")));
+                    event.setTitle(rs.getString("title"));
+                    event.setDescription(rs.getString("description"));
+                    event.setStartDate(rs.getTimestamp("start_date").toInstant());
+                    event.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    event.setLocation(rs.getString("location"));
+                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+                    return Optional.of(event);
+                }
+                return Optional.empty();
+            }
+
+        } catch (SQLException e){
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
 
     public Event saveEvent(String title, String description, Instant startDate, Instant endDate, String location){
         final String query =
@@ -57,7 +100,7 @@ public class EventRepository {
             }
         }
         catch (SQLException e){
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -98,7 +141,7 @@ public class EventRepository {
                 return events;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -136,7 +179,7 @@ public class EventRepository {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -179,7 +222,7 @@ public class EventRepository {
                 throw new NotFoundException(String.format("Event %s not found.", id));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -199,7 +242,7 @@ public class EventRepository {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -217,7 +260,7 @@ public class EventRepository {
                 throw new NotFoundException(String.format("Event %s not found.", id));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 

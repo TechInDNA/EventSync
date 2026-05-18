@@ -1,23 +1,23 @@
 {
   "main": {
-    "id": "296291c2e9f587d0",
+    "id": "9f14f80a3a77f519",
     "type": "split",
     "children": [
       {
-        "id": "06df125de07b2b3b",
+        "id": "ebcde9a1554e9c4b",
         "type": "tabs",
         "children": [
           {
-            "id": "082b9020340236c3",
+            "id": "73a6c18bdf4f9108",
             "type": "leaf",
             "state": {
               "type": "canvas",
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": 185.55043848475432,
-                  "y": -1089.0864348208745,
-                  "zoom": -0.7896750419735891
+                  "x": -1238.8119626996554,
+                  "y": -1571.1239927402228,
+                  "zoom": -0.2984835461676844
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -30,15 +30,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "2af4b4da7d3c7680",
+    "id": "a1ff32cc886c6ada",
     "type": "split",
     "children": [
       {
-        "id": "8979101f88d1934f",
+        "id": "c80d23cb1c1667ad",
         "type": "tabs",
         "children": [
           {
-            "id": "d2bf6771cc5f15da",
+            "id": "fae3d54826eb5dba",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -51,7 +51,7 @@
             }
           },
           {
-            "id": "e096e9b8e282c915",
+            "id": "dc79407723687616",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -68,7 +68,7 @@
             }
           },
           {
-            "id": "9424bd7957dc6eab",
+            "id": "d7b4d098abde90c4",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -84,15 +84,15 @@
     "width": 300
   },
   "right": {
-    "id": "be6bb9ee8d661016",
+    "id": "6f4d6d5bfe41f054",
     "type": "split",
     "children": [
       {
-        "id": "520fd834e9b17711",
+        "id": "e3a695cd2250121d",
         "type": "tabs",
         "children": [
           {
-            "id": "4cc34d59831cd504",
+            "id": "d6d2ff80a8ff70ff",
             "type": "leaf",
             "state": {
               "type": "backlink",
@@ -111,7 +111,7 @@
             }
           },
           {
-            "id": "7eefbf253c113cbc",
+            "id": "40897c644680e437",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
@@ -125,7 +125,7 @@
             }
           },
           {
-            "id": "0675c54a27065eb7",
+            "id": "1f72a18fce44f3fa",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -140,7 +140,7 @@
             }
           },
           {
-            "id": "84c28f315728cc77",
+            "id": "8dd78d6b9cb3a1d1",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -154,7 +154,7 @@
             }
           },
           {
-            "id": "b1c9e861f4b5409c",
+            "id": "8eef1643cf55b2ff",
             "type": "leaf",
             "state": {
               "type": "outline",
@@ -186,44 +186,20 @@
       "bases:Create new base": false
     }
   },
-  "active": "082b9020340236c3",
+  "active": "fae3d54826eb5dba",
   "lastOpenFiles": [
-    "target/classes/com/techindna/eventsync/dto/GetSpeakerListResponseDto.class",
-    "target/classes/com/techindna/eventsync/exception/NotFoundException.class",
-    "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
-    "target/classes/com/techindna/eventsync/dto/GetEventListResponseDto.class",
-    "target/classes/com/techindna/eventsync/controller/SpeakersController.class",
-    "target/classes/com/techindna/eventsync/dto/GetRoomListResponseDto.class",
-    "target/classes/com/techindna/eventsync/exception/TooManyRequestException.class",
-    "target/classes/com/techindna/eventsync/dto/UserResponseDto.class",
-    "target/classes/com/techindna/eventsync/dto/AuthLoginResponseDto.class",
-    "target/classes/com/techindna/eventsync/repository/AuthRepository.class",
+    "src/test/java/requests/sessions/cookies.txt",
     "target/classes/com/techindna/eventsync/service/AuthService.class",
-    "AGENTS.md",
-    "src/main/gen/README.md",
-    "src/main/gen/docs/SpeakersApi.md",
-    "src/main/gen/docs/SessionsApi.md",
-    "src/main/gen/docs/RoomsApi.md",
-    "src/main/gen/docs/QuestionsApi.md",
-    "src/main/gen/docs/EventsApi.md",
-    "src/main/gen/docs/AuthApi.md",
-    "src/main/gen/docs/User.md",
-    "src/main/gen/docs/SpeakerList.md",
-    "src/main/gen/docs/SpeakerInput.md",
-    "src/main/gen/docs/SpeakerExternalLinksInner.md",
-    "src/main/gen/docs/Speaker.md",
-    "src/main/gen/docs/SessionList.md",
-    "src/main/gen/docs/SessionInput.md",
-    "src/main/gen/docs/Session.md",
-    "src/main/gen/docs/RoomListMeta.md",
-    "src/main/gen/docs/RoomList.md",
-    "src/main/gen/docs/RoomInput.md",
-    "src/main/gen/docs/Room.md",
-    "src/main/gen/docs/QuestionList.md",
-    "src/main/gen/docs/QuestionInput.md",
-    "src/main/gen/docs/Question.md",
-    "src/main/gen/docs/EventListMeta.md",
-    "src/main/gen/docs/EventList.md",
-    "src/main/docs/mcd.canvas"
+    "target/classes/com/techindna/eventsync/dto/GetSessionListResponseDto.class",
+    "target/classes/com/techindna/eventsync/entity/Session.class",
+    "target/classes/com/techindna/eventsync/controller/SessionController.class",
+    "target/classes/com/techindna/eventsync/service/SessionService.class",
+    "target/classes/com/techindna/eventsync/dto/SessionRequestDto.class",
+    "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
+    "target/classes/com/techindna/eventsync/dto/UpdateSpeakerResponseDto.class",
+    "target/classes/com/techindna/eventsync/repository/SpeakerRepository.class",
+    "target/classes/com/techindna/eventsync/dto/SpeakerRequestDto.class",
+    "src/main/docs/test/Bienvenue.md",
+    "src/eventsync/Bienvenue.md"
   ]
 }

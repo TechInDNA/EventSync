@@ -26,10 +26,47 @@ create table eventsync_app.external_link(
     id uuid default gen_random_uuid() primary key,
     name varchar(50),
     url varchar(50) unique,
-    user_id uuid references eventsync_app.users(id)
+    user_id uuid references eventsync_app.users(id) on delete cascade
 );
 
 create table eventsync_app.rooms(
     id uuid default gen_random_uuid() primary key,
     name varchar(50) unique not null
 );
+
+create table eventsync_app.sessions(
+    id uuid default gen_random_uuid() primary key,
+    title varchar(50) unique not null,
+    description text not null,
+    start_date timestamp not null,
+    end_date timestamp not null,
+    room_id uuid references eventsync_app.rooms(id) on delete set null,
+    capacity int not null default 0,
+    event_id uuid references eventsync_app.events(id) on delete set null
+);
+
+create table eventsync_app.intervene(
+    id uuid default gen_random_uuid() primary key,
+    speaker_id uuid not null references eventsync_app.users(id) on delete cascade,
+    session_id uuid not null references eventsync_app.sessions(id) on delete cascade,
+    start_time timetz not null,
+    end_time timetz not null
+);
+
+create table eventsync_app.question(
+    id uuid default gen_random_uuid() primary key,
+    title varchar not null,
+    content text not null,
+    created_at timestamp default now(),
+    session_id uuid not null references eventsync_app.sessions(id) on delete cascade,
+    user_id uuid not null references eventsync_app.users(id) on delete cascade,
+    anonymous boolean default false
+);
+
+create table eventsync_app.upvote(
+    id uuid default gen_random_uuid() primary key,
+    user_id uuid not null references eventsync_app.users(id) on delete cascade,
+    question_id uuid not null references eventsync_app.question(id) on delete cascade,
+    created_at timestamp default now()
+);
+

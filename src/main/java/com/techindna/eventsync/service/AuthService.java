@@ -1,7 +1,9 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.config.TokenProvider;
+import com.techindna.eventsync.dto.AuthParticipantRequestDto;
 import com.techindna.eventsync.entity.Administrator;
+import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.TooManyRequestException;
 import com.techindna.eventsync.repository.AuthRepository;
 import com.techindna.eventsync.validator.DataValidator;
@@ -31,9 +33,8 @@ public class AuthService {
     }
 
     public Optional<Administrator> logInAdmin(String email, String password) {
-        dataValidator.checkNullData("email", email);
+        dataValidator.validateEmail(email);
         dataValidator.checkNullData("password", password);
-        dataValidator.ValidateEmail(email);
 
         if (firstFailureTime != null && Duration.between(firstFailureTime, Instant.now()).compareTo(RESET_DURATION) >= 0) {
             loggingAttempt = 0;
@@ -51,12 +52,25 @@ public class AuthService {
             if (loggingAttempt == 1) {
                 firstFailureTime = Instant.now();
             }
+            return Optional.empty();
         }
-
         return admin;
     }
 
     public String generateToken(Administrator admin) {
         return tokenProvider.generateAccessToken(admin);
+    }
+
+    public Participant identifyOrRegisterParticipant(AuthParticipantRequestDto request) {
+        dataValidator.validateParticipantData(request);
+
+        Optional<Participant> participant = authRepository.findParticipant(request.getEmail(), request.getFirstName(), request.getLastName());
+        return participant.orElseGet(() -> authRepository
+                .saveParticipant(request.getFirstName(), request.getLastName(), request.getEmail()));
+
+    }
+
+    public String generateParticipantToken(Participant participant) {
+        return tokenProvider.generateAccessToken(participant);
     }
 }

@@ -1,8 +1,11 @@
 package com.techindna.eventsync.entity;
 
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.time.Instant;
 import java.util.UUID;
 
+@JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "room", "capacity", "event"})
 public class Session {
     private UUID id;
     private String title;
@@ -76,4 +79,5 @@ public class Session {
     public void setEvent(Event event) {
         this.event = event;
     }
+
 }

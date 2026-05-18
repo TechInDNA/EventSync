@@ -1,9 +1,6 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.GetSpeakerListResponseDto;
-import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.dto.SpeakerRequestDto;
-import com.techindna.eventsync.dto.SpeakerResponseDto;
+import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
@@ -48,29 +45,15 @@ public class SpeakersController {
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 
     @PostMapping
-    public ResponseEntity<?> createSpeaker(@RequestBody SpeakerRequestDto request) {
+    public ResponseEntity<?> createSpeaker(@RequestBody PostSpeakersRequestDto request) {
         try {
-            dataValidator.validateSpeakerData(
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getEmail(),
-                    request.getBio()
-            );
-
-            SpeakerResponseDto speaker = speakerService.createSpeaker(
-                    request.getFirstName(),
-                    request.getLastName(),
-                    request.getEmail(),
-                    request.getProfilePicture(),
-                    request.getBio(),
-                    request.getExternalLinks()
-            );
-            return ResponseEntity.status(HttpStatus.CREATED).body(speaker);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(speakerService.createSpeaker(request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -79,16 +62,16 @@ public class SpeakersController {
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+                    .body("An unexpected error occurred, please try again later");
         }
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
         try {
             dataValidator.validateUUID(id);
-            SpeakerResponseDto updated = speakerService.updateSpeaker(UUID.fromString(id), request);
-
-            return ResponseEntity.ok().body(updated);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(speakerService.updateSpeakerById(UUID.fromString(id), request));
 
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -100,9 +83,9 @@ public class SpeakersController {
         catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
-        } catch (Exception e) {
+        } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred");
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 
@@ -111,17 +94,17 @@ public class SpeakersController {
         try {
             dataValidator.validateUUID(id);
             speakerService.deleteSpeaker(UUID.fromString(id));
-
-            return ResponseEntity.status(HttpStatus.OK).body("Speaker " + id + " deleted.");
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body("Speaker " + id + " deleted.");
         }catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
-        } catch (Exception e) {
+        } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred");
+                    .body("An unexpected error occurred, please try again later");
         }
 
     }

@@ -1,6 +1,7 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Room;
+import com.techindna.eventsync.exception.InternalServerErrorException;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -10,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -19,6 +21,28 @@ public class RoomRepository {
     public RoomRepository(DataSource dataSource) {
         this.dataSource = dataSource;
     }
+
+    public Optional<Room> findRoomById(UUID id) {
+        final String query = "select id, name from eventsync_app.rooms where id = ?";
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+                ){
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()){
+                Room room = new Room();
+                if (rs.next()){
+                   room.setId(id);
+                   room.setName(rs.getString("name"));
+                   return Optional.of(room);
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
 
     public Room saveRoom(String name) {
         final String query =
@@ -44,7 +68,7 @@ public class RoomRepository {
                 return room;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -74,7 +98,7 @@ public class RoomRepository {
                 return rooms;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -88,11 +112,11 @@ public class RoomRepository {
         ) {
             return rs.next() ? rs.getInt("total") : 0;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
-    public Room findRoomByName(String name) {
+    public Optional<Room> findRoomByName(String name) {
         final String query = "SELECT id, name FROM eventsync_app.rooms WHERE name = ?";
 
         try (
@@ -105,16 +129,16 @@ public class RoomRepository {
                     Room room = new Room();
                     room.setId(UUID.fromString(rs.getString("id")));
                     room.setName(rs.getString("name"));
-                    return room;
+                    return Optional.of(room);
                 }
-                return null;
+                return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
-    public Room updateRoom(UUID id, String name) {
+    public Optional<Room> updateRoomById(UUID id, String name) {
         final String query = "UPDATE eventsync_app.rooms SET name = ? WHERE id = ? RETURNING id, name";
 
         try (
@@ -124,16 +148,16 @@ public class RoomRepository {
             ps.setString(1, name);
             ps.setObject(2, id);
             try (ResultSet rs = ps.executeQuery()) {
+                Room room = new Room();
                 if (rs.next()) {
-                    Room room = new Room();
                     room.setId(UUID.fromString(rs.getString("id")));
                     room.setName(rs.getString("name"));
-                    return room;
+                    return Optional.of(room);
                 }
-                return null;
+                return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
@@ -150,7 +174,7 @@ public class RoomRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
