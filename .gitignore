@@ -38,4 +38,4 @@ build/
 ### Local config ###
 src/main/resources/application.properties
 .env
-*.p12
+*.p12target_old/
