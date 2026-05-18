@@ -110,15 +110,15 @@ echo "--- Test 23: Unknown parameters (should be ignored) ---"
 curlie -k -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events?page=1&size=10&unknown=param"
 
 echo ""
-echo "--- Test 24: POST method (should return 403) ---"
+echo "--- Test 24: POST method (should return 401) ---"
 curlie -k -X POST -H "Content-Type: application/json" -d '{}' -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events"
 
 echo ""
-echo "--- Test 25: PUT method (should return 403) ---"
+echo "--- Test 25: PUT method (should return 401) ---"
 curlie -k -X PUT -H "Content-Type: application/json" -d '{}' -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events"
 
 echo ""
-echo "--- Test 26: DELETE method (should return 403) ---"
+echo "--- Test 26: DELETE method (should return 401) ---"
 curlie -k -X DELETE -s -w "\nHTTP Status: %{http_code}\n" "$BASE_URL/events"
 
 echo ""
