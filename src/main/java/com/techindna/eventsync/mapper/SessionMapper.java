@@ -1,7 +1,6 @@
 package com.techindna.eventsync.mapper;
 
 import com.techindna.eventsync.dto.events.EventSessionResponseDto;
-import com.techindna.eventsync.entity.Room;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,14 +15,14 @@ public class SessionMapper {
         session.setId(UUID.fromString(rs.getString("id")));
         session.setTitle(rs.getString("title"));
         session.setDescription(rs.getString("description"));
-        session.setStartTime(rs.getTimestamp("start_date").toInstant());
-        session.setEndTime(rs.getTimestamp("end_date").toInstant());
+        session.setStartDate(rs.getTimestamp("start_date").toInstant());
+        session.setEndDate(rs.getTimestamp("end_date").toInstant());
         session.setCapacity(rs.getInt("capacity"));
 
         if (rs.getObject("room_id") != null) {
             session.setRooms(List.of(RoomMapper.mapResultSetToRoom(rs)));
         }
-        session.setLive(Instant.now().isAfter(session.getStartTime()) && Instant.now().isBefore(session.getEndTime()));
+        session.setLive(Instant.now().isAfter(session.getStartDate()) && Instant.now().isBefore(session.getEndDate()));
         return session;
     }
 }

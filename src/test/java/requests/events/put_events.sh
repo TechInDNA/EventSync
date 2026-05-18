@@ -13,7 +13,7 @@ curlie -k -c cookies.txt -H "Content-Type: application/json" -d '{"email": "admi
 
 # Step 2: Unauthenticated request (no cookie, should return 401)
 echo ""
-echo "--- Test 1: Unauthenticated request (should return 403) ---"
+echo "--- Test 1: Unauthenticated request (should return 401) ---"
 curlie -k -H "Content-Type: application/json" -d '{"title":"UpdatedEvent","description":"UpdatedDesc","startDate":"2026-12-02T10:00:00Z","endDate":"2026-12-02T18:00:00Z","location":"UpdatedLoc"}' https://localhost:443/events/$EVENT_ID
 
 # Step 3: Valid update (should return 200)

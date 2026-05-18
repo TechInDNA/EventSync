@@ -1,20 +1,20 @@
 package com.techindna.eventsync.dto.events;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.techindna.eventsync.entity.Room;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-@JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "rooms", "capacity", "live"})
+@JsonPropertyOrder({"id", "title", "description", "startDate", "endDate", "rooms", "capacity", "isLive"})
 public class EventSessionResponseDto {
     private UUID id;
     private String title;
     private String description;
-    private Instant startTime;
-    private Instant endTime;
+    private Instant startDate;
+    private Instant endDate;
     private List<Room> rooms;
     private int capacity;
     private boolean isLive;
@@ -43,20 +43,20 @@ public class EventSessionResponseDto {
         this.description = description;
     }
 
-    public Instant getStartTime() {
-        return startTime;
+    public Instant getStartDate() {
+        return startDate;
     }
 
-    public void setStartTime(Instant startTime) {
-        this.startTime = startTime;
+    public void setStartDate(Instant startDate) {
+        this.startDate = startDate;
     }
 
-    public Instant getEndTime() {
-        return endTime;
+    public Instant getEndDate() {
+        return endDate;
     }
 
-    public void setEndTime(Instant endTime) {
-        this.endTime = endTime;
+    public void setEndDate(Instant endDate) {
+        this.endDate = endDate;
     }
 
     public List<Room> getRooms() {
@@ -75,6 +75,7 @@ public class EventSessionResponseDto {
         this.capacity = capacity;
     }
 
+    @JsonProperty("isLive")
     public boolean isLive() {
         return isLive;
     }
