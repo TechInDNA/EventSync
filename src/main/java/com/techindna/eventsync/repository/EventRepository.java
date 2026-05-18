@@ -5,6 +5,7 @@ import com.techindna.eventsync.dto.events.EventResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.mapper.EventMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -81,24 +82,11 @@ public class EventRepository {
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ){
-            ps.setString(1, request.getTitle());
-            ps.setString(2, request.getDescription());
-            ps.setTimestamp(3, Timestamp.from(Instant.parse(request.getStartDate())));
-            ps.setTimestamp(4, Timestamp.from(Instant.parse(request.getEndDate())));
-            ps.setString(5, request.getLocation());
+            EventMapper.mapRequestDtoToStatement(request, ps);
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    EventResponseDto event = new EventResponseDto();
-                    event.setTitle(rs.getString("title"));
-                    event.setDescription(rs.getString("description"));
-                    event.setStartDate(rs.getTimestamp("start_date").toInstant());
-                    event.setEndDate(rs.getTimestamp("end_date").toInstant());
-                    event.setLocation(rs.getString("location"));
-                    event.setId(UUID.fromString(rs.getString("id")));
-                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
-                    event.setSessions(null);
-                    return Optional.of(event);
+                    return Optional.of(EventMapper.mapResultSetToResponseDto(rs));
                 }
                 return Optional.empty();
             }
