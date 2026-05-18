@@ -93,8 +93,18 @@ paths:
           in: query
           schema:
             type: integer
-            default: 20
+            default: 10
           description: Number of items per page
+        - name: title
+          in: query
+          schema:
+            type: string
+          description: Filter by event title
+        - name: location
+          in: query
+          schema:
+            type: string
+          description: Filter by location
       responses:
         '200':
           description: List of events

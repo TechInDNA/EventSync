@@ -3,7 +3,6 @@ package com.techindna.eventsync.controller;
 import com.techindna.eventsync.dto.GetEventListResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.events.EventRequestDto;
-import com.techindna.eventsync.dto.events.EventResponseDto;
 import com.techindna.eventsync.dto.events.PutEventRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.BadRequestException;
@@ -17,9 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/events")
