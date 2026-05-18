@@ -1,10 +1,7 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.dto.events.EventRequestDto;
-import com.techindna.eventsync.dto.events.EventResponseDto;
-import com.techindna.eventsync.dto.events.PutEventRequestDto;
-import com.techindna.eventsync.dto.events.EventSessionResponseDto;
+import com.techindna.eventsync.dto.events.*;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
@@ -18,7 +15,6 @@ import org.springframework.stereotype.Service;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,12 +51,23 @@ public class EventService {
         }
     }
 
-    public List<Event> getAllEvents(PaginationRequestDto pagination) {
-        return eventRepository.getAllEvents(pagination.getOffset(), pagination.getLimit());
-    }
+    public GetEventListResponseDto getAllEvents(String page, String size, String title, String location) {
+        dataValidator.validatePageAndSize(page, size);
 
-    public int countEvents() {
-        return eventRepository.countEvents();
+        try (Connection connection = dataSource.getConnection()){
+            PaginationRequestDto pagination = new PaginationRequestDto(Integer.parseInt(page), Integer.parseInt(size));
+            List<Event> events = eventRepository
+                    .getAllEvents(pagination.getOffset(), pagination.getLimit(), title, location, connection);
+
+            return new GetEventListResponseDto(
+                    events,
+                    eventRepository.countEvents(title, location, connection),
+                    pagination.getPage(),
+                    pagination.getSize()
+            );
+        } catch (SQLException e){
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
     }
 
     public EventResponseDto updateEvent(String id, PutEventRequestDto request) {

@@ -7,5 +7,3 @@ values (
     'admin'
 );
 -- admin hashed password: test
-
-INSERT INTO eventsync_app.rooms (name) VALUES ('Grand Ballroom');

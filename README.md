@@ -135,7 +135,6 @@ The application enables debug logging for Spring Security and JDBC by default. T
      ```bash
      psql -U eventsync_manager -d eventsync_db -f src/sql/init_db.sql
      psql -U eventsync_manager -d eventsync_db -f src/sql/schema.sql
-     psql -U eventsync_manager -d eventsync_db -f src/sql/data.sql
      ```
 4. Build the project:
    ```bash
