@@ -94,11 +94,9 @@ public class RoomController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteRoomById(@PathVariable String id) {
         try {
-            dataValidator.validateUUID(id);
-            roomService.deleteRoomById(UUID.fromString(id));
 
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(String.format("Room %s deleted", id));
+            roomService.deleteRoomById(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

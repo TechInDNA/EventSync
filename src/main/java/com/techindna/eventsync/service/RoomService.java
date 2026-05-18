@@ -52,11 +52,10 @@ public class RoomService {
                 .orElseThrow(() -> new NotFoundException(String.format("Room %s not found.", id)));
     }
 
-    public void deleteRoomById(UUID id) {
-        UUID roomId = roomRepository.deleteRoomById(id);
-
-        if (roomId == null){
-            throw new NotFoundException(String.format("Room %s not found", id));
-        }
+    @Transactional
+    public void deleteRoomById(String id) {
+        dataValidator.validateUUID(id);
+        roomRepository.deleteRoomById(UUID.fromString(id))
+                .orElseThrow(() -> new NotFoundException(String.format("Room %s not found.", id)));
     }
 }
