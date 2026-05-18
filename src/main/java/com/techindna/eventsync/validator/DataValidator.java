@@ -101,9 +101,6 @@ public class DataValidator {
     }
 
     public void validateRoomData(RoomRequestDto request){
-        if (request == null) {
-            throw new BadRequestException("Request body is required.");
-        }
         checkNullData("name", request.getName());
         lengthValidation("name", 50, request.getName());
         validateString("name", request.getName());
