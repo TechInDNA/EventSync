@@ -3,12 +3,21 @@ package com.techindna.eventsync.service;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.events.EventRequestDto;
 import com.techindna.eventsync.dto.events.EventResponseDto;
+import com.techindna.eventsync.dto.events.PutEventRequestDto;
+import com.techindna.eventsync.dto.events.EventSessionResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.ConflictException;
+import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.mapper.EventMapper;
 import com.techindna.eventsync.repository.EventRepository;
+import com.techindna.eventsync.repository.SessionRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -17,10 +26,15 @@ import java.util.UUID;
 @Service
 public class EventService {
     private final EventRepository eventRepository;
+    private final SessionRepository sessionRepository;
+    private final DataSource dataSource;
     private final DataValidator dataValidator;
 
-    public EventService(EventRepository eventRepository, DataValidator dataValidator) {
+    public EventService(EventRepository eventRepository, SessionRepository sessionRepository,
+                        DataSource dataSource, DataValidator dataValidator) {
         this.eventRepository = eventRepository;
+        this.sessionRepository = sessionRepository;
+        this.dataSource = dataSource;
         this.dataValidator = dataValidator;
     }
 
@@ -45,17 +59,37 @@ public class EventService {
         return eventRepository.countEvents();
     }
 
-    public Event updateEvent(UUID id, String title, String description, Instant startDate, Instant endDate, String location) {
-        Optional<Event> existing = eventRepository.findEventByTitle(title);
+    public EventResponseDto updateEvent(String id, PutEventRequestDto request) {
+        dataValidator.validateUUID(id);
+        dataValidator.validateEventData(
+                request.getTitle(),
+                request.getDescription(),
+                request.getStartDate(),
+                request.getEndDate(),
+                request.getLocation()
+        );
 
-        if (existing.isPresent()) {
-            Event e = existing.get();
-            throw new ConflictException(String.format(
-                    "An event with title '%s' already exists (ID: %s, Location: %s, Creation date: %s)",
-                    e.getTitle(), e.getId(), e.getLocation(), e.getCreatedAt()));
+        try (Connection connection = dataSource.getConnection()) {
+            Optional<Event> existing = eventRepository.findEventByTitle(connection, request.getTitle());
+
+            if (existing.isPresent()) {
+                Event e = existing.get();
+                throw new ConflictException(String.format(
+                        "An event with title '%s' already exists (ID: %s, Location: %s, Creation date: %s)",
+                        e.getTitle(), e.getId(), e.getLocation(), e.getCreatedAt()));
+            }
+
+            EventRequestDto eventRequest = EventMapper.mapPutRequestToRequestDto(request, id);
+            EventResponseDto response = eventRepository.updateEvent(connection, eventRequest)
+                    .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", id)));
+
+            List<EventSessionResponseDto> sessions = sessionRepository.findSessionsByEventId(connection, UUID.fromString(id));
+            response.setSessions(sessions);
+
+            return response;
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
-
-        return eventRepository.updateEvent(id, title, description, startDate, endDate, location);
     }
 
     public UUID deleteEventById(UUID id) {

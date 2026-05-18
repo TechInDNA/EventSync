@@ -86,7 +86,9 @@ public class EventRepository {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return Optional.of(EventMapper.mapResultSetToResponseDto(rs));
+                    EventResponseDto response = new EventResponseDto();
+                    response.setSessions(null);
+                    return Optional.of(EventMapper.mapResultSetToResponseDto(rs, response));
                 }
                 return Optional.empty();
             }
@@ -138,6 +140,14 @@ public class EventRepository {
     }
 
     public Optional<Event> findEventByTitle(String title) {
+        try (Connection connection = dataSource.getConnection()) {
+            return findEventByTitle(connection, title);
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public Optional<Event> findEventByTitle(Connection connection, String title) {
         final String query =
             """
             select
@@ -151,10 +161,7 @@ public class EventRepository {
             from eventsync_app.events
             where title = ?
             """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, title);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -175,7 +182,7 @@ public class EventRepository {
         }
     }
 
-    public Event updateEvent(UUID id, String title, String description, Instant startDate, Instant endDate, String location) {
+    public Optional<EventResponseDto> updateEvent(Connection connection, EventRequestDto request) {
         final String query =
             """
             update eventsync_app.events
@@ -184,34 +191,19 @@ public class EventRepository {
                 description = ?,
                 start_date = ?,
                 end_date = ?,
-                location = ?,
-                created_at = now()
+                location = ?
             where id = ?
-            returning id, created_at
+            returning id, title, description, start_date, end_date, location, created_at
             """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            ps.setString(1, title);
-            ps.setString(2, description);
-            ps.setTimestamp(3, Timestamp.from(startDate));
-            ps.setTimestamp(4, Timestamp.from(endDate));
-            ps.setString(5, location);
-            ps.setObject(6, id);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            EventMapper.mapRequestDtoToStatement(request, ps);
+            ps.setObject(6, UUID.fromString(request.getId()));
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Event event = new Event();
-                    event.setId(id);
-                    event.setTitle(title);
-                    event.setDescription(description);
-                    event.setStartDate(startDate);
-                    event.setEndDate(endDate);
-                    event.setLocation(location);
-                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
-                    return event;
+                    EventResponseDto response = new EventResponseDto();
+                    return Optional.of(EventMapper.mapResultSetToResponseDto(rs, response));
                 }
-                throw new NotFoundException(String.format("Event %s not found.", id));
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
