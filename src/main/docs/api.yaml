@@ -102,6 +102,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventList'
+        '400':
+          description: Bad request
     post:
       summary: Create a new event
       tags:
@@ -121,8 +123,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventDetail'
+        '400':
+          description: Bad request
         '401':
           description: Unauthorized
+        '409':
+          description: Conflict
   /events/{id}:
     get:
       summary: Get event details
@@ -142,6 +148,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventDetail'
+        '400':
+          description: Bad request
         '404':
           description: Event not found
     put:
@@ -170,10 +178,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/EventDetail'
+        '400':
+          description: Bad request
         '401':
           description: Unauthorized
         '404':
           description: Event not found
+        '409':
+          description: Conflict
     delete:
       summary: Delete an event
       tags:
@@ -195,6 +207,8 @@ paths:
               schema:
                 type: string
                 format: uuid
+        '400':
+          description: Bad request
         '401':
           description: Unauthorized
         '404':
