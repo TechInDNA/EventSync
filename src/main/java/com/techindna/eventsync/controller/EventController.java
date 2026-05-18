@@ -39,6 +39,23 @@ public class EventController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getEventById(@PathVariable String id) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(eventService.getEventById(id));
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody EventRequestDto request) {
         try {
@@ -65,7 +82,7 @@ public class EventController {
             @RequestBody PutEventRequestDto request) {
         try {
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(eventService.updateEvent(id, request));
+                    .body(eventService.updateEventById(id, request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

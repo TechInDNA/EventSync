@@ -44,6 +44,18 @@ public class EventMapper {
         return event;
     }
 
+    public static EventResponseDto mapEventToResponseDto(Event event) {
+        EventResponseDto dto = new EventResponseDto();
+        dto.setId(event.getId());
+        dto.setTitle(event.getTitle());
+        dto.setDescription(event.getDescription());
+        dto.setStartDate(event.getStartDate());
+        dto.setEndDate(event.getEndDate());
+        dto.setLocation(event.getLocation());
+        dto.setCreatedAt(event.getCreatedAt());
+        return dto;
+    }
+
     public static EventRequestDto mapPutRequestToRequestDto(PutEventRequestDto request, String id) {
         EventRequestDto event = new EventRequestDto();
         event.setId(id);
