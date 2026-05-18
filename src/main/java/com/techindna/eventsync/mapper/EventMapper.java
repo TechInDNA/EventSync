@@ -2,6 +2,7 @@ package com.techindna.eventsync.mapper;
 
 import com.techindna.eventsync.dto.events.EventRequestDto;
 import com.techindna.eventsync.dto.events.EventResponseDto;
+import com.techindna.eventsync.dto.events.PutEventRequestDto;
 import com.techindna.eventsync.entity.Event;
 
 import java.sql.ResultSet;
@@ -12,8 +13,7 @@ import java.util.UUID;
 
 public class EventMapper {
 
-    public static EventResponseDto mapResultSetToResponseDto(ResultSet rs) throws SQLException {
-        EventResponseDto dto = new EventResponseDto();
+    public static EventResponseDto mapResultSetToResponseDto(ResultSet rs, EventResponseDto dto) throws SQLException {
         dto.setId(UUID.fromString(rs.getString("id")));
         dto.setTitle(rs.getString("title"));
         dto.setDescription(rs.getString("description"));
@@ -21,7 +21,6 @@ public class EventMapper {
         dto.setEndDate(rs.getTimestamp("end_date").toInstant());
         dto.setLocation(rs.getString("location"));
         dto.setCreatedAt(rs.getTimestamp("created_at").toInstant());
-        dto.setSessions(null);
         return dto;
     }
 
@@ -42,6 +41,17 @@ public class EventMapper {
         event.setEndDate(rs.getTimestamp("end_date").toInstant());
         event.setLocation(rs.getString("location"));
         event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+        return event;
+    }
+
+    public static EventRequestDto mapPutRequestToRequestDto(PutEventRequestDto request, String id) {
+        EventRequestDto event = new EventRequestDto();
+        event.setId(id);
+        event.setTitle(request.getTitle());
+        event.setDescription(request.getDescription());
+        event.setStartDate(request.getStartDate());
+        event.setEndDate(request.getEndDate());
+        event.setLocation(request.getLocation());
         return event;
     }
 }
