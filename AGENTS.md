@@ -19,11 +19,6 @@ mvn test                      # All JUnit tests
 
 Run scripts in this order:
 
-```bash
-for f in init_db.sql schema.sql room_data.sql event_data.sql data.sql session_data.sql speaker_data.sql; do
-  psql -U eventsync_manager -d eventsync_db -f src/sql/"$f"
-done
-```
 
 ## Tests
 
