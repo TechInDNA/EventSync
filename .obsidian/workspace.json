@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -1238.8119626996554,
-                  "y": -1571.1239927402228,
-                  "zoom": -0.2984835461676844
+                  "x": -1305.0663844158862,
+                  "y": -23.726298921024046,
+                  "zoom": -1.0174580888848233
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -188,17 +188,17 @@
   },
   "active": "fae3d54826eb5dba",
   "lastOpenFiles": [
-    "src/test/java/requests/sessions/cookies.txt",
-    "target/classes/com/techindna/eventsync/service/AuthService.class",
-    "target/classes/com/techindna/eventsync/dto/GetSessionListResponseDto.class",
-    "target/classes/com/techindna/eventsync/entity/Session.class",
-    "target/classes/com/techindna/eventsync/controller/SessionController.class",
-    "target/classes/com/techindna/eventsync/service/SessionService.class",
-    "target/classes/com/techindna/eventsync/dto/SessionRequestDto.class",
-    "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
-    "target/classes/com/techindna/eventsync/dto/UpdateSpeakerResponseDto.class",
-    "target/classes/com/techindna/eventsync/repository/SpeakerRepository.class",
-    "target/classes/com/techindna/eventsync/dto/SpeakerRequestDto.class",
+    "src/test/java/requests/questions/get_upvote.sh",
+    "target/test-classes/com/techindna/eventsync/EventSyncApplicationTests.class",
+    "target/classes/com/techindna/eventsync/exception/UnauthorizedException.class",
+    "target/classes/com/techindna/eventsync/exception/TooManyRequestException.class",
+    "target/classes/com/techindna/eventsync/exception/NotFoundException.class",
+    "target/classes/com/techindna/eventsync/exception/InternalServerErrorException.class",
+    "target/classes/com/techindna/eventsync/exception/ConflictException.class",
+    "target/classes/com/techindna/eventsync/exception/BadRequestException.class",
+    "target/classes/com/techindna/eventsync/entity/Question.class",
+    "target/classes/com/techindna/eventsync/entity/Speaker.class",
+    "target/classes/com/techindna/eventsync/entity/ExternalLinks.class",
     "src/main/docs/test/Bienvenue.md",
     "src/eventsync/Bienvenue.md"
   ]
