@@ -1,23 +1,21 @@
 package com.techindna.eventsync.dto;
 
-import com.techindna.eventsync.entity.Event;
-
 import java.util.List;
 
-public class GetEventListResponseDto {
-    private List<Event> data;
+public class GetQuestionListResponseDto {
+    private List<QuestionResponseDto> data;
     private Meta meta;
 
-    public GetEventListResponseDto(List<Event> data, int total, int page, int size) {
+    public GetQuestionListResponseDto(List<QuestionResponseDto> data, int total, int page, int size) {
         this.data = data;
         this.meta = new Meta(total, page, size);
     }
 
-    public List<Event> getData() {
+    public List<QuestionResponseDto> getData() {
         return data;
     }
 
-    public void setData(List<Event> data) {
+    public void setData(List<QuestionResponseDto> data) {
         this.data = data;
     }
 

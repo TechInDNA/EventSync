@@ -3,53 +3,64 @@
 ## Commands
 
 ```bash
-mvn spring-boot:run          # Start app on :8080
-mvn clean install            # Build
-mvn test                     # JUnit tests (currently only EventSyncApplicationTests)
-```
-
-Manual API tests (require running app + curlie):
-
-```bash
-chmod +x src/test/java/requests/*.sh
-./src/test/java/requests/post_auth_login.sh
-./src/test/java/requests/post_events.sh
+sudo ./mvnw spring-boot:run   # HTTPS on :443 (needs keystore + .env)
+mvn spring-boot:run           # HTTP on :8080 (overrides SSL via local application.properties)
+mvn clean install             # Full build
+mvn test                      # All JUnit tests
 ```
 
 ## Environment
 
-- Copy `.env.example` or create `.env` from README variables (`JWT_TOKEN`, `DB_URL`, `DB_USER`, `DB_PASSWORD`)
-- App loads `.env` via `spring.config.import=optional:file:.env[.properties]` in `src/main/resources/application.properties`
-- Both `.env` and `application.properties` are gitignored
+- Create `.env` in project root (gitignored) with: `JWT_TOKEN`, `DB_URL`, `DB_USER`, `DB_PASSWORD`, `HTTPS_PASS`, `KEY_STORE=file:eventsync.p12`, `CORS_ALLOWED_ORIGINS`
+- `.env` loaded via `spring.config.import=optional:file:.env[.properties]`
+- `src/main/resources/application.properties` is **tracked by git** (the `.gitignore` entry is ineffective because the file was committed before the ignore rule). It contains the full SSL + port 443 config. To run HTTP on :8080, override `server.port` and remove SSL properties locally.
 
-## Database
+## Database (PostgreSQL)
 
-PostgreSQL required. Initialize in order:
+Run scripts in this order:
 
 ```bash
-psql -U eventsync_manager -d eventsync_db -f src/sql/init_db.sql
-psql -U eventsync_manager -d eventsync_db -f src/sql/schema.sql
-psql -U eventsync_manager -d eventsync_db -f src/sql/data.sql
+psql -f src/sql/init_db.sql     # Creates DB, role, schema (needs superuser)
+psql -f src/sql/schema.sql      # Creates all tables + enums
+psql -f src/sql/auth_data.sql   # Seed admin user (password: "test")
+psql -f src/sql/room_data.sql   # Seed rooms
+psql -f src/sql/event_data.sql  # Seed events, some rooms/sessions
+psql -f src/sql/session_data.sql # Seed sessions, intervene links
+psql -f src/sql/speaker_data.sql # Seed speaker users + external links
+psql -f src/sql/question_data.sql # Seed questions + upvotes
 ```
 
-## Architecture Notes
+All `*_data.sql` files use `ON CONFLICT ... DO NOTHING` — idempotent, safe to re-run.
 
-- **Spring JDBC, not JPA** — no `@Entity` classes; repositories use `RowMapper` and `JdbcTemplate`
-- **Argon2** password hashing via Bouncy Castle (not bcrypt)
-- **JWT** auth via Auth0 library; secret key in `security.jwt.token.secret-key` property
-- Single Maven project, package: `com.techindna.eventsync`
+## Tests
+
+- Single `@SpringBootTest`: `EventSyncApplicationTests` — context-load sanity check only
+- No unit tests exist
+- Manual API test scripts at `src/test/java/requests/**/*.sh` (require app running + [curlie](https://github.com/rs/curlie))
+- Auth-dependent scripts (events, sessions, speakers) use `cookies.txt` for JWT session — run `post_auth_login.sh` first
+
+## Architecture
+
+- **Spring Boot 4.0.6**, Java 17, single Maven module
+- **Spring JDBC** (no JPA) — `RowMapper` + `JdbcTemplate`
+- **Spring Boot 4.x** uses `spring-boot-starter-webmvc` (not `spring-boot-starter-web`)
+- **Argon2** via Bouncy Castle (`bcpkix-jdk18on`)
+- **JWT** via Auth0 `java-jwt`; secret key: `security.jwt.token.secret-key`
+- Package root: `com.techindna.eventsync`
+
+| Package | Contents |
+|---------|----------|
+| `config` | `JwtAuthenticationFilter`, `SecurityConfig`, `TokenProvider` |
+| `controller` | `Auth`, `Event`, `Session`, `Room`, `Question`, `Speakers` |
+| `service` | Business logic: `AuthService`, `EventService`, `SessionService`, `RoomService`, `SpeakerService`, `QuestionService` |
+| `repository` | JDBC repos for all entities |
+| `dto` | Request/response DTOs (flat, no nested package) |
+| `mapper` | Row mappers: `EventMapper`, `SessionMapper`, `RoomMapper` |
+| `entity` | Domain POJOs (`User`, `Event`, `Session`, `Room`, `Question`, `Participant`, `Administrator`, `ExternalLinks`) + `enums/Role` |
+| `validator` | `DataValidator` — validates page/size, UUID, session/speaker data |
+| `exception` | `BadRequestException` (400), `UnauthorizedException` (401), `NotFoundException` (404), `ConflictException` (409), `TooManyRequestException` (429), `InternalServerErrorException` (500) |
+
+## Docs
+
 - API spec: `src/main/docs/api.yaml` (OpenAPI 3.0.3)
-- Conceptual schema: `src/main/docs/mcd.canvas` (Obsidian Canvas JSON)
-
-## Packages
-
-| Package | Role |
-|---------|------|
-| `config` | JWT filter, Spring Security config, TokenProvider |
-| `controller` | REST endpoints (Auth, Events) |
-| `dto` | Request/response payloads |
-| `entity` | Domain objects + `enums/Role` |
-| `repository` | JDBC query interfaces |
-| `service` | Business logic |
-| `validator` | Request validation |
-| `exception` | Custom HTTP errors (400, 401, 409, 500) |
+- Conceptual schema: `src/main/docs/mcd.canvas` (Obsidian Canvas)

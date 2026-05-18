@@ -15,8 +15,8 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -994.2535205464777,
-                  "y": -1441.9754571394394,
+                  "x": -1305.0663844158862,
+                  "y": -23.726298921024046,
                   "zoom": -1.0174580888848233
                 }
               },
@@ -81,8 +81,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "6f4d6d5bfe41f054",
@@ -187,19 +186,19 @@
       "bases:Create new base": false
     }
   },
-  "active": "73a6c18bdf4f9108",
+  "active": "fae3d54826eb5dba",
   "lastOpenFiles": [
-    "src/test/java/requests/post_speakers.sh",
-    "src/test/java/requests/get_speakers.sh",
-    "src/sql/data.sql",
-    "src/main/java/com/techindna/eventsync/dto/RoomRequestDto.java",
-    "src/main/java/com/techindna/eventsync/dto/GetEventListResponseDto.java",
-    "src/main/java/com/techindna/eventsync/dto/EventRequestDto.java",
-    "src/test/java/requests/room/put_rooms.sh~",
-    "src/main/java/com/techindna/eventsync/validator/DataValidator.java~",
-    "src/main/java/com/techindna/eventsync/controller/RoomController.java~",
-    "src/test/java/requests/room/cookies.txt",
-    "src/main/java/com/techindna/eventsync/repository/RoomRepository.java~",
+    "src/test/java/requests/questions/get_upvote.sh",
+    "target/test-classes/com/techindna/eventsync/EventSyncApplicationTests.class",
+    "target/classes/com/techindna/eventsync/exception/UnauthorizedException.class",
+    "target/classes/com/techindna/eventsync/exception/TooManyRequestException.class",
+    "target/classes/com/techindna/eventsync/exception/NotFoundException.class",
+    "target/classes/com/techindna/eventsync/exception/InternalServerErrorException.class",
+    "target/classes/com/techindna/eventsync/exception/ConflictException.class",
+    "target/classes/com/techindna/eventsync/exception/BadRequestException.class",
+    "target/classes/com/techindna/eventsync/entity/Question.class",
+    "target/classes/com/techindna/eventsync/entity/Speaker.class",
+    "target/classes/com/techindna/eventsync/entity/ExternalLinks.class",
     "src/main/docs/test/Bienvenue.md",
     "src/eventsync/Bienvenue.md"
   ]

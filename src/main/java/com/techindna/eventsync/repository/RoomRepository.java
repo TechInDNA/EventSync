@@ -1,6 +1,9 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Room;
+import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.mapper.RoomMapper;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -10,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -20,42 +24,49 @@ public class RoomRepository {
         this.dataSource = dataSource;
     }
 
-    public Room saveRoom(String name) {
-        final String query = "insert into eventsync_app.rooms(name) values(?) on conflict (name) do nothing returning id";
+    public Optional<Room> saveRoom(String name) {
+        final String query =
+        """
+        insert into
+            eventsync_app.rooms(name)
+        values(?) on conflict (name)
+        do nothing
+        returning id, name
+        """;
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection conn = dataSource.getConnection();
                 PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
-                Room room = new Room();
-                room.setName(name);
                 if (rs.next()) {
+                    Room room = new Room();
                     room.setId(UUID.fromString(rs.getString("id")));
+                    room.setName(rs.getString("name"));
+                    return Optional.of(room);
                 }
-                return room;
+                return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
-
-
-
     }
 
     public List<Room> getAllRooms(int offset, int limit) {
         final String query =
         """
-        SELECT id, name 
-        FROM eventsync_app.rooms 
-        ORDER BY name ASC 
+        SELECT id, name
+        FROM eventsync_app.rooms
+        ORDER BY name ASC
         LIMIT ? OFFSET ?
         """;
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
+                PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setInt(1, limit);
             ps.setInt(2, offset);
@@ -70,83 +81,82 @@ public class RoomRepository {
                 return rooms;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     public int countRooms() {
         final String query = "SELECT count(id) as total FROM eventsync_app.rooms";
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query);
+                PreparedStatement ps = conn.prepareStatement(query);
                 ResultSet rs = ps.executeQuery()
         ) {
             return rs.next() ? rs.getInt("total") : 0;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
-    public Room findRoomByName(String name) {
-        final String query = "SELECT id, name FROM eventsync_app.rooms WHERE name = ?";
+    public Optional<Room> findRoomByName(String name) {
+        final String query = "SELECT id as room_id, name as room_name FROM eventsync_app.rooms WHERE name = ?";
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
+                PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Room room = new Room();
-                    room.setId(UUID.fromString(rs.getString("id")));
-                    room.setName(rs.getString("name"));
-                    return room;
-                }
-                return null;
+                return rs.next() ? Optional.of(RoomMapper.mapResultSetToRoom(rs))
+                        : Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
-    public Room updateRoom(UUID id, String name) {
-        final String query = "UPDATE eventsync_app.rooms SET name = ? WHERE id = ? RETURNING id, name";
+    public Optional<Room> updateRoomById(UUID id, String name) {
+        final String query = "UPDATE eventsync_app.rooms SET name = ? WHERE id = ? RETURNING id as room_id, name as room_name";
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
+                PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
             ps.setObject(2, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Room room = new Room();
-                    room.setId(UUID.fromString(rs.getString("id")));
-                    room.setName(rs.getString("name"));
-                    return room;
-                }
-                return null;
+                return rs.next() ? Optional.of(RoomMapper.mapResultSetToRoom(rs))
+                        : Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     public UUID deleteRoomById(UUID id) {
         final String query = "DELETE FROM eventsync_app.rooms WHERE id = ? RETURNING id";
 
+        Connection conn = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
+                PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setObject(1, id);
             try(ResultSet rs = ps.executeQuery()){
                 return rs.next() ? UUID.fromString(rs.getString("id")) : null;
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 

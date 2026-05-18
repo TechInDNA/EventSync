@@ -1,15 +1,17 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.config.TokenProvider;
+import com.techindna.eventsync.dto.AuthParticipantRequestDto;
 import com.techindna.eventsync.entity.Administrator;
+import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.TooManyRequestException;
-import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.repository.AuthRepository;
-import com.techindna.eventsync.validator.StringValidator;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -17,23 +19,22 @@ public class AuthService {
     private final AuthRepository authRepository;
     private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
-    private final StringValidator stringValidator;
+    private final DataValidator dataValidator;
     private static final int MAX_ATTEMPT_LIMIT = 5;
     private static final Duration RESET_DURATION = Duration.ofHours(12);
     private int loggingAttempt = 0;
     private Instant firstFailureTime = null;
 
-    public AuthService(AuthRepository authRepository, TokenProvider tokenProvider, PasswordEncoder passwordEncoder, StringValidator stringValidator) {
+    public AuthService(AuthRepository authRepository, TokenProvider tokenProvider, PasswordEncoder passwordEncoder, DataValidator dataValidator) {
         this.authRepository = authRepository;
         this.tokenProvider = tokenProvider;
         this.passwordEncoder = passwordEncoder;
-        this.stringValidator = stringValidator;
+        this.dataValidator = dataValidator;
     }
 
-    public Administrator emailLogin(String email, String password) {
-        stringValidator.checkNullData("email", email);
-        stringValidator.checkNullData("password", password);
-        stringValidator.ValidateEmail(email);
+    public Optional<Administrator> logInAdmin(String email, String password) {
+        dataValidator.validateEmail(email);
+        dataValidator.checkNullData("password", password);
 
         if (firstFailureTime != null && Duration.between(firstFailureTime, Instant.now()).compareTo(RESET_DURATION) >= 0) {
             loggingAttempt = 0;
@@ -44,20 +45,32 @@ public class AuthService {
             throw new TooManyRequestException("Too many login failures. Try again in 12 hours.");
         }
 
-        Administrator admin = authRepository.getAdminByEmail(email);
+        Optional<Administrator> admin = authRepository.findAdminByEmail(email);
 
-        if (!passwordEncoder.matches(password, admin.getPassword())) {
+        if (!passwordEncoder.matches(password, admin.map(Administrator::getPassword).orElse(null))) {
             loggingAttempt++;
             if (loggingAttempt == 1) {
                 firstFailureTime = Instant.now();
             }
-            throw new UnauthorizedException("Invalid credentials.");
+            return Optional.empty();
         }
-
         return admin;
     }
 
     public String generateToken(Administrator admin) {
         return tokenProvider.generateAccessToken(admin);
+    }
+
+    public Participant identifyOrRegisterParticipant(AuthParticipantRequestDto request) {
+        dataValidator.validateParticipantData(request);
+
+        Optional<Participant> participant = authRepository.findParticipant(request.getEmail(), request.getFirstName(), request.getLastName());
+        return participant.orElseGet(() -> authRepository
+                .saveParticipant(request.getFirstName(), request.getLastName(), request.getEmail()));
+
+    }
+
+    public String generateParticipantToken(Participant participant) {
+        return tokenProvider.generateAccessToken(participant);
     }
 }

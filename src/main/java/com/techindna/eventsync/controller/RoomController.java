@@ -2,11 +2,11 @@ package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.GetRoomListResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.dto.RoomRequestDto;
+import com.techindna.eventsync.dto.rooms.RoomRequestDto;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.service.RoomService;
-import com.techindna.eventsync.validator.StringValidator;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,35 +19,29 @@ import java.util.UUID;
 public class RoomController {
 
     private final RoomService roomService;
-    private final StringValidator stringValidator;
+    private final DataValidator dataValidator;
 
-    public RoomController(RoomService roomService, StringValidator stringValidator) {
+    public RoomController(RoomService roomService, DataValidator dataValidator) {
 
         this.roomService = roomService;
-        this.stringValidator = stringValidator;
+        this.dataValidator = dataValidator;
     }
 
 
     @PostMapping
     public ResponseEntity<?> createRoom(@RequestBody RoomRequestDto request) {
         try {
-            stringValidator.validateRoomData(request.getName());
-
-            Room newRoom = roomService.createRoom(request.getName());
-            return ResponseEntity.status(HttpStatus.CREATED).body(newRoom);
-
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(roomService.createRoom(request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(e.getMessage());
-        } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 
@@ -57,7 +51,7 @@ public class RoomController {
             @RequestParam(required = false, defaultValue = "5") String size) {
         try {
 
-            stringValidator.validatePageAndSize(page, size);
+            dataValidator.validatePageAndSize(page, size);
             int pageVal = Integer.parseInt(page);
             int sizeVal = Integer.parseInt(size);
 
@@ -71,21 +65,17 @@ public class RoomController {
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
-        } catch (Exception e) {
+        } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(e.getMessage());
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateRoom(@PathVariable String id, @RequestBody RoomRequestDto request) {
         try {
-            stringValidator.validateUUID(id);
-            stringValidator.validateRoomData(request.getName());
-
-            Room updatedRoom = roomService.updateRoom(UUID.fromString(id), request.getName());
-            return ResponseEntity.status(HttpStatus.OK).body(updatedRoom);
-
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(roomService.updateRoomById(id, request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -95,19 +85,16 @@ public class RoomController {
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(e.getMessage());
-        } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(e.getMessage());
-        } catch (Exception e) {
+        } catch (InternalServerErrorException e) {
             return ResponseEntity.internalServerError()
-                    .body(e.getMessage());
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteRoomById(@PathVariable String id) {
         try {
-            stringValidator.validateUUID(id);
+            dataValidator.validateUUID(id);
             roomService.deleteRoomById(UUID.fromString(id));
 
             return ResponseEntity.status(HttpStatus.OK)
@@ -119,9 +106,9 @@ public class RoomController {
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
-        } catch (Exception e) {
+        } catch (InternalServerErrorException e) {
             return ResponseEntity.internalServerError()
-                    .body(e.getMessage());
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 

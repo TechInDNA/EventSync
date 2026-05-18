@@ -1,8 +1,7 @@
 package com.techindna.eventsync.config;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -32,13 +31,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (token != null) {
             try {
-                String userId = tokenProvider.validateToken(token);
-                
-                Algorithm algorithm = Algorithm.HMAC256(tokenProvider.getSecret());
-                String role = JWT.require(algorithm)
-                        .build()
-                        .verify(token)
-                        .getClaim("role").asString();
+                DecodedJWT decoded = tokenProvider.validateToken(token);
+                String userId = decoded.getSubject();
+                String role = decoded.getClaim("role").asString();
 
                 List<SimpleGrantedAuthority> authorities = new ArrayList<>();
                 if (role != null) {
@@ -50,6 +45,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JWTVerificationException e) {
                 SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Invalid or expired token.");
+                return;
             }
         }
 

@@ -1,9 +1,8 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.AuthLoginRequestDto;
-import com.techindna.eventsync.dto.AuthLoginResponseDto;
-import com.techindna.eventsync.dto.UserResponseDto;
+import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.entity.Administrator;
+import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.TooManyRequestException;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final int COOKIE_MAX_AGE = 86400;
+    private static final int COOKIE_MAX_AGE = 43200;
 
     public AuthController(AuthService authService) {
         this.authService = authService;
@@ -33,12 +32,13 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthLoginRequestDto request) {
         try{
-            Administrator admin = authService.emailLogin(request.getEmail(), request.getPassword());
+            Administrator admin = authService.logInAdmin(request.getEmail(), request.getPassword())
+                    .orElseThrow(() -> new UnauthorizedException("Invalid credentials."));
             String token = authService.generateToken(admin);
 
             ResponseCookie jwtCookie = ResponseCookie.from("jwt", token)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .path("/")
                     .maxAge(COOKIE_MAX_AGE)
                     .sameSite("Strict")
@@ -71,7 +71,34 @@ public class AuthController {
         }
         catch (InternalServerErrorException e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
+    @PostMapping("/participant")
+    public ResponseEntity<?> identifyOrRegisterParticipant(@RequestBody AuthParticipantRequestDto request) {
+        try {
+            Participant participant = authService.identifyOrRegisterParticipant(request);
+
+            String token = authService.generateParticipantToken(participant);
+
+            ParticipantDto p = new ParticipantDto();
+            p.setId(participant.getId());
+            p.setFirstName(participant.getFirstName());
+            p.setLastName(participant.getLastName());
+            p.setEmail(participant.getEmail());
+
+            AuthParticipantResponseDto response = new AuthParticipantResponseDto();
+            response.setToken(token);
+            response.setParticipant(p);
+
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
         }
     }
 }
