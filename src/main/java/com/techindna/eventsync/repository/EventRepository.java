@@ -75,7 +75,7 @@ public class EventRepository {
                         eventsync_app.events(title, description, start_date, end_date, location)
                     values(?, ?, ?, ?, ?)
                     on conflict (title) do nothing
-                    returning id, created_at
+                    returning id, title, description, start_date, end_date, location, created_at
                 """;
         try(
                 Connection connection = dataSource.getConnection();
@@ -88,17 +88,17 @@ public class EventRepository {
             ps.setString(5, request.getLocation());
 
             try (ResultSet rs = ps.executeQuery()) {
-                Event event = new Event();
-                event.setTitle(event.getTitle());
-                event.setDescription(event.getDescription());
-                event.setStartDate(event.getStartDate());
-                event.setEndDate(event.getEndDate());
-                event.setLocation(event.getLocation());
-
                 if (rs.next()) {
+                    EventResponseDto event = new EventResponseDto();
+                    event.setTitle(rs.getString("title"));
+                    event.setDescription(rs.getString("description"));
+                    event.setStartDate(rs.getTimestamp("start_date").toInstant());
+                    event.setEndDate(rs.getTimestamp("end_date").toInstant());
+                    event.setLocation(rs.getString("location"));
                     event.setId(UUID.fromString(rs.getString("id")));
                     event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
-                    return Optional.of(new EventResponseDto(event, null));
+                    event.setSessions(null);
+                    return Optional.of(event);
                 }
                 return Optional.empty();
             }
