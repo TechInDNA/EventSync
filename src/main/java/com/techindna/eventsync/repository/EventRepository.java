@@ -1,8 +1,11 @@
 package com.techindna.eventsync.repository;
 
+import com.techindna.eventsync.dto.events.EventRequestDto;
+import com.techindna.eventsync.dto.events.EventResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.mapper.EventMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -66,37 +69,26 @@ public class EventRepository {
     }
 
 
-    public Event saveEvent(String title, String description, Instant startDate, Instant endDate, String location){
+    public Optional<EventResponseDto> saveEvent(EventRequestDto request){
         final String query =
                 """
                     insert into
                         eventsync_app.events(title, description, start_date, end_date, location)
                     values(?, ?, ?, ?, ?)
                     on conflict (title) do nothing
-                    returning id, created_at
+                    returning id, title, description, start_date, end_date, location, created_at
                 """;
         try(
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ){
-            ps.setString(1, title);
-            ps.setString(2, description);
-            ps.setTimestamp(3, Timestamp.from(startDate));
-            ps.setTimestamp(4, Timestamp.from(endDate));
-            ps.setString(5, location);
-            try (ResultSet rs = ps.executeQuery()) {
-                Event event = new Event();
-                event.setTitle(title);
-                event.setDescription(description);
-                event.setStartDate(startDate);
-                event.setEndDate(endDate);
-                event.setLocation(location);
+            EventMapper.mapRequestDtoToStatement(request, ps);
 
-                while (rs.next()) {
-                    event.setId(UUID.fromString(rs.getString("id")));
-                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(EventMapper.mapResultSetToResponseDto(rs));
                 }
-                return event;
+                return Optional.empty();
             }
         }
         catch (SQLException e){

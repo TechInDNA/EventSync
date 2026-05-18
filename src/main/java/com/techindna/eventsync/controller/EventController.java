@@ -2,7 +2,8 @@ package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.GetEventListResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.dto.EventRequestDto;
+import com.techindna.eventsync.dto.events.EventRequestDto;
+import com.techindna.eventsync.dto.events.EventResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
@@ -58,22 +59,8 @@ public class EventController {
     @PostMapping
     public ResponseEntity<?> createEvent(@RequestBody EventRequestDto request) {
         try {
-            dataValidator.validateEventData(
-                    request.getTitle(),
-                    request.getDescription(),
-                    request.getStartDate(),
-                    request.getEndDate(),
-                    request.getLocation()
-            );
-
-            Event newEvent = eventService.createEvent(
-                    request.getTitle(),
-                    request.getDescription(),
-                    Instant.parse(request.getStartDate()),
-                    Instant.parse(request.getEndDate()),
-                    request.getLocation()
-            );
-            return ResponseEntity.status(HttpStatus.CREATED).body(newEvent);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(eventService.createEvent(request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

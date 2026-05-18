@@ -1,9 +1,12 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.PaginationRequestDto;
+import com.techindna.eventsync.dto.events.EventRequestDto;
+import com.techindna.eventsync.dto.events.EventResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.repository.EventRepository;
+import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -14,22 +17,24 @@ import java.util.UUID;
 @Service
 public class EventService {
     private final EventRepository eventRepository;
+    private final DataValidator dataValidator;
 
-    public EventService(EventRepository eventRepository){
+    public EventService(EventRepository eventRepository, DataValidator dataValidator) {
         this.eventRepository = eventRepository;
+        this.dataValidator = dataValidator;
     }
 
-    public Event createEvent(String title,
-                               String description,
-                               Instant startDate,
-                               Instant endDate,
-                               String location){
+    public EventResponseDto createEvent(EventRequestDto request){
+        dataValidator.validateEventData(
+                request.getTitle(),
+                request.getDescription(),
+                request.getStartDate(),
+                request.getEndDate(),
+                request.getLocation()
+        );
 
-        Event newEvent = eventRepository.saveEvent(title, description, startDate, endDate, location);
-        if (newEvent.getId() == null){
-            throw new ConflictException(String.format("Event %s already exist", title));
-        }
-        return newEvent;
+        return eventRepository.saveEvent(request)
+                .orElseThrow(() -> new ConflictException(String.format("Event %s already exist.", request.getTitle())));
     }
 
     public List<Event> getAllEvents(PaginationRequestDto pagination) {
