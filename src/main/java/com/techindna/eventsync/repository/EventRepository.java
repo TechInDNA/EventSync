@@ -210,10 +210,8 @@ public class EventRepository {
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(EventMapper.mapResultSetToEvent(rs));
-                }
-                return Optional.empty();
+                return rs.next() ? Optional.of(EventMapper.mapResultSetToEvent(rs))
+                        : Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
