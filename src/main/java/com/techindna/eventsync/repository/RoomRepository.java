@@ -2,9 +2,11 @@ package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.mapper.RoomMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
+import javax.swing.text.html.Option;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -44,28 +46,23 @@ public class RoomRepository {
     }
 
 
-    public Room saveRoom(String name) {
+    public Optional<Room> saveRoom(String name, Connection conn) {
         final String query =
         """
         insert into
             eventsync_app.rooms(name)
         values(?) on conflict (name)
         do nothing
-        returning id
+        returning id as room_id, name  as room_name
         """;
 
         try (
-                Connection conn = dataSource.getConnection();
                 PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
-                Room room = new Room();
-                room.setName(name);
-                if (rs.next()) {
-                    room.setId(UUID.fromString(rs.getString("id")));
-                }
-                return room;
+                return rs.next() ? Optional.of(RoomMapper.mapResultSetToRoom(rs))
+                        : Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
