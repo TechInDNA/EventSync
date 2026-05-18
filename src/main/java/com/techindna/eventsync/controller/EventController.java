@@ -105,10 +105,8 @@ public class EventController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteEvent(@PathVariable(required = false) String id) {
         try {
-            dataValidator.validateUUID(id);
-            UUID deletedId = eventService.deleteEventById(UUID.fromString(id));
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(String.format("Event %s deleted.", deletedId));
+                    .body(String.format("Event %s deleted.", eventService.deleteEventById(id)));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
