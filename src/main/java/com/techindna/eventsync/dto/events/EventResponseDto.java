@@ -4,20 +4,14 @@ import com.techindna.eventsync.entity.Event;
 
 import java.util.List;
 
-public class EventResponseDto {
-    private final Event event;
-    private final List<EventSessionResponseDto> sessions;
-
-    public EventResponseDto(Event event, List<EventSessionResponseDto> sessions) {
-        this.event = event;
-        this.sessions = sessions;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
+public class EventResponseDto extends Event{
+    private List<EventSessionResponseDto> sessions;
 
     public List<EventSessionResponseDto> getSessions() {
         return sessions;
+    }
+
+    public void setSessions(List<EventSessionResponseDto> sessions) {
+        this.sessions = sessions;
     }
 }
