@@ -70,7 +70,24 @@ public class EventService {
         }
     }
 
-    public EventResponseDto updateEvent(String id, PutEventRequestDto request) {
+    public EventResponseDto getEventById(String id) {
+        dataValidator.validateUUID(id);
+        try (Connection connection = dataSource.getConnection()) {
+            Event event = eventRepository.findEventById(UUID.fromString(id), connection)
+                    .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", id)));
+
+            EventResponseDto response = EventMapper.mapEventToResponseDto(event);
+
+            List<EventSessionResponseDto> sessions = sessionRepository.findSessionsByEventId(connection, UUID.fromString(id));
+            response.setSessions(sessions);
+
+            return response;
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public EventResponseDto updateEventById(String id, PutEventRequestDto request) {
         dataValidator.validateUUID(id);
         dataValidator.validateEventData(
                 request.getTitle(),

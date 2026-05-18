@@ -193,6 +193,31 @@ public class EventRepository {
         }
     }
 
+    public Optional<Event> findEventById(UUID id, Connection connection) {
+        final String query =
+            """
+            select
+                id,
+                title,
+                description,
+                start_date,
+                end_date,
+                location,
+                created_at
+            from eventsync_app.events
+            where id = ?
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(EventMapper.mapResultSetToEvent(rs))
+                        : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
     public Optional<UUID> deleteEventById(UUID id, Connection connection) {
         final String query = "delete from eventsync_app.events where id = ? returning id";
         try (
