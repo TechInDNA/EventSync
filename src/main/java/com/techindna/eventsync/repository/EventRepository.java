@@ -8,7 +8,6 @@ import com.techindna.eventsync.mapper.EventMapper;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

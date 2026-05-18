@@ -1,10 +1,7 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.events.GetEventListResponseDto;
-import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.events.EventRequestDto;
 import com.techindna.eventsync.dto.events.PutEventRequestDto;
-import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
@@ -14,8 +11,6 @@ import com.techindna.eventsync.service.EventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/events")
