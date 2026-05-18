@@ -121,5 +121,11 @@ echo ""
 echo "--- Test 22: Location exceeding 50 characters (should return 400) ---"
 curlie -k -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"ValidTitle","description":"UpdatedDesc","startDate":"2026-12-21T10:00:00Z","endDate":"2026-12-21T18:00:00Z","location":"ThisIsAVeryLongLocationNameThatExceedsFiftyCharactersTest"}' https://localhost:443/events/$EVENT_ID
 
+# Step 24: Update event with sessions (should return 200 with sessions array in response)
+EVENT_WITH_SESSIONS_ID="e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"
+echo ""
+echo "--- Test 23: Update event with attached sessions (should return 200 with sessions in response) ---"
+curlie -k -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"Updated Event with Sessions","description":"Updated description","startDate":"2026-11-11T09:00:00Z","endDate":"2026-11-11T18:00:00Z","location":"Updated Session Hall"}' https://localhost:443/events/$EVENT_WITH_SESSIONS_ID
+
 # Cleanup
 rm -f cookies.txt
