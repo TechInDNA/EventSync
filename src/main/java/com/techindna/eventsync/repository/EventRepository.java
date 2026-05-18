@@ -229,18 +229,17 @@ public class EventRepository {
         }
     }
 
-    public UUID deleteEventById(UUID id) {
+    public Optional<UUID> deleteEventById(UUID id, Connection connection) {
         final String query = "delete from eventsync_app.events where id = ? returning id";
         try (
-                Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
             ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return UUID.fromString(rs.getString("id"));
+                    return Optional.of(UUID.fromString(rs.getString("id")));
                 }
-                throw new NotFoundException(String.format("Event %s not found.", id));
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
