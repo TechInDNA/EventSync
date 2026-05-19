@@ -3,7 +3,10 @@ package com.techindna.eventsync.repository;
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
 import com.techindna.eventsync.dto.SpeakerResponseDto;
+import com.techindna.eventsync.dto.speaker.SpeakerSessionDto;
 import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
+import com.techindna.eventsync.entity.Event;
+import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -248,6 +252,117 @@ public class SpeakerRepository {
                     return rs.next() ? Optional.of(UUID.fromString(rs.getString("id"))) : Optional.empty();
                 }
 
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public Optional<SpeakerResponseDto> findSpeakerById(UUID id) {
+        final String query =
+                """
+                select
+                    users.id,
+                    users.first_name,
+                    users.last_name,
+                    users.profile_picture,
+                    users.bio
+                from
+                    eventsync_app.users
+                where
+                    users.id = ? and users."role" = 'speaker'
+                """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return Optional.empty();
+                }
+                SpeakerResponseDto speaker = new SpeakerResponseDto();
+                speaker.setId(UUID.fromString(rs.getString("id")));
+                speaker.setFirstName(rs.getString("first_name"));
+                speaker.setLastName(rs.getString("last_name"));
+                speaker.setProfilePicture(rs.getString("profile_picture"));
+                speaker.setBio(rs.getString("bio"));
+                speaker.setExternalLinks(getExternalLinksByUserId(id));
+                return Optional.of(speaker);
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public List<SpeakerSessionDto> findSessionsBySpeakerId(UUID speakerId) {
+        final String query =
+                """
+                select
+                    s.id as session_id,
+                    s.title as session_title,
+                    s.description as session_description,
+                    s.start_date as session_start_date,
+                    s.end_date as session_end_date,
+                    s.capacity,
+                    r.id as room_id,
+                    r.name as room_name,
+                    e.id as event_id,
+                    e.title as event_title,
+                    e.description as event_description,
+                    e.start_date as event_start_date,
+                    e.end_date as event_end_date,
+                    e.location,
+                    e.created_at
+                from
+                    eventsync_app.sessions s
+                    join eventsync_app.rooms r on r.id = s.room_id
+                    join eventsync_app.events e on e.id = s.event_id
+                    join eventsync_app.intervene i on i.session_id = s.id
+                where
+                    i.speaker_id = ?
+                order by
+                    s.start_date
+                """;
+        try (
+                Connection connection = dataSource.getConnection();
+                PreparedStatement ps = connection.prepareStatement(query)
+        ) {
+            ps.setObject(1, speakerId);
+            List<SpeakerSessionDto> sessions = new ArrayList<>();
+            Instant now = Instant.now();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    SpeakerSessionDto session = new SpeakerSessionDto();
+                    session.setId(UUID.fromString(rs.getString("session_id")));
+                    session.setTitle(rs.getString("session_title"));
+                    session.setDescription(rs.getString("session_description"));
+                    session.setStartDate(rs.getTimestamp("session_start_date").toInstant());
+                    session.setEndDate(rs.getTimestamp("session_end_date").toInstant());
+                    session.setCapacity(rs.getInt("capacity"));
+
+                    Room room = new Room();
+                    room.setId(UUID.fromString(rs.getString("room_id")));
+                    room.setName(rs.getString("room_name"));
+                    session.setRoom(room);
+
+                    Event event = new Event();
+                    event.setId(UUID.fromString(rs.getString("event_id")));
+                    event.setTitle(rs.getString("event_title"));
+                    event.setDescription(rs.getString("event_description"));
+                    event.setStartDate(rs.getTimestamp("event_start_date").toInstant());
+                    event.setEndDate(rs.getTimestamp("event_end_date").toInstant());
+                    event.setLocation(rs.getString("location"));
+                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+                    session.setEvent(event);
+
+                    Instant start = session.getStartDate();
+                    Instant end = session.getEndDate();
+                    session.setLive(now.isAfter(start) && now.isBefore(end));
+
+                    sessions.add(session);
+                }
+            }
+            return sessions;
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }

@@ -1,9 +1,12 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.*;
+import com.techindna.eventsync.dto.speaker.SpeakerDetailResponseDto;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
+import com.techindna.eventsync.dto.speaker.SpeakerSessionDto;
 import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
 import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.mapper.SpeakerMapper;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
@@ -51,4 +54,15 @@ public class SpeakerService {
                 .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s not found.", id)));
     }
 
+    public SpeakerDetailResponseDto getSpeakerById(String id) {
+        dataValidator.validateUUID(id);
+        UUID uuid = UUID.fromString(id);
+
+        SpeakerResponseDto speaker = speakerRepository.findSpeakerById(uuid)
+                .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s not found.", id)));
+
+        List<SpeakerSessionDto> sessions = speakerRepository.findSessionsBySpeakerId(uuid);
+
+        return SpeakerMapper.toSpeakerDetailResponse(speaker, sessions);
+    }
 }
