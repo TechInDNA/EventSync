@@ -1,4 +1,4 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.rooms;
 
 import com.techindna.eventsync.entity.Room;
 import java.util.List;
