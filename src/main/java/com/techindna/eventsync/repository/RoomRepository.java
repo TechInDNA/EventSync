@@ -31,22 +31,18 @@ public class RoomRepository {
             eventsync_app.rooms(name)
         values(?) on conflict (name)
         do nothing
-        returning id, name
+        returning id as room_id, name as room_name
         """;
 
         Connection conn = DataSourceUtils.getConnection(dataSource);
+
         try (
                 PreparedStatement ps = conn.prepareStatement(query)
         ) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Room room = new Room();
-                    room.setId(UUID.fromString(rs.getString("id")));
-                    room.setName(rs.getString("name"));
-                    return Optional.of(room);
-                }
-                return Optional.empty();
+                return rs.next() ? Optional.of(RoomMapper.mapResultSetToRoom(rs))
+                        : Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
