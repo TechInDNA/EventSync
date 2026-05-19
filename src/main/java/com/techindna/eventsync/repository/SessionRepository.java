@@ -8,6 +8,7 @@ import com.techindna.eventsync.entity.Session;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.mapper.SessionMapper;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -344,8 +345,9 @@ public class SessionRepository {
 
     public Optional<UUID> deleteSessionById(UUID id) {
         final String query = "DELETE FROM eventsync_app.sessions WHERE id = ? RETURNING id";
+
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
             ps.setObject(1, id);
@@ -356,6 +358,8 @@ public class SessionRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
