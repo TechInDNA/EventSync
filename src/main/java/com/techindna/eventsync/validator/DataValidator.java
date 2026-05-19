@@ -101,7 +101,6 @@ public class DataValidator {
     }
 
     public void validateRoomData(RoomRequestDto request){
-        checkNullData("name", request.getName());
         lengthValidation("name", 50, request.getName());
         validateString("name", request.getName());
     }

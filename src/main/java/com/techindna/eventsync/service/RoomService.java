@@ -23,6 +23,7 @@ public class RoomService {
         this.dataValidator = dataValidator;
     }
 
+    @Transactional
     public Room createRoom(RoomRequestDto request) {
         dataValidator.validateRoomData(request);
 
