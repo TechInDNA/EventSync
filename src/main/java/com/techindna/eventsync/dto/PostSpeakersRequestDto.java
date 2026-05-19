@@ -1,5 +1,7 @@
 package com.techindna.eventsync.dto;
 
+import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
+
 import java.util.List;
 
 public class PostSpeakersRequestDto extends SpeakerRequestDto {

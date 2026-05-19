@@ -3,7 +3,7 @@ package com.techindna.eventsync.validator;
 import com.techindna.eventsync.dto.AuthParticipantRequestDto;
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.GetSessionRequestDto;
-import com.techindna.eventsync.dto.SpeakerRequestDto;
+import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
 import com.techindna.eventsync.dto.rooms.RoomRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;

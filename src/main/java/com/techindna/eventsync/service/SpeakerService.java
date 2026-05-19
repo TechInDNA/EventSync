@@ -1,6 +1,8 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.*;
+import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
+import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.DataValidator;
@@ -37,9 +39,10 @@ public class SpeakerService {
     }
 
 
-    public UpdateSpeakerResponseDto updateSpeakerById(UUID id, SpeakerRequestDto request) {
+    public UpdateSpeakerResponseDto updateSpeakerById(String id, SpeakerRequestDto request) {
+        dataValidator.validateUUID(id);
         dataValidator.validateSpeakerData(request);
-        return speakerRepository.updateSpeakerById(id, request);
+        return speakerRepository.updateSpeakerById(UUID.fromString(id), request);
     }
 
     public void deleteSpeaker(String id) {

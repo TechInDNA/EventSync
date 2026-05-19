@@ -1,4 +1,4 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.speaker;
 
 public class SpeakerRequestDto {
     private String firstName;
