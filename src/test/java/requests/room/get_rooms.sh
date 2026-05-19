@@ -58,19 +58,19 @@ echo ""
 echo "--- Test 11: Unknown parameters (should return 400) ---"
 curlie -k -s -w "\nHTTP Status: %{http_code}\n" "https://localhost:443/rooms?page=1&size=10&unknown=param"
 
-# Test 12: Test with POST method (should fail - 403)
+# Test 12: Test with POST method (should fail - 401)
 echo ""
-echo "--- Test 12: POST method (should return 403) ---"
+echo "--- Test 12: POST method (should return 401) ---"
 curlie -k -X POST -H "Content-Type: application/json" -d '{}' -s -w "\nHTTP Status: %{http_code}\n" https://localhost:443/rooms
 
-# Test 13: Test with PUT method (should fail - 403)
+# Test 13: Test with PUT method (should fail - 401)
 echo ""
-echo "--- Test 13: PUT method on collection (should return 403) ---"
+echo "--- Test 13: PUT method on collection (should return 401) ---"
 curlie -k -X PUT -H "Content-Type: application/json" -d '{}' -s -w "\nHTTP Status: %{http_code}\n" https://localhost:443/rooms
 
-# Test 14: Test with DELETE method (should fail - 403)
+# Test 14: Test with DELETE method (should fail - 401)
 echo ""
-echo "--- Test 14: DELETE method on collection (should return 403) ---"
+echo "--- Test 14: DELETE method on collection (should return 401) ---"
 curlie -k -X DELETE -s -w "\nHTTP Status: %{http_code}\n" https://localhost:443/rooms
 
 # Test 15: Test with page=0 (should return 400 or default to 1)
