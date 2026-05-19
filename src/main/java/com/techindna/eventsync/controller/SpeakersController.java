@@ -1,6 +1,7 @@
 package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.*;
+import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
@@ -69,9 +70,9 @@ public class SpeakersController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
         try {
-            dataValidator.validateUUID(id);
+
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(speakerService.updateSpeakerById(UUID.fromString(id), request));
+                    .body(speakerService.updateSpeakerById(id, request));
 
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
