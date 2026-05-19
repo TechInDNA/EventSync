@@ -43,11 +43,9 @@ public class SpeakerService {
     }
 
     public void deleteSpeaker(UUID id) {
-        UUID deleted = speakerRepository.deleteSpeakerById(id);
-
-        if (deleted == null) {
-            throw new NotFoundException(String.format("Speaker ID %s not found.", id));
-        }
+        dataValidator.validateUUID(String.valueOf(id));
+        speakerRepository.deleteSpeakerById(id)
+                .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s not found.", id)));
     }
 
 }
