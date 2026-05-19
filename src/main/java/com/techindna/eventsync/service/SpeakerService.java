@@ -1,6 +1,8 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.*;
+import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
+import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.DataValidator;
@@ -37,17 +39,16 @@ public class SpeakerService {
     }
 
 
-    public UpdateSpeakerResponseDto updateSpeakerById(UUID id, SpeakerRequestDto request) {
+    public UpdateSpeakerResponseDto updateSpeakerById(String id, SpeakerRequestDto request) {
+        dataValidator.validateUUID(id);
         dataValidator.validateSpeakerData(request);
-        return speakerRepository.updateSpeakerById(id, request);
+        return speakerRepository.updateSpeakerById(UUID.fromString(id), request);
     }
 
-    public void deleteSpeaker(UUID id) {
-        UUID deleted = speakerRepository.deleteSpeakerById(id);
-
-        if (deleted == null) {
-            throw new NotFoundException(String.format("Speaker ID %s not found.", id));
-        }
+    public void deleteSpeaker(String id) {
+        dataValidator.validateUUID(String.valueOf(id));
+        speakerRepository.deleteSpeakerById(UUID.fromString(id))
+                .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s not found.", id)));
     }
 
 }

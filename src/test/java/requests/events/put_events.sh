@@ -11,9 +11,9 @@ echo ""
 echo "--- Authenticating to get JWT cookie ---"
 curlie -k -c cookies.txt -H "Content-Type: application/json" -d '{"email": "admin@eventsync.com", "password": "test"}' https://localhost:443/auth/login
 
-# Step 2: Unauthenticated request (no cookie, should return 403)
+# Step 2: Unauthenticated request (no cookie, should return 401)
 echo ""
-echo "--- Test 1: Unauthenticated request (should return 403) ---"
+echo "--- Test 1: Unauthenticated request (should return 401) ---"
 curlie -k -H "Content-Type: application/json" -d '{"title":"UpdatedEvent","description":"UpdatedDesc","startDate":"2026-12-02T10:00:00Z","endDate":"2026-12-02T18:00:00Z","location":"UpdatedLoc"}' https://localhost:443/events/$EVENT_ID
 
 # Step 3: Valid update (should return 200)
@@ -120,6 +120,12 @@ curlie -k -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title"
 echo ""
 echo "--- Test 22: Location exceeding 50 characters (should return 400) ---"
 curlie -k -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"ValidTitle","description":"UpdatedDesc","startDate":"2026-12-21T10:00:00Z","endDate":"2026-12-21T18:00:00Z","location":"ThisIsAVeryLongLocationNameThatExceedsFiftyCharactersTest"}' https://localhost:443/events/$EVENT_ID
+
+# Step 24: Update event with sessions (should return 200 with sessions array in response)
+EVENT_WITH_SESSIONS_ID="e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b"
+echo ""
+echo "--- Test 23: Update event with attached sessions (should return 200 with sessions in response) ---"
+curlie -k -X PUT -b cookies.txt -H "Content-Type: application/json" -d '{"title":"Updated Event with Sessions","description":"Updated description","startDate":"2026-11-11T09:00:00Z","endDate":"2026-11-11T18:00:00Z","location":"Updated Session Hall"}' https://localhost:443/events/$EVENT_WITH_SESSIONS_ID
 
 # Cleanup
 rm -f cookies.txt

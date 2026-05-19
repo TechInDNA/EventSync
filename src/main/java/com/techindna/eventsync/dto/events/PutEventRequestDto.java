@@ -1,20 +1,11 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.events;
 
-public class EventRequestDto {
-    private String id;
+public class PutEventRequestDto {
     private String title;
     private String description;
     private String startDate;
     private String endDate;
     private String location;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getTitle() {
         return title;

@@ -1,5 +1,6 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.events;
 
+import com.techindna.eventsync.dto.Meta;
 import com.techindna.eventsync.entity.Event;
 
 import java.util.List;

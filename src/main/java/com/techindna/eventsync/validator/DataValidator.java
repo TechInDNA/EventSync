@@ -4,10 +4,13 @@ import com.techindna.eventsync.dto.AuthParticipantRequestDto;
 import com.techindna.eventsync.dto.CreateQuestionRequestDto;
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.GetSessionRequestDto;
-import com.techindna.eventsync.dto.SpeakerRequestDto;
+import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
+import com.techindna.eventsync.dto.rooms.RoomRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -67,6 +70,12 @@ public class DataValidator {
             throw new BadRequestException(String.format("Invalid Date format or %s field contain forbidden characters.", fieldName));
         }
 
+        try{
+            Instant.parse(date);
+        } catch (DateTimeParseException e){
+            throw new BadRequestException("Invalid date.");
+        }
+
     }
 
     public void  validateEventData(String title, String description, String startDate, String endDate, String location){
@@ -92,10 +101,9 @@ public class DataValidator {
         }
     }
 
-    public void validateRoomData(String name){
-        checkNullData("name", name);
-        lengthValidation("name", 50, name);
-        validateString("name", name);
+    public void validateRoomData(RoomRequestDto request){
+        lengthValidation("name", 50, request.getName());
+        validateString("name", request.getName());
     }
 
     public void validateSessionData(String title, String description, String startDate, String endDate, String roomName, String eventTitle, String capacity) {

@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -1238.8119626996554,
-                  "y": -1571.1239927402228,
-                  "zoom": -0.2984835461676844
+                  "x": -994.2535205464777,
+                  "y": -1441.9754571394394,
+                  "zoom": -1.0174580888848233
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -81,7 +81,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
     "id": "6f4d6d5bfe41f054",
@@ -186,19 +187,19 @@
       "bases:Create new base": false
     }
   },
-  "active": "fae3d54826eb5dba",
+  "active": "73a6c18bdf4f9108",
   "lastOpenFiles": [
-    "src/test/java/requests/sessions/cookies.txt",
-    "target/classes/com/techindna/eventsync/service/AuthService.class",
-    "target/classes/com/techindna/eventsync/dto/GetSessionListResponseDto.class",
-    "target/classes/com/techindna/eventsync/entity/Session.class",
-    "target/classes/com/techindna/eventsync/controller/SessionController.class",
-    "target/classes/com/techindna/eventsync/service/SessionService.class",
-    "target/classes/com/techindna/eventsync/dto/SessionRequestDto.class",
-    "target/classes/com/techindna/eventsync/config/SecurityConfig.class",
-    "target/classes/com/techindna/eventsync/dto/UpdateSpeakerResponseDto.class",
-    "target/classes/com/techindna/eventsync/repository/SpeakerRepository.class",
-    "target/classes/com/techindna/eventsync/dto/SpeakerRequestDto.class",
+    "target_old/classes/com/techindna/eventsync/entity/enums/Role.class",
+    "target_old/classes/com/techindna/eventsync/dto/rooms/RoomRequestDto.class",
+    "target_old/classes/com/techindna/eventsync/dto/events/PutEventRequestDto.class",
+    "target_old/classes/com/techindna/eventsync/dto/events/GetEventListResponseDto.class",
+    "target_old/classes/com/techindna/eventsync/dto/events/EventSessionResponseDto.class",
+    "target_old/classes/com/techindna/eventsync/dto/events/EventResponseDto.class",
+    "target_old/classes/com/techindna/eventsync/dto/events/EventRequestDto.class",
+    "target_old/classes/com/techindna/eventsync/validator/DataValidator.class",
+    "target_old/classes/com/techindna/eventsync/service/SpeakerService.class",
+    "target_old/classes/com/techindna/eventsync/service/SessionService.class",
+    "target_old/classes/com/techindna/eventsync/service/RoomService.class",
     "src/main/docs/test/Bienvenue.md",
     "src/eventsync/Bienvenue.md"
   ]

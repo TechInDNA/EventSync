@@ -96,12 +96,11 @@ public class SessionController {
         }
     }
 
-    @DeleteMapping({"/{id}", "/"})
+    @DeleteMapping({"/{id}"})
     public ResponseEntity<?> deleteSession(@PathVariable String id) {
         try {
             sessionService.deleteSessionById(id);
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(String.format("Session %s deleted.", id));
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

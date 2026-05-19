@@ -1,4 +1,4 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.speaker;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 

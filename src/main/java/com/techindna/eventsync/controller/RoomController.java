@@ -1,41 +1,28 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.GetRoomListResponseDto;
-import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.dto.RoomRequestDto;
-import com.techindna.eventsync.entity.Room;
+import com.techindna.eventsync.dto.rooms.RoomRequestDto;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.service.RoomService;
-import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/rooms")
 public class RoomController {
 
     private final RoomService roomService;
-    private final DataValidator dataValidator;
 
-    public RoomController(RoomService roomService, DataValidator dataValidator) {
-
+    public RoomController(RoomService roomService) {
         this.roomService = roomService;
-        this.dataValidator = dataValidator;
     }
 
 
     @PostMapping
     public ResponseEntity<?> createRoom(@RequestBody RoomRequestDto request) {
         try {
-            dataValidator.validateRoomData(request.getName());
-
-            Room newRoom = roomService.createRoom(request.getName());
-            return ResponseEntity.status(HttpStatus.CREATED).body(newRoom);
-
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(roomService.createRoom(request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -51,19 +38,11 @@ public class RoomController {
     @GetMapping
     public ResponseEntity<?> getAllRooms(
             @RequestParam(required = false, defaultValue = "1") String page,
-            @RequestParam(required = false, defaultValue = "5") String size) {
+            @RequestParam(required = false, defaultValue = "10") String size) {
         try {
 
-            dataValidator.validatePageAndSize(page, size);
-            int pageVal = Integer.parseInt(page);
-            int sizeVal = Integer.parseInt(size);
-
-            PaginationRequestDto pagination = new PaginationRequestDto(pageVal, sizeVal);
-            List<Room> rooms = roomService.getAllRooms(pagination);
-            int total = roomService.countRooms();
-
-            GetRoomListResponseDto response = new GetRoomListResponseDto(rooms, total, pageVal, sizeVal);
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(roomService.getAllRooms(page, size));
 
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -77,12 +56,8 @@ public class RoomController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateRoom(@PathVariable String id, @RequestBody RoomRequestDto request) {
         try {
-            dataValidator.validateUUID(id);
-            dataValidator.validateRoomData(request.getName());
-
-            Room updatedRoom = roomService.updateRoom(UUID.fromString(id), request.getName());
-            return ResponseEntity.status(HttpStatus.OK).body(updatedRoom);
-
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(roomService.updateRoomById(id, request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -91,9 +66,6 @@ public class RoomController {
                     .body(e.getMessage());
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(e.getMessage());
-        } catch (UnauthorizedException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.internalServerError()
@@ -104,11 +76,9 @@ public class RoomController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteRoomById(@PathVariable String id) {
         try {
-            dataValidator.validateUUID(id);
-            roomService.deleteRoomById(UUID.fromString(id));
 
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(String.format("Room %s deleted", id));
+            roomService.deleteRoomById(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

@@ -11,9 +11,9 @@ echo ""
 echo "--- Authenticating to get JWT cookie ---"
 curlie -k -c cookies.txt -H "Content-Type: application/json" -d '{"email": "admin@eventsync.com", "password": "test"}' https://localhost:443/auth/login
 
-# Step 2: Unauthenticated request (no cookie, should return 403)
+# Step 2: Unauthenticated request (no cookie, should return 401)
 echo ""
-echo "--- Test 1: Unauthenticated request (should return 403) ---"
+echo "--- Test 1: Unauthenticated request (should return 401) ---"
 curlie -k -X PUT -H "Content-Type: application/json" -d '{"name":"Updated Room"}' https://localhost:443/rooms/$ROOM_ID
 
 # Step 3: Valid update (should return 200)

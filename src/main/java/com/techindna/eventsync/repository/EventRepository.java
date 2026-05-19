@@ -1,17 +1,17 @@
 package com.techindna.eventsync.repository;
 
+import com.techindna.eventsync.dto.events.EventRequestDto;
+import com.techindna.eventsync.dto.events.EventResponseDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.InternalServerErrorException;
-import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.mapper.EventMapper;
+import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,84 +19,27 @@ import java.util.UUID;
 
 @Repository
 public class EventRepository {
-    private final DataSource dataSource;
-    public EventRepository(DataSource dataSource){
-        this.dataSource = dataSource;
-    }
-
-
-    public Optional<Event> findEventByIdById(UUID id){
-        final String query =
-                """
-                select
-                id,
-                title,
-                description,
-                start_date,
-                end_date,
-                location,
-                created_at
-                from eventsync_app.events
-                where id = ?
-                """;
-
-        try(
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query);
-                ){
-            ps.setObject(1, id);
-            try (ResultSet rs = ps.executeQuery()){
-                if (rs.next()){
-                    Event event = new Event();
-                    event.setId(UUID.fromString(rs.getString("id")));
-                    event.setTitle(rs.getString("title"));
-                    event.setDescription(rs.getString("description"));
-                    event.setStartDate(rs.getTimestamp("start_date").toInstant());
-                    event.setEndDate(rs.getTimestamp("end_date").toInstant());
-                    event.setLocation(rs.getString("location"));
-                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
-                    return Optional.of(event);
-                }
-                return Optional.empty();
-            }
-
-        } catch (SQLException e){
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        }
-    }
-
-
-    public Event saveEvent(String title, String description, Instant startDate, Instant endDate, String location){
+    public Optional<EventResponseDto> saveEvent(EventRequestDto request, Connection connection){
         final String query =
                 """
                     insert into
                         eventsync_app.events(title, description, start_date, end_date, location)
                     values(?, ?, ?, ?, ?)
                     on conflict (title) do nothing
-                    returning id, created_at
+                    returning id, title, description, start_date, end_date, location, created_at
                 """;
         try(
-                Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ){
-            ps.setString(1, title);
-            ps.setString(2, description);
-            ps.setTimestamp(3, Timestamp.from(startDate));
-            ps.setTimestamp(4, Timestamp.from(endDate));
-            ps.setString(5, location);
-            try (ResultSet rs = ps.executeQuery()) {
-                Event event = new Event();
-                event.setTitle(title);
-                event.setDescription(description);
-                event.setStartDate(startDate);
-                event.setEndDate(endDate);
-                event.setLocation(location);
+            EventMapper.mapRequestDtoToStatement(request, ps);
 
-                while (rs.next()) {
-                    event.setId(UUID.fromString(rs.getString("id")));
-                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    EventResponseDto response = new EventResponseDto();
+                    response.setSessions(null);
+                    return Optional.of(EventMapper.mapResultSetToResponseDto(rs, response));
                 }
-                return event;
+                return Optional.empty();
             }
         }
         catch (SQLException e){
@@ -104,8 +47,36 @@ public class EventRepository {
         }
     }
 
-    public List<Event> getAllEvents(int offset, int limit) {
-        final String query =
+    public List<Event> getAllEvents(int offset, int limit, String title, String location, Connection connection) {
+        final StringBuilder queryBuilder = getAllEventsQueryBuilder(title, location);
+
+        try (
+                PreparedStatement ps = connection.prepareStatement(queryBuilder.toString())
+        ) {
+            int paramIndex = 1;
+            if (title != null && !title.isBlank()) {
+                ps.setString(paramIndex++, "%" + title + "%");
+            }
+            if (location != null && !location.isBlank()) {
+                ps.setString(paramIndex++, "%" + location + "%");
+            }
+            ps.setInt(paramIndex++, limit);
+            ps.setInt(paramIndex, offset);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Event> events = new ArrayList<>();
+                while (rs.next()) {
+                    events.add(EventMapper.mapResultSetToEvent(rs));
+                }
+                return events;
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    private static @NonNull StringBuilder getAllEventsQueryBuilder(String title, String location) {
+        final StringBuilder queryBuilder = new StringBuilder(
             """
             select
                 id,
@@ -116,36 +87,22 @@ public class EventRepository {
                 location,
                 created_at
             from eventsync_app.events
-            order by created_at desc
-            limit ? offset ?
-            """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            ps.setInt(1, limit);
-            ps.setInt(2, offset);
-            try (ResultSet rs = ps.executeQuery()) {
-                List<Event> events = new ArrayList<>();
-                while (rs.next()) {
-                    Event event = new Event();
-                    event.setId(UUID.fromString(rs.getString("id")));
-                    event.setTitle(rs.getString("title"));
-                    event.setDescription(rs.getString("description"));
-                    event.setStartDate(rs.getTimestamp("start_date").toInstant());
-                    event.setEndDate(rs.getTimestamp("end_date").toInstant());
-                    event.setLocation(rs.getString("location"));
-                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
-                    events.add(event);
-                }
-                return events;
-            }
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
+            where 1=1
+            """
+        );
+
+        if (title != null && !title.isBlank()) {
+            queryBuilder.append(" and title ilike ?");
         }
+        if (location != null && !location.isBlank()) {
+            queryBuilder.append(" and location ilike ?");
+        }
+
+        queryBuilder.append(" order by created_at desc limit ? offset ?");
+        return queryBuilder;
     }
 
-    public Optional<Event> findEventByTitle(String title) {
+    public Optional<Event> findEventByTitle(Connection connection, String title) {
         final String query =
             """
             select
@@ -159,21 +116,11 @@ public class EventRepository {
             from eventsync_app.events
             where title = ?
             """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, title);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Event event = new Event();
-                    event.setId(UUID.fromString(rs.getString("id")));
-                    event.setTitle(rs.getString("title"));
-                    event.setDescription(rs.getString("description"));
-                    event.setStartDate(rs.getTimestamp("start_date").toInstant());
-                    event.setEndDate(rs.getTimestamp("end_date").toInstant());
-                    event.setLocation(rs.getString("location"));
-                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+                    Event event = EventMapper.mapResultSetToEvent(rs);
                     return Optional.of(event);
                 }
                 return Optional.empty();
@@ -183,7 +130,7 @@ public class EventRepository {
         }
     }
 
-    public Event updateEvent(UUID id, String title, String description, Instant startDate, Instant endDate, String location) {
+    public Optional<EventResponseDto> updateEvent(Connection connection, EventRequestDto request) {
         final String query =
             """
             update eventsync_app.events
@@ -192,72 +139,96 @@ public class EventRepository {
                 description = ?,
                 start_date = ?,
                 end_date = ?,
-                location = ?,
-                created_at = now()
+                location = ?
             where id = ?
-            returning id, created_at
+            returning id, title, description, start_date, end_date, location, created_at
             """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            ps.setString(1, title);
-            ps.setString(2, description);
-            ps.setTimestamp(3, Timestamp.from(startDate));
-            ps.setTimestamp(4, Timestamp.from(endDate));
-            ps.setString(5, location);
-            ps.setObject(6, id);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            EventMapper.mapRequestDtoToStatement(request, ps);
+            ps.setObject(6, UUID.fromString(request.getId()));
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Event event = new Event();
-                    event.setId(id);
-                    event.setTitle(title);
-                    event.setDescription(description);
-                    event.setStartDate(startDate);
-                    event.setEndDate(endDate);
-                    event.setLocation(location);
-                    event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
-                    return event;
+                    EventResponseDto response = new EventResponseDto();
+                    return Optional.of(EventMapper.mapResultSetToResponseDto(rs, response));
                 }
-                throw new NotFoundException(String.format("Event %s not found.", id));
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
-    public int countEvents() {
-        String query = """
+    public int countEvents(String title, String location, Connection connection) {
+        StringBuilder queryBuilder = new StringBuilder(
+            """
             select count(id) as total
             from eventsync_app.events
-            """;
+            where 1=1
+            """
+        );
+
+        if (title != null && !title.isBlank()) {
+            queryBuilder.append(" and title ilike ?");
+        }
+        if (location != null && !location.isBlank()) {
+            queryBuilder.append(" and location ilike ?");
+        }
+
         try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
+                PreparedStatement ps = connection.prepareStatement(queryBuilder.toString())
         ) {
+            int paramIndex = 1;
+            if (title != null && !title.isBlank()) {
+                ps.setString(paramIndex++, "%" + title + "%");
+            }
+            if (location != null && !location.isBlank()) {
+                ps.setString(paramIndex, "%" + location + "%");
+            }
+
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("total");
-                }
-                return 0;
+                return rs.next() ? rs.getInt("total") : 0;
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
 
-    public UUID deleteEventById(UUID id) {
+    public Optional<Event> findEventById(UUID id, Connection connection) {
+        final String query =
+            """
+            select
+                id,
+                title,
+                description,
+                start_date,
+                end_date,
+                location,
+                created_at
+            from eventsync_app.events
+            where id = ?
+            """;
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(EventMapper.mapResultSetToEvent(rs))
+                        : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public Optional<UUID> deleteEventById(UUID id, Connection connection) {
         final String query = "delete from eventsync_app.events where id = ? returning id";
         try (
-                Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
             ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return UUID.fromString(rs.getString("id"));
+                    return Optional.of(UUID.fromString(rs.getString("id")));
                 }
-                throw new NotFoundException(String.format("Event %s not found.", id));
+                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());

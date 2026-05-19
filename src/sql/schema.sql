@@ -1,72 +1,85 @@
-create type eventsync_app."role" as enum ('admin', 'speaker', 'participant');
+DO $$ BEGIN
+    CREATE TYPE eventsync_app."role" AS ENUM ('admin', 'speaker', 'participant');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
-create table eventsync_app.users(
-    id uuid default gen_random_uuid() primary key,
-    first_name varchar(50) not null,
-    last_name varchar(50) not null,
-    email varchar(50) unique not null,
+CREATE TABLE IF NOT EXISTS eventsync_app.users(
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    first_name varchar(50) NOT NULL,
+    last_name varchar(50) NOT NULL,
+    email varchar(50) UNIQUE NOT NULL,
     password varchar(100),
     bio text,
-    created_at timestamp default now(),
+    created_at timestamp DEFAULT now(),
     profile_picture varchar(255),
-    "role" eventsync_app."role" not null
+    "role" eventsync_app."role" NOT NULL
 );
 
-create table eventsync_app.events(
-    id uuid default gen_random_uuid() primary key,
-    title varchar(50) unique not null,
-    description text not null,
-    start_date timestamp not null,
-    end_date timestamp not null,
-    location varchar(50) not null,
-    created_at timestamp default now() not null
+CREATE TABLE IF NOT EXISTS eventsync_app.events(
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    title varchar(50) UNIQUE NOT NULL,
+    description text NOT NULL,
+    start_date timestamp NOT NULL,
+    end_date timestamp NOT NULL,
+    location varchar(50) NOT NULL,
+    created_at timestamp DEFAULT now() NOT NULL
 );
 
-create table eventsync_app.external_link(
-    id uuid default gen_random_uuid() primary key,
+CREATE TABLE IF NOT EXISTS eventsync_app.external_link(
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     name varchar(50),
-    url varchar(50) unique,
-    user_id uuid references eventsync_app.users(id) on delete cascade
+    url varchar(50) UNIQUE,
+    user_id uuid REFERENCES eventsync_app.users(id) ON DELETE CASCADE
 );
 
-create table eventsync_app.rooms(
-    id uuid default gen_random_uuid() primary key,
-    name varchar(50) unique not null
+CREATE TABLE IF NOT EXISTS eventsync_app.rooms(
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    name varchar(50) UNIQUE NOT NULL
 );
 
-create table eventsync_app.sessions(
-    id uuid default gen_random_uuid() primary key,
-    title varchar(50) unique not null,
-    description text not null,
-    start_date timestamp not null,
-    end_date timestamp not null,
-    room_id uuid references eventsync_app.rooms(id) on delete set null,
-    capacity int not null default 0,
-    event_id uuid references eventsync_app.events(id) on delete set null
+CREATE TABLE IF NOT EXISTS eventsync_app.sessions(
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    title varchar(50) UNIQUE NOT NULL,
+    description text NOT NULL,
+    start_date timestamp NOT NULL,
+    end_date timestamp NOT NULL,
+    room_id uuid REFERENCES eventsync_app.rooms(id) ON DELETE SET NULL,
+    capacity int NOT NULL DEFAULT 0,
+    event_id uuid NOT NULL REFERENCES eventsync_app.events(id) ON DELETE CASCADE
 );
 
-create table eventsync_app.intervene(
-    id uuid default gen_random_uuid() primary key,
-    speaker_id uuid not null references eventsync_app.users(id) on delete cascade,
-    session_id uuid not null references eventsync_app.sessions(id) on delete cascade,
-    start_time timetz not null,
-    end_time timetz not null
+CREATE TABLE IF NOT EXISTS eventsync_app.intervene(
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    speaker_id uuid NOT NULL REFERENCES eventsync_app.users(id) ON DELETE CASCADE,
+    session_id uuid NOT NULL REFERENCES eventsync_app.sessions(id) ON DELETE CASCADE,
+    start_time timetz NOT NULL,
+    end_time timetz NOT NULL
 );
 
-create table eventsync_app.question(
-    id uuid default gen_random_uuid() primary key,
-    title varchar not null,
-    content text not null,
-    created_at timestamp default now(),
-    session_id uuid not null references eventsync_app.sessions(id) on delete cascade,
-    user_id uuid not null references eventsync_app.users(id) on delete cascade,
-    anonymous boolean default false
+CREATE TABLE IF NOT EXISTS eventsync_app.question(
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    title varchar NOT NULL,
+    content text NOT NULL,
+    created_at timestamp DEFAULT now(),
+    session_id uuid NOT NULL REFERENCES eventsync_app.sessions(id) ON DELETE CASCADE,
+    user_id uuid NOT NULL REFERENCES eventsync_app.users(id) ON DELETE SET NULL,
+    anonymous boolean DEFAULT false
 );
 
-create table eventsync_app.upvote(
-    id uuid default gen_random_uuid() primary key,
-    user_id uuid not null references eventsync_app.users(id) on delete cascade,
-    question_id uuid not null references eventsync_app.question(id) on delete cascade,
-    created_at timestamp default now()
+CREATE TABLE IF NOT EXISTS eventsync_app.upvote(
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id uuid NOT NULL REFERENCES eventsync_app.users(id) ON DELETE SET NULL,
+    question_id uuid NOT NULL REFERENCES eventsync_app.question(id) ON DELETE CASCADE,
+    created_at timestamp DEFAULT now()
 );
+
+CREATE INDEX IF NOT EXISTS idx_intervene_session_id ON
+    eventsync_app.intervene(session_id);
+
+CREATE INDEX IF NOT EXISTS idx_question_session_id ON
+    eventsync_app.question(session_id);
+
+CREATE INDEX IF NOT EXISTS idx_intervene_speaker_id ON
+    eventsync_app.intervene(speaker_id);
 

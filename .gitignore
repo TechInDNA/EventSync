@@ -38,4 +38,5 @@ build/
 ### Local config ###
 src/main/resources/application.properties
 .env
-*.p12
+eventsync.p12
+target_old/

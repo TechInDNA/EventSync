@@ -6,6 +6,7 @@ import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SessionRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
