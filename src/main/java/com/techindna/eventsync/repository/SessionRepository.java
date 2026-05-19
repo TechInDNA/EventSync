@@ -346,20 +346,16 @@ public class SessionRepository {
     public Optional<UUID> deleteSessionById(UUID id) {
         final String query = "DELETE FROM eventsync_app.sessions WHERE id = ? RETURNING id";
 
-        Connection connection = DataSourceUtils.getConnection(dataSource);
         try (
+                Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(query)
         ) {
             ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ?
-                        Optional.of(UUID.fromString(rs.getString("id"))) :
-                        Optional.empty();
+                return rs.next() ? Optional.of(id) : Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
-        } finally {
-            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 

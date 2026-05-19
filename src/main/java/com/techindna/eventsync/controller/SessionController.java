@@ -96,7 +96,7 @@ public class SessionController {
         }
     }
 
-    @DeleteMapping({"/{id}", "/"})
+    @DeleteMapping({"/{id}"})
     public ResponseEntity<?> deleteSession(@PathVariable String id) {
         try {
             sessionService.deleteSessionById(id);
