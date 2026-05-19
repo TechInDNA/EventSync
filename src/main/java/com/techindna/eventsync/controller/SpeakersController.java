@@ -89,13 +89,11 @@ public class SpeakersController {
         }
     }
 
-    @DeleteMapping(value = {"/{id}", "/"})
-    public ResponseEntity<?> deleteSpeaker(@PathVariable(required = false) String id) {
+    @DeleteMapping(value = {"/{id}"})
+    public ResponseEntity<?> deleteSpeaker(@PathVariable String id) {
         try {
-            dataValidator.validateUUID(id);
-            speakerService.deleteSpeaker(UUID.fromString(id));
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body("Speaker " + id + " deleted.");
+            speakerService.deleteSpeaker(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());

@@ -266,16 +266,12 @@ public class SpeakerRepository {
         }
     }
 
-    public UUID deleteSpeakerById(UUID id) {
-        final String query =
-                            """
-                            DELETE
-                            FROM
-                                eventsync_app.users
-                            WHERE id = ?
-                              AND
-                                "role" = 'speaker'
-                            RETURNING id
+    public Optional<UUID> deleteSpeakerById(UUID id) {
+        final String query = """
+                                DELETE FROM
+                                           eventsync_app.users
+                                WHERE id = ? AND "role" = 'speaker'
+                                RETURNING id
                             """;
 
         try (
@@ -284,7 +280,7 @@ public class SpeakerRepository {
         ) {
                 ps.setObject(1, id);
                 try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() ? UUID.fromString(rs.getString("id")) : null;
+                    return rs.next() ? Optional.of(UUID.fromString(rs.getString("id"))) : Optional.empty();
                 }
 
         } catch (SQLException e) {
