@@ -63,13 +63,13 @@ CREATE TABLE IF NOT EXISTS eventsync_app.question(
     content text NOT NULL,
     created_at timestamp DEFAULT now(),
     session_id uuid NOT NULL REFERENCES eventsync_app.sessions(id) ON DELETE CASCADE,
-    user_id uuid NOT NULL REFERENCES eventsync_app.users(id) ON DELETE CASCADE,
+    user_id uuid NOT NULL REFERENCES eventsync_app.users(id) ON DELETE SET NULL,
     anonymous boolean DEFAULT false
 );
 
 CREATE TABLE IF NOT EXISTS eventsync_app.upvote(
     id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id uuid NOT NULL REFERENCES eventsync_app.users(id) ON DELETE CASCADE,
+    user_id uuid NOT NULL REFERENCES eventsync_app.users(id) ON DELETE SET NULL,
     question_id uuid NOT NULL REFERENCES eventsync_app.question(id) ON DELETE CASCADE,
     created_at timestamp DEFAULT now()
 );
@@ -79,4 +79,7 @@ CREATE INDEX IF NOT EXISTS idx_intervene_session_id ON
 
 CREATE INDEX IF NOT EXISTS idx_question_session_id ON
     eventsync_app.question(session_id);
+
+CREATE INDEX IF NOT EXISTS idx_intervene_speaker_id ON
+    eventsync_app.intervene(speaker_id);
 

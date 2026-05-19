@@ -92,7 +92,7 @@ public class SpeakersController {
     @DeleteMapping(value = {"/{id}"})
     public ResponseEntity<?> deleteSpeaker(@PathVariable String id) {
         try {
-            speakerService.deleteSpeaker(UUID.fromString(id));
+            speakerService.deleteSpeaker(id);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

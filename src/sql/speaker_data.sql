@@ -1,13 +1,15 @@
--- Test speaker for PUT /speaker/{id} and DELETE PUT /speaker/{id} endpoint (use this ID to test update)
+-- Test speaker for PUT /speaker/{id} and DELETE /speaker/{id} endpoint (use this ID to test update)
 insert into eventsync_app.users (id, first_name, last_name, email, bio, profile_picture, "role")
 values
-    ('27dfb67f-b1c5-4f71-b0b2-2190674eefa8', 'Test', 'Speaker', 'test.speaker@eventsync.com', 'Test speaker bio for PUT endpoint testing.', 'https://i.pravatar.cc/150?img=20', 'speaker');
+    ('27dfb67f-b1c5-4f71-b0b2-2190674eefa8', 'Test', 'Speaker', 'test.speaker@eventsync.com', 'Test speaker bio for PUT endpoint testing.', 'https://i.pravatar.cc/150?img=20', 'speaker')
+on conflict (id) do nothing;
 
 -- External links for test speaker (PUT /speaker/{id} and DELETE /speaker/{id} endpoint testing)
 insert into eventsync_app.external_link (name, url, user_id)
 values
     ('Personal Website', 'https://testspeaker.dev', '27dfb67f-b1c5-4f71-b0b2-2190674eefa8'),
-    ('GitHub', 'https://github.com/testspeaker', '27dfb67f-b1c5-4f71-b0b2-2190674eefa8');
+    ('GitHub', 'https://github.com/testspeaker', '27dfb67f-b1c5-4f71-b0b2-2190674eefa8')
+on conflict (url) do nothing;
 
 
 -- Speakers for testing GET /speakers endpoint
@@ -27,7 +29,8 @@ values
     ('d9e0f1a2-b3c4-4d5e-6f7a-8b9c0d1e2f3a', 'Jack', 'Thomas', 'jack.speaker@eventsync.com', 'IoT specialist building smart devices and connected systems.', 'https://i.pravatar.cc/150?img=12', 'speaker'),
     ('e0f1a2b3-c4d5-4e6f-7a8b-9c0d1e2f3a4b', 'Karen', 'Jackson', 'karen.speaker@eventsync.com', 'Technical writer creating clear documentation for complex software products.', 'https://i.pravatar.cc/150?img=13', 'speaker'),
     ('f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c', 'Leo', 'White', 'leo.speaker@eventsync.com', 'Game developer with experience in Unity and Unreal Engine.', 'https://i.pravatar.cc/150?img=14', 'speaker'),
-    ('a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d', 'Mia', 'Harris', 'mia.speaker@eventsync.com', 'AI researcher exploring natural language processing and computer vision.', 'https://i.pravatar.cc/150?img=15', 'speaker');
+    ('a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d', 'Mia', 'Harris', 'mia.speaker@eventsync.com', 'AI researcher exploring natural language processing and computer vision.', 'https://i.pravatar.cc/150?img=15', 'speaker')
+on conflict (id) do nothing;
 
 -- External links for testing GET /speakers endpoint
 insert into eventsync_app.external_link (name, url, user_id)
@@ -59,4 +62,5 @@ values
     ('GitHub', 'https://github.com/leowhite', 'f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c'),
     ('Website', 'https://leowhite.games', 'f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c'),
     ('LinkedIn', 'https://linkedin.com/in/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d'),
-    ('Research Gate', 'https://researchgate.net/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d');
+    ('Research Gate', 'https://researchgate.net/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d')
+on conflict (url) do nothing;
