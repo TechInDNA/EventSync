@@ -1,29 +1,21 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.rooms.GetRoomListResponseDto;
-import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.rooms.RoomRequestDto;
-import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.service.RoomService;
-import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/rooms")
 public class RoomController {
 
     private final RoomService roomService;
-    private final DataValidator dataValidator;
 
-    public RoomController(RoomService roomService, DataValidator dataValidator) {
+    public RoomController(RoomService roomService) {
 
         this.roomService = roomService;
-        this.dataValidator = dataValidator;
     }
 
 
