@@ -74,3 +74,9 @@ CREATE TABLE IF NOT EXISTS eventsync_app.upvote(
     created_at timestamp DEFAULT now()
 );
 
+CREATE INDEX IF NOT EXISTS idx_intervene_session_id ON
+    eventsync_app.intervene(session_id);
+
+CREATE INDEX IF NOT EXISTS idx_question_session_id ON
+    eventsync_app.question(session_id);
+
