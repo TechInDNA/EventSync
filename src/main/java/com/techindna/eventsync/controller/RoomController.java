@@ -1,30 +1,20 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.GetRoomListResponseDto;
-import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.rooms.RoomRequestDto;
-import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.service.RoomService;
-import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/rooms")
 public class RoomController {
 
     private final RoomService roomService;
-    private final DataValidator dataValidator;
 
-    public RoomController(RoomService roomService, DataValidator dataValidator) {
-
+    public RoomController(RoomService roomService) {
         this.roomService = roomService;
-        this.dataValidator = dataValidator;
     }
 
 
@@ -48,19 +38,11 @@ public class RoomController {
     @GetMapping
     public ResponseEntity<?> getAllRooms(
             @RequestParam(required = false, defaultValue = "1") String page,
-            @RequestParam(required = false, defaultValue = "5") String size) {
+            @RequestParam(required = false, defaultValue = "10") String size) {
         try {
 
-            dataValidator.validatePageAndSize(page, size);
-            int pageVal = Integer.parseInt(page);
-            int sizeVal = Integer.parseInt(size);
-
-            PaginationRequestDto pagination = new PaginationRequestDto(pageVal, sizeVal);
-            List<Room> rooms = roomService.getAllRooms(pagination);
-            int total = roomService.countRooms();
-
-            GetRoomListResponseDto response = new GetRoomListResponseDto(rooms, total, pageVal, sizeVal);
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(roomService.getAllRooms(page, size));
 
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

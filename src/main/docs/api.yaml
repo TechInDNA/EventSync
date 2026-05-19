@@ -600,7 +600,7 @@ paths:
           in: query
           schema:
             type: integer
-            default: 20
+            default: 10
           description: Number of items per page
       responses:
         '200':
@@ -609,6 +609,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RoomList'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
     post:
       summary: Create a new room
       tags:

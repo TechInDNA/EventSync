@@ -84,5 +84,34 @@ values
     ('c3d4e5f6-a7b8-4c9d-0e1f-2a3b4c5d6e7f', '0a635d21-c174-4525-9031-19848bed99a4', '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a', '13:00:00+02', '15:00:00+02'),
     ('d4e5f6a7-b8c9-4d0e-1f2a-3b4c5d6e7f8a', 'b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e', '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b', '14:00:00+02', '16:00:00+02'),
     ('e5f6a7b8-c9d0-4e1f-2a3b-4c5d6e7f8a9b', 'd3e4f5a6-b7c8-4d9e-0f1a-2b3c4d5e6f7a', '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d', '10:00:00+02', '12:00:00+02'),
-    ('f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c', '10:00:00+02', '11:30:00+02')
+    ('f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0c', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c', '10:00:00+02', '11:30:00+02');
+
+-- Room for testing DELETE session with cascade (intervene + question)
+insert into eventsync_app.rooms (id, name)
+values
+    ('e9f8a7b6-c5d4-4321-9876-543210fedcba', 'Cascade Delete Room')
+on conflict (id) do nothing;
+
+-- Event for testing DELETE session with cascade
+insert into eventsync_app.events (id, title, description, start_date, end_date, location)
+values
+    ('f1e2d3c4-b5a6-4789-0123-456789abcdef', 'Cascade Delete Event', 'Event for testing DELETE session with cascade', '2026-12-05 09:00:00', '2026-12-05 18:00:00', 'Cascade Test Location')
+on conflict (id) do nothing;
+
+-- Session with related intervene and question records for cascade delete testing
+insert into eventsync_app.sessions (id, title, description, start_date, end_date, room_id, capacity, event_id)
+values
+    ('4d70c642-744e-41bf-9140-fae49af31269', 'Cascade Delete Session', 'Session for testing cascade delete with intervene and question', '2026-12-05 10:00:00', '2026-12-05 12:00:00', 'e9f8a7b6-c5d4-4321-9876-543210fedcba', 75, 'f1e2d3c4-b5a6-4789-0123-456789abcdef')
+on conflict (id) do nothing;
+
+-- Intervene record linked to the cascade delete session
+insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
+values
+    ('aa11bb22-cc33-44dd-55ee-66ff77889900', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', '4d70c642-744e-41bf-9140-fae49af31269', '10:00:00+02', '11:00:00+02')
+on conflict (id) do nothing;
+
+-- Question record linked to the cascade delete session
+insert into eventsync_app.question (id, title, content, created_at, session_id, user_id, anonymous)
+values
+    ('bb22cc33-dd44-55ee-66ff-778899001122', 'Cascade test question', 'Will this session be deleted along with its related records?', '2026-12-05 10:05:00', '4d70c642-744e-41bf-9140-fae49af31269', '43005ca0-37f7-4942-86ac-695a29a6a3b1', false)
 on conflict (id) do nothing;

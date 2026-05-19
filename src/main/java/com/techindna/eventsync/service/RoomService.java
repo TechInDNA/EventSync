@@ -1,6 +1,7 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.PaginationRequestDto;
+import com.techindna.eventsync.dto.rooms.GetRoomListResponseDto;
 import com.techindna.eventsync.dto.rooms.RoomRequestDto;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.ConflictException;
@@ -23,6 +24,7 @@ public class RoomService {
         this.dataValidator = dataValidator;
     }
 
+    @Transactional
     public Room createRoom(RoomRequestDto request) {
         dataValidator.validateRoomData(request);
 
@@ -31,13 +33,14 @@ public class RoomService {
     }
 
     @Transactional(readOnly = true)
-    public List<Room> getAllRooms(PaginationRequestDto pagination) {
-        return roomRepository.getAllRooms(pagination.getOffset(), pagination.getLimit());
-    }
+    public GetRoomListResponseDto getAllRooms(String page, String size) {
+        dataValidator.validatePageAndSize(page, size);
 
-    @Transactional(readOnly = true)
-    public int countRooms() {
-        return roomRepository.countRooms();
+        int pageVal = Integer.parseInt(page);
+        int sizeVal = Integer.parseInt(size);
+        PaginationRequestDto pagination = new PaginationRequestDto(pageVal, sizeVal);
+        List<Room> rooms = roomRepository.getAllRooms(pagination.getOffset(), pagination.getLimit());
+        return new GetRoomListResponseDto(rooms, roomRepository.countRooms(), pageVal, sizeVal);
     }
 
     @Transactional
