@@ -196,26 +196,21 @@ public class SpeakerRepository {
     public UpdateSpeakerResponseDto updateSpeakerById(UUID id, SpeakerRequestDto speakerRequestDto) {
         final String sql =
         """
-        UPDATE eventsync_app.users
+        UPDATE
+            eventsync_app.users
         SET
-        first_name = ?,
-        last_name = ?,
-        email = ?,
-        profile_picture = ?,
-        bio = ?
-        WHERE id = ?
-        AND "role" = 'speaker'
-        returning id
+            first_name = ?, last_name = ?, email = ?, profile_picture = ?, bio = ?
+        WHERE
+            id = ?
+        AND
+            "role" = 'speaker'
+        RETURNING id
         """;
 
         try (
                 Connection connection = dataSource.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql)
                 ){
-
-            if (findExistingSpeakerEmail(connection, speakerRequestDto.getEmail()).isPresent()){
-                throw new ConflictException(String.format("Speaker with email %s already exist.", speakerRequestDto.getEmail()));
-            }
 
             SpeakerMapper.bindUpdateSpeakerParams(ps, speakerRequestDto, id);
 
@@ -225,29 +220,15 @@ public class SpeakerRepository {
                 }
                 return SpeakerMapper.mapUpdateSpeakerResponse(rs, speakerRequestDto);
             }
-
         } catch (SQLException e) {
+            if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
+                throw new ConflictException(
+                    String.format("Speaker with email %s already exists.", speakerRequestDto.getEmail())
+                );
+            }
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
 
-    }
-
-    private Optional<String> findExistingSpeakerEmail(Connection connection, String email) throws SQLException {
-        final String query =
-                """
-                select email
-                from eventsync_app.users
-                where email = ?
-                  and "role" = 'speaker'
-                """;
-        try (
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            ps.setString(1, email);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? Optional.of(rs.getString("email")) : Optional.empty();
-            }
-        }
     }
 
     public Optional<UUID> deleteSpeakerById(UUID id) {
