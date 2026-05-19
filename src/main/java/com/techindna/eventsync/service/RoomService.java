@@ -9,7 +9,6 @@ import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.RoomRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +23,6 @@ public class RoomService {
         this.dataValidator = dataValidator;
     }
 
-    @Transactional
     public Room createRoom(RoomRequestDto request) {
         dataValidator.validateRoomData(request);
 
@@ -32,7 +30,6 @@ public class RoomService {
                 .orElseThrow(() -> new ConflictException(String.format("Room '%s' already exists.", request.getName())));
     }
 
-    @Transactional(readOnly = true)
     public GetRoomListResponseDto getAllRooms(String page, String size) {
         dataValidator.validatePageAndSize(page, size);
 
@@ -43,7 +40,6 @@ public class RoomService {
         return new GetRoomListResponseDto(rooms, roomRepository.countRooms(), pageVal, sizeVal);
     }
 
-    @Transactional
     public Room updateRoomById(String id, RoomRequestDto request) {
         dataValidator.validateUUID(id);
         dataValidator.validateRoomData(request);
