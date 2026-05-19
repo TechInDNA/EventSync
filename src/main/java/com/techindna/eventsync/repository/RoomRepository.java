@@ -54,7 +54,7 @@ public class RoomRepository {
     public List<Room> getAllRooms(int offset, int limit) {
         final String query =
         """
-        SELECT id, name
+        SELECT id as room_id, name as room_name
         FROM eventsync_app.rooms
         ORDER BY name ASC
         LIMIT ? OFFSET ?
@@ -69,10 +69,7 @@ public class RoomRepository {
             try (ResultSet rs = ps.executeQuery()) {
                 List<Room> rooms = new ArrayList<>();
                 while (rs.next()) {
-                    Room room = new Room();
-                    room.setId(UUID.fromString(rs.getString("id")));
-                    room.setName(rs.getString("name"));
-                    rooms.add(room);
+                    rooms.add(RoomMapper.mapResultSetToRoom(rs));
                 }
                 return rooms;
             }
