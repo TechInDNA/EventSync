@@ -174,6 +174,11 @@ public class DataValidator {
         validateEmail(request.getEmail());
     }
 
+    public void validateExternalLink(ExternalLinkDto link) {
+        validateString("name", link.getName());
+        validateUrl(link.getUrl());
+    }
+
     public void validateExternalLinks(List<ExternalLinkDto> links){
         if (links != null){
             for (ExternalLinkDto l : links){

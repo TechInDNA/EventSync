@@ -3,6 +3,7 @@ package com.techindna.eventsync.service;
 import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
 import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
+import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.DataValidator;
@@ -49,6 +50,37 @@ public class SpeakerService {
         dataValidator.validateUUID(String.valueOf(id));
         speakerRepository.deleteSpeakerById(UUID.fromString(id))
                 .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s not found.", id)));
+    }
+
+    public List<ExternalLinkDto> addExternalLink(String id, ExternalLinkDto link) {
+        dataValidator.validateUUID(id);
+        dataValidator.validateExternalLink(link);
+
+        UUID speakerId = UUID.fromString(id);
+
+        if (!speakerRepository.speakerExists(speakerId)) {
+            throw new NotFoundException(String.format("Speaker ID %s not found.", id));
+        }
+
+        List<ExternalLinkDto> existingLinks = speakerRepository.getSpeakerExternalLinks(speakerId);
+
+        boolean nameConflict = existingLinks.stream()
+                .anyMatch(existing -> existing.getName().equals(link.getName()));
+        if (nameConflict) {
+            throw new ConflictException(
+                    String.format("A link with name '%s' already exists for this speaker.", link.getName())
+            );
+        }
+
+        boolean urlConflict = existingLinks.stream()
+                .anyMatch(existing -> existing.getUrl().equals(link.getUrl()));
+        if (urlConflict) {
+            throw new ConflictException(
+                    String.format("A link with URL '%s' already exists for this speaker.", link.getUrl())
+            );
+        }
+
+        return speakerRepository.insertExternalLink(speakerId, link);
     }
 
 }

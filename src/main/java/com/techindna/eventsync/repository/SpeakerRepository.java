@@ -231,6 +231,45 @@ public class SpeakerRepository {
 
     }
 
+    public boolean speakerExists(UUID id) {
+        final String query = """
+            SELECT id FROM eventsync_app.users WHERE id = ? AND "role" = 'speaker'
+            """;
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public List<ExternalLinkDto> getSpeakerExternalLinks(UUID userId) {
+        return getExternalLinksByUserId(userId);
+    }
+
+    public List<ExternalLinkDto> insertExternalLink(UUID userId, ExternalLinkDto link) {
+        final String insertLink = """
+            INSERT INTO eventsync_app.external_link(name, url, user_id)
+            VALUES (?, ?, ?)
+            """;
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement ps = conn.prepareStatement(insertLink)) {
+            ps.setString(1, link.getName());
+            ps.setString(2, link.getUrl());
+            ps.setObject(3, userId);
+            ps.executeUpdate();
+            return getExternalLinksByUserId(userId);
+        } catch (SQLException e) {
+            if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
+                throw new ConflictException("A link with this URL already exists.");
+            }
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
     public Optional<UUID> deleteSpeakerById(UUID id) {
         final String query = """
                                 DELETE FROM

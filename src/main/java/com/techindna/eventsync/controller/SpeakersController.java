@@ -90,6 +90,26 @@ public class SpeakersController {
         }
     }
 
+    @PostMapping("/{id}/external-link")
+    public ResponseEntity<?> addExternalLink(@PathVariable String id, @RequestBody ExternalLinkDto request) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(speakerService.addExternalLink(id, request));
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
     @DeleteMapping(value = {"/{id}"})
     public ResponseEntity<?> deleteSpeaker(@PathVariable String id) {
         try {
