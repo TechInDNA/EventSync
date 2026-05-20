@@ -1,6 +1,8 @@
 package com.techindna.eventsync.dto;
 
 
+import com.techindna.eventsync.dto.speaker.SpeakerResponseDto;
+
 import java.util.List;
 
 public class GetSpeakerListResponseDto {

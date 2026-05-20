@@ -2,11 +2,13 @@ package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
+import com.techindna.eventsync.dto.speaker.SpeakerResponseDto;
 import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +32,7 @@ public class SpeakerService {
     }
 
 
+    @Transactional
     public SpeakerResponseDto createSpeaker(PostSpeakersRequestDto postSpeakersRequestDto){
 
         dataValidator.validateSpeakerData(postSpeakersRequestDto);
