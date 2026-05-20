@@ -87,4 +87,20 @@ public class SpeakerService {
         return speakerRepository.insertExternalLink(speakerId, link);
     }
 
+    public void deleteExternalLink(String id, ExternalLinkDto link) {
+        dataValidator.validateUUID(id);
+        dataValidator.checkNullData("name", link.getName());
+
+        UUID speakerId = UUID.fromString(id);
+
+        if (!speakerRepository.speakerExists(speakerId)) {
+            throw new NotFoundException(String.format("Speaker ID %s not found.", id));
+        }
+
+        speakerRepository.deleteExternalLinkByName(speakerId, link.getName())
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("External link with name '%s' not found for speaker ID %s.", link.getName(), id)
+                ));
+    }
+
 }

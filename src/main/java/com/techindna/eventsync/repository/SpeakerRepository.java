@@ -251,6 +251,26 @@ public class SpeakerRepository {
         }
     }
 
+    public Optional<UUID> deleteExternalLinkByName(UUID speakerId, String linkName) {
+        final String query = """
+            DELETE FROM eventsync_app.external_link
+            WHERE user_id = ? AND name = ?
+            RETURNING id
+            """;
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
+            ps.setObject(1, speakerId);
+            ps.setString(2, linkName);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(UUID.fromString(rs.getString("id"))) : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
     public Optional<UUID> deleteSpeakerById(UUID id) {
         final String query = """
                                 DELETE FROM
