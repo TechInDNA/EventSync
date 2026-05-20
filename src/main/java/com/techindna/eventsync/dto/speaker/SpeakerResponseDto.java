@@ -7,7 +7,7 @@ import com.techindna.eventsync.dto.ExternalLinkDto;
 import java.util.List;
 import java.util.UUID;
 
-@JsonPropertyOrder({"id", "firstName", "lastName", "email", "profilePicture", "bio", "externalLinks", "isLive"})
+@JsonPropertyOrder({"id", "firstName", "lastName", "email", "profilePicture", "bio", "externalLinks"})
 public class SpeakerResponseDto {
     private UUID id;
     private String firstName;
@@ -15,7 +15,6 @@ public class SpeakerResponseDto {
     private String email;
     private String bio;
     private String profilePicture;
-    private boolean isLive;
     private List<ExternalLinkDto> externalLinks;
 
     public UUID getId() {
@@ -64,15 +63,6 @@ public class SpeakerResponseDto {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
-    }
-
-    @JsonProperty("isLive")
-    public boolean isLive() {
-        return isLive;
-    }
-
-    public void setLive(boolean live) {
-        isLive = live;
     }
 
     public List<ExternalLinkDto> getExternalLinks() {

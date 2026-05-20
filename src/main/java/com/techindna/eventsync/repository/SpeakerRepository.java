@@ -124,8 +124,8 @@ public class SpeakerRepository {
                 values(?, ?, ?, ?, ?, 'speaker')
                 returning id
                 """;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = DataSourceUtils.getConnection(dataSource);
                 PreparedStatement ps = connection.prepareStatement(insertUser)
         ) {
 
@@ -189,8 +189,8 @@ public class SpeakerRepository {
         RETURNING id
         """;
 
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try (
-                Connection connection = DataSourceUtils.getConnection(dataSource);
                 PreparedStatement ps = connection.prepareStatement(sql)
                 ){
 
