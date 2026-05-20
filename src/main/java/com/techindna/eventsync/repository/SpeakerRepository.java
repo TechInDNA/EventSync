@@ -22,34 +22,40 @@ import java.util.UUID;
 public class SpeakerRepository {
     private static final String UNIQUE_VIOLATION_SQLSTATE = "23505";
     private final DataSource dataSource;
+
     public SpeakerRepository(DataSource dataSource){
         this.dataSource = dataSource;
     }
 
-    public List<SpeakerResponseDto> getAllSpeakers(int offset, int limit, String search){
-        final String query =
-                """
+    private static String getAllSpeakerQuery(){
+        return """
+                with paginated_speakers as (
+                    select u.id, u.first_name, u.last_name, u.email, u.profile_picture, u.bio
+                    from eventsync_app.users u
+                    where u."role" = 'speaker'
+                      and (? is null or u.first_name ilike ? or u.last_name ilike ?)
+                    order by u.last_name, u.first_name
+                    limit ? offset ?
+                )
                 select
-                    u.id,
-                    u.first_name,
-                    u.last_name,
-                    u.email,
-                    u.profile_picture,
-                    u.bio,
+                    ps.id,
+                    ps.first_name,
+                    ps.last_name,
+                    ps.email,
+                    ps.profile_picture,
+                    ps.bio,
                     el.name as link_name,
                     el.url as link_url
-                from
-                    eventsync_app.users u
-                left join eventsync_app.external_link el on el.user_id = u.id
-                where
-                    u."role" = 'speaker'
-                    and (? is null or u.first_name ilike ? or u.last_name ilike ?)
-                order by u.last_name, u.first_name
-                limit ? offset ?
+                from paginated_speakers ps
+                left join eventsync_app.external_link el on el.user_id = ps.id
+                order by ps.last_name, ps.first_name
                 """;
+    }
+
+    public List<SpeakerResponseDto> getAllSpeakers(int offset, int limit, String search){
         Connection connection = DataSourceUtils.getConnection(dataSource);
 
-        try (PreparedStatement ps = connection.prepareStatement(query)){
+        try (PreparedStatement ps = connection.prepareStatement(getAllSpeakerQuery())){
             SpeakerMapper.bindSearchParams(ps, search, 1);
             ps.setInt(4, limit);
             ps.setInt(5, offset);
@@ -72,6 +78,9 @@ public class SpeakerRepository {
                     if (linkName != null) {
                         ExternalLinkDto link = ExternalLinkMapper.mapExternalLink(rs);
                         speaker.getExternalLinks().add(link);
+                    }
+                    else {
+                        speaker.setExternalLinks(null);
                     }
                 }
                 return speakers;
@@ -116,9 +125,7 @@ public class SpeakerRepository {
                 """;
         Connection connection = DataSourceUtils.getConnection(dataSource);
 
-        try (
-                PreparedStatement ps = connection.prepareStatement(insertUser)
-        ) {
+        try (PreparedStatement ps = connection.prepareStatement(insertUser)) {
 
             SpeakerMapper.bindUpdateSpeakerParams(ps, speakerRequestDto);
 
@@ -212,9 +219,7 @@ public class SpeakerRepository {
                             """;
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
-        try (
-                PreparedStatement ps = conn.prepareStatement(query)
-        ) {
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setObject(1, id);
                 try (ResultSet rs = ps.executeQuery()) {
                     return rs.next() ? Optional.of(UUID.fromString(rs.getString("id"))) : Optional.empty();
