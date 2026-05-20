@@ -42,7 +42,8 @@ public class SpeakerService {
     public UpdateSpeakerResponseDto updateSpeakerById(String id, SpeakerRequestDto request) {
         dataValidator.validateUUID(id);
         dataValidator.validateSpeakerData(request);
-        return speakerRepository.updateSpeakerById(UUID.fromString(id), request);
+        return speakerRepository.updateSpeakerById(UUID.fromString(id), request)
+                .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s does not exist.", id)));
     }
 
     public void deleteSpeaker(String id) {

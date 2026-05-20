@@ -193,7 +193,7 @@ public class SpeakerRepository {
     }
 
 
-    public UpdateSpeakerResponseDto updateSpeakerById(UUID id, SpeakerRequestDto speakerRequestDto) {
+    public Optional<UpdateSpeakerResponseDto> updateSpeakerById(UUID id, SpeakerRequestDto speakerRequestDto) {
         final String sql =
         """
         UPDATE
@@ -215,10 +215,8 @@ public class SpeakerRepository {
             SpeakerMapper.bindUpdateSpeakerParams(ps, speakerRequestDto, id);
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) {
-                    throw new NotFoundException(String.format("Speaker ID %s does not exist.", id));
-                }
-                return SpeakerMapper.mapUpdateSpeakerResponse(rs, speakerRequestDto);
+                return !rs.next() ? Optional.empty()
+                        : Optional.of(SpeakerMapper.mapUpdateSpeakerResponse(rs, speakerRequestDto));
             }
         } catch (SQLException e) {
             if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
