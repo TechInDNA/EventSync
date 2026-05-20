@@ -58,19 +58,59 @@ echo ""
 echo "--- Test 11: Unknown parameters (should be ignored) ---"
 curlie -k -s -w "\nHTTP Status: %{http_code}\n" "https://localhost:443/speakers?page=1&size=10&unknown=param"
 
-# Test 12: Test with POST method (should fail - 403)
+# Test 12: Search by first name (John)
 echo ""
-echo "--- Test 12: POST method (should return 403) ---"
+echo "--- Test 12: Search by first name 'John' ---"
+curlie -k -s -w "\nHTTP Status: %{http_code}\n" "https://localhost:443/speakers?search=John"
+
+# Test 13: Search by last name (Smith)
+echo ""
+echo "--- Test 13: Search by last name 'Smith' ---"
+curlie -k -s -w "\nHTTP Status: %{http_code}\n" "https://localhost:443/speakers?search=Smith"
+
+# Test 14: Search with partial match (Jo matches John Doe and Bob Johnson)
+echo ""
+echo "--- Test 14: Search with partial match 'Jo' (should match John Doe and Bob Johnson) ---"
+curlie -k -s -w "\nHTTP Status: %{http_code}\n" "https://localhost:443/speakers?search=Jo"
+
+# Test 15: Case-insensitive search (john lowercase)
+echo ""
+echo "--- Test 15: Case-insensitive search 'john' (lowercase) ---"
+curlie -k -s -w "\nHTTP Status: %{http_code}\n" "https://localhost:443/speakers?search=john"
+
+# Test 16: Search with no results
+echo ""
+echo "--- Test 16: Search with no results 'Zzzz' ---"
+curlie -k -s -w "\nHTTP Status: %{http_code}\n" "https://localhost:443/speakers?search=Zzzz"
+
+# Test 17: Search with pagination
+echo ""
+echo "--- Test 17: Search 'Williams' with size=1 ---"
+curlie -k -s -w "\nHTTP Status: %{http_code}\n" "https://localhost:443/speakers?search=Williams&page=1&size=1"
+
+# Test 18: Search with invalid characters (should return 400)
+echo ""
+echo "--- Test 18: Search with invalid characters (should return 400) ---"
+curlie -k -s -w "\nHTTP Status: %{http_code}\n" "https://localhost:443/speakers?search=John@Doe"
+
+# Test 19: Search with empty string (should behave like no search)
+echo ""
+echo "--- Test 19: Search with empty string ---"
+curlie -k -s -w "\nHTTP Status: %{http_code}\n" "https://localhost:443/speakers?search="
+
+# Test 20: POST method (should fail - 401)
+echo ""
+echo "--- Test 20: POST method (should return 401) ---"
 curlie -k -X POST -H "Content-Type: application/json" -d '{}' -s -w "\nHTTP Status: %{http_code}\n" https://localhost:443/speakers
 
-# Test 13: Test with PUT method (should fail - 403)
+# Test 21: PUT method (should fail - 401)
 echo ""
-echo "--- Test 13: PUT method on collection (should return 403) ---"
+echo "--- Test 21: PUT method on collection (should return 401) ---"
 curlie -k -X PUT -H "Content-Type: application/json" -d '{}' -s -w "\nHTTP Status: %{http_code}\n" https://localhost:443/speakers
 
-# Test 14: Test with DELETE method (should fail - 403)
+# Test 22: DELETE method (should fail - 401)
 echo ""
-echo "--- Test 14: DELETE method on collection (should return 403) ---"
+echo "--- Test 22: DELETE method on collection (should return 401) ---"
 curlie -k -X DELETE -s -w "\nHTTP Status: %{http_code}\n" https://localhost:443/speakers
 
 
