@@ -2,6 +2,7 @@ package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
+import com.techindna.eventsync.dto.speaker.SpeakerResponseDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/speakers")
