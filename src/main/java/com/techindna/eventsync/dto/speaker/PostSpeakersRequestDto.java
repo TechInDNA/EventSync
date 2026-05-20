@@ -1,6 +1,6 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.speaker;
 
-import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
+import com.techindna.eventsync.dto.ExternalLinkDto;
 
 import java.util.List;
 

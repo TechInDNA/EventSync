@@ -1,16 +1,13 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.*;
-import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
-import com.techindna.eventsync.dto.speaker.SpeakerResponseDto;
-import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
+import com.techindna.eventsync.dto.speaker.*;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,14 +20,22 @@ public class SpeakerService {
         this.dataValidator = dataValidator;
     }
 
-    public List<SpeakerResponseDto> getAllSpeakers(PaginationRequestDto paginationRequestDto){
-        return speakerRepository.getAllSpeakers(paginationRequestDto.getOffset(), paginationRequestDto.getLimit());
-    }
+    @Transactional(readOnly = true)
+    public GetSpeakerListResponseDto getAllSpeakers(String page, String size, String search){
+        dataValidator.validatePageAndSize(page, size);
+        dataValidator.validateSpeakerSearch(search);
 
-    public int countSpeaker(){
-        return speakerRepository.countSpeakers();
-    }
+        int pageVal = Integer.parseInt(page);
+        int sizeVal = Integer.parseInt(size);
+        PaginationRequestDto pagination = new PaginationRequestDto(pageVal, sizeVal);
 
+        return new GetSpeakerListResponseDto(
+                speakerRepository.getAllSpeakers(pagination.getOffset(), pagination.getLimit(), search),
+                speakerRepository.countSpeakers(search),
+                pageVal,
+                sizeVal
+        );
+    }
 
     @Transactional
     public SpeakerResponseDto createSpeaker(PostSpeakersRequestDto postSpeakersRequestDto){
@@ -41,7 +46,7 @@ public class SpeakerService {
         return speakerRepository.createSpeaker(postSpeakersRequestDto, postSpeakersRequestDto.getExternalLinks());
     }
 
-
+    @Transactional
     public UpdateSpeakerResponseDto updateSpeakerById(String id, SpeakerRequestDto request) {
         dataValidator.validateUUID(id);
         dataValidator.validateSpeakerData(request);
@@ -49,6 +54,7 @@ public class SpeakerService {
                 .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s does not exist.", id)));
     }
 
+    @Transactional
     public void deleteSpeaker(String id) {
         dataValidator.validateUUID(String.valueOf(id));
         speakerRepository.deleteSpeakerById(UUID.fromString(id))

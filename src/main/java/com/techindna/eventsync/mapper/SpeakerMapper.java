@@ -15,6 +15,13 @@ public class SpeakerMapper {
 
     private SpeakerMapper() {}
 
+    public static void bindSearchParams(PreparedStatement ps, String search, int startIndex) throws SQLException {
+        String pattern = search != null ? "%" + search + "%" : null;
+        ps.setString(startIndex, pattern);
+        ps.setString(startIndex + 1, pattern);
+        ps.setString(startIndex + 2, pattern);
+    }
+
     public static void bindUpdateSpeakerParams(PreparedStatement ps, SpeakerRequestDto dto) throws SQLException {
         ps.setString(1, dto.getFirstName());
         ps.setString(2, dto.getLastName());
@@ -37,6 +44,17 @@ public class SpeakerMapper {
     public static UpdateSpeakerResponseDto mapUpdateSpeakerResponse(ResultSet rs, SpeakerRequestDto dto) throws SQLException {
         UUID id = UUID.fromString(rs.getString("id"));
         return toUpdateSpeakerResponse(id, dto);
+    }
+
+    public static SpeakerResponseDto mapSpeakerResponse(ResultSet rs) throws SQLException {
+        SpeakerResponseDto speaker = new SpeakerResponseDto();
+        speaker.setId(UUID.fromString(rs.getString("id")));
+        speaker.setFirstName(rs.getString("first_name"));
+        speaker.setLastName(rs.getString("last_name"));
+        speaker.setEmail(rs.getString("email"));
+        speaker.setProfilePicture(rs.getString("profile_picture"));
+        speaker.setBio(rs.getString("bio"));
+        return speaker;
     }
 
     public static SpeakerResponseDto toSpeakerResponse(UUID id, SpeakerRequestDto dto, List<ExternalLinkDto> externalLinks) {
