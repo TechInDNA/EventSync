@@ -182,4 +182,10 @@ public class DataValidator {
             }
         }
     }
+
+    public void validateSpeakerSearch(String search){
+        if (search != null && !search.isEmpty()){
+            validateString("name", search);
+        }
+    }
 }

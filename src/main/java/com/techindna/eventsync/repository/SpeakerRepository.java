@@ -26,94 +26,84 @@ public class SpeakerRepository {
         this.dataSource = dataSource;
     }
 
-    private List<ExternalLinkDto> getExternalLinksByUserId(UUID userId){
-        final String query =
-                """
-                select external_link.name, external_link.url from eventsync_app.external_link where user_id = ?
-                """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ){
-            ps.setObject(1, userId);
-            List<ExternalLinkDto> results = new ArrayList<>();
-            try(ResultSet rs = ps.executeQuery()){
-                while(rs.next()){
-                    ExternalLinkDto externalLink = new ExternalLinkDto();
-                    externalLink.setName(rs.getString("name"));
-                    externalLink.setUrl(rs.getString("url"));
-                    results.add(externalLink);
-                }
-            }
-            return results;
-        }catch (SQLException e){
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        }
-    }
-
-    public List<SpeakerResponseDto> getAllSpeakers(int offset, int limit){
+    public List<SpeakerResponseDto> getAllSpeakers(int offset, int limit, String search){
         final String query =
                 """
                 select
-                    users.id,
-                    users.first_name,
-                    users.last_name,
-                    users.profile_picture,
-                    users.bio
+                    u.id,
+                    u.first_name,
+                    u.last_name,
+                    u.email,
+                    u.profile_picture,
+                    u.bio,
+                    el.name as link_name,
+                    el.url as link_url
                 from
-                    eventsync_app.users
+                    eventsync_app.users u
+                left join eventsync_app.external_link el on el.user_id = u.id
                 where
-                    users."role" = 'speaker'
-                order by users.last_name
+                    u."role" = 'speaker'
+                    and (? is null or u.first_name ilike ? or u.last_name ilike ?)
+                order by u.last_name, u.first_name
                 limit ? offset ?
                 """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-                ){
-            ps.setInt(1, limit);
-            ps.setInt(2, offset);
-            List<SpeakerResponseDto> speakers = new ArrayList<>();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = connection.prepareStatement(query)){
+            SpeakerMapper.bindSearchParams(ps, search, 1);
+            ps.setInt(4, limit);
+            ps.setInt(5, offset);
 
             try(ResultSet rs = ps.executeQuery()){
+                List<SpeakerResponseDto> speakers = new ArrayList<>();
+                SpeakerResponseDto speaker = null;
+                UUID currentId = null;
+
                 while (rs.next()){
-                    SpeakerResponseDto speaker = new SpeakerResponseDto();
-                    UUID userId = UUID.fromString(rs.getString("id"));
-                    speaker.setId(userId);
-                    speaker.setFirstName(rs.getString("first_name"));
-                    speaker.setLastName(rs.getString("last_name"));
-                    speaker.setProfilePicture(rs.getString("profile_picture"));
-                    speaker.setBio(rs.getString("bio"));
-                    List<ExternalLinkDto> externalLinks = getExternalLinksByUserId(userId);
-                    speaker.setExternalLinks(externalLinks);
-                    speakers.add(speaker);
+                    UUID speakerId = UUID.fromString(rs.getString("id"));
+                    if (currentId == null || !currentId.equals(speakerId)) {
+                        speaker = SpeakerMapper.mapSpeakerResponse(rs);
+                        speaker.setExternalLinks(new ArrayList<>());
+                        speakers.add(speaker);
+                        currentId = speakerId;
+                    }
+
+                    String linkName = rs.getString("link_name");
+                    if (linkName != null) {
+                        ExternalLinkDto link = ExternalLinkMapper.mapExternalLink(rs);
+                        speaker.getExternalLinks().add(link);
+                    }
                 }
                 return speakers;
             }
 
         }catch (SQLException e){
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally{
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
-    public int countSpeakers() {
+    public int countSpeakers(String search) {
         String query =
             """
             select count(id) as total
-            from eventsync_app.users where users."role" = 'speaker'
+            from eventsync_app.users u
+            where u."role" = 'speaker'
+            and (? is null or u.first_name ilike ? or u.last_name ilike ?)
             """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            SpeakerMapper.bindSearchParams(ps, search, 1);
+
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("total");
-                }
-                return 0;
+                return rs.next() ? rs.getInt("total") : 0;
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally{
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -125,6 +115,7 @@ public class SpeakerRepository {
                 returning id
                 """;
         Connection connection = DataSourceUtils.getConnection(dataSource);
+
         try (
                 PreparedStatement ps = connection.prepareStatement(insertUser)
         ) {
@@ -151,6 +142,8 @@ public class SpeakerRepository {
                     );
             }
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -190,10 +183,7 @@ public class SpeakerRepository {
         """;
 
         Connection connection = DataSourceUtils.getConnection(dataSource);
-        try (
-                PreparedStatement ps = connection.prepareStatement(sql)
-                ){
-
+        try (PreparedStatement ps = connection.prepareStatement(sql)){
             SpeakerMapper.bindUpdateSpeakerParams(ps, speakerRequestDto);
             ps.setObject(6, id);
 
@@ -208,8 +198,9 @@ public class SpeakerRepository {
                 );
             }
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
-
     }
 
     public Optional<UUID> deleteSpeakerById(UUID id) {
@@ -219,18 +210,19 @@ public class SpeakerRepository {
                                 WHERE id = ? AND "role" = 'speaker'
                                 RETURNING id
                             """;
+        Connection conn = DataSourceUtils.getConnection(dataSource);
 
         try (
-                Connection conn = dataSource.getConnection();
                 PreparedStatement ps = conn.prepareStatement(query)
         ) {
                 ps.setObject(1, id);
                 try (ResultSet rs = ps.executeQuery()) {
                     return rs.next() ? Optional.of(UUID.fromString(rs.getString("id"))) : Optional.empty();
                 }
-
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 }
