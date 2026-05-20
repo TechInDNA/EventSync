@@ -702,8 +702,13 @@ paths:
           in: query
           schema:
             type: integer
-            default: 20
+            default: 10
           description: Number of items per page
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Filter by speaker first name or last name
       responses:
         '200':
           description: List of speakers
@@ -711,6 +716,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SpeakerList'
+        '400':
+          description: Bad request
     post:
       summary: Create a new speaker
       tags:
