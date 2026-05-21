@@ -9,7 +9,6 @@ import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.mapper.ExternalLinkMapper;
 import com.techindna.eventsync.mapper.SpeakerMapper;
-import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
@@ -220,9 +219,13 @@ public class SpeakerRepository {
     private List<ExternalLinkDto> getExternalLinks(UUID id, Connection connection) {
         final String query =
                 """
-                   select name as link_name, url as link_url                                        \s
-                   from eventsync_app.external_link                                                 \s
-                   where user_id = ?
+                   select 
+                       name as link_name,
+                       url as link_url
+                   from
+                       eventsync_app.external_link
+                   where
+                       user_id = ?
                 """;
         try (PreparedStatement ps = connection.prepareStatement(query)){
             List<ExternalLinkDto> externalLinks = new ArrayList<>();
