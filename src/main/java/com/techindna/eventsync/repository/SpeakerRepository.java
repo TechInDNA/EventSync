@@ -158,18 +158,26 @@ public class SpeakerRepository {
         }
     }
 
-    private void insertExternalLinks(Connection connection, UUID userId, List<ExternalLinkDto> externalLinks) {
+    private List<ExternalLinkDto> insertExternalLinks(Connection connection, UUID userId, List<ExternalLinkDto> externalLinks) {
         final String insertLink =
                 """
                 insert into eventsync_app.external_link(name, url, user_id)
                 values(?, ?, ?)
+                returning name as link_name, url as link_url
                 """;
+        List<ExternalLinkDto> insertedLinks = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(insertLink)) {
             for (ExternalLinkDto link : externalLinks) {
                 ExternalLinkMapper.bindInsertExternalLinkParams(ps, link, userId);
                 ps.addBatch();
             }
             ps.executeBatch();
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                while (rs.next()) {
+                    insertedLinks.add(ExternalLinkMapper.mapExternalLink(rs));
+                }
+            }
+            return insertedLinks;
         } catch (SQLException e){
             if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
                 throw new ConflictException("One or more external links URL already exist.");
@@ -217,37 +225,11 @@ public class SpeakerRepository {
         }
     }
 
-    public List<ExternalLinkDto> getExternalLinksBySpeakerId(UUID speakerId) {
-        final String query =
-                """
-                select url as link_url, name as link_name from eventsync_app.external_links where user_id = ?;
-                """;
-
-        List<ExternalLinkDto> externalLinks = new ArrayList<>();
-        Connection connection = DataSourceUtils.getConnection(dataSource);
-
-        try(PreparedStatement ps = connection.prepareStatement(query)){
-            ps.setObject(1, speakerId);
-            try (ResultSet rs = ps.executeQuery()){
-                while (rs.next()) {
-                    externalLinks.add(ExternalLinkMapper.mapExternalLink(rs));
-                }
-                return externalLinks;
-            }
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        } finally {
-            DataSourceUtils.releaseConnection(connection, dataSource);
-        }
-    }
-
-
     public List<ExternalLinkDto> addExternalLinksBySpeakerId(UUID id, ExternalLinkDto externalLink) {
         Connection connection = DataSourceUtils.getConnection(dataSource);
 
         try {
-            insertExternalLinks(connection, id, List.of(externalLink));
-            return getExternalLinksBySpeakerId(id);
+            return insertExternalLinks(connection, id, List.of(externalLink));
         } catch (CannotGetJdbcConnectionException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         } finally {
