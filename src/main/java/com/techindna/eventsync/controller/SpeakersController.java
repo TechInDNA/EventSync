@@ -1,45 +1,33 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.*;
+import com.techindna.eventsync.dto.speaker.PostSpeakersRequestDto;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.service.SpeakerService;
-import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/speakers")
 public class SpeakersController {
     private final SpeakerService speakerService;
-    private final DataValidator dataValidator;
 
-    public SpeakersController(SpeakerService speakerService, DataValidator dataValidator){
+    public SpeakersController(SpeakerService speakerService){
         this.speakerService = speakerService;
-        this.dataValidator = dataValidator;
     }
+
     @GetMapping
     public ResponseEntity<?> getAllSpeakers(
             @RequestParam(required = false, defaultValue = "1") String page,
-            @RequestParam(required = false, defaultValue = "5") String size) {
+            @RequestParam(required = false, defaultValue = "10") String size,
+            @RequestParam(required = false) String search) {
         try {
-            dataValidator.validatePageAndSize(page, size);
-            int pageVal = Integer.parseInt(page);
-            int sizeVal = Integer.parseInt(size);
-
-            PaginationRequestDto pagination = new PaginationRequestDto(pageVal, sizeVal);
-            List<SpeakerResponseDto> speakers = speakerService.getAllSpeakers(pagination);
-            int total = speakerService.countSpeaker();
-            GetSpeakerListResponseDto response = new GetSpeakerListResponseDto(speakers, total, pageVal, sizeVal);
-
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(speakerService.getAllSpeakers(page, size, search));
 
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
