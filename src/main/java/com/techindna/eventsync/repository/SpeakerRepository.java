@@ -314,10 +314,10 @@ public class SpeakerRepository {
         }
     }
 
-    public Optional<UUID> deleteExternalLinkBySpeakerId(UUID speakerId, String url) {
+    public Optional<UUID> deleteExternalLinkBySpeakerId(UUID speakerId, String urlName) {
         final String query = """
                 delete from eventsync_app.external_link
-                where user_id = ? and url = ?
+                where user_id = ? and name = ?
                 returning id
                 """;
 
@@ -326,7 +326,7 @@ public class SpeakerRepository {
         try {
             try (PreparedStatement ps = conn.prepareStatement(query)) {
                 ps.setObject(1, speakerId);
-                ps.setString(2, url);
+                ps.setString(2, urlName);
                 try (ResultSet rs = ps.executeQuery()) {
                         return !rs.next() ? Optional.empty()
                                 : Optional.of(UUID.fromString(rs.getString("id")));

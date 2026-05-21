@@ -119,10 +119,10 @@ public class SpeakersController {
     @DeleteMapping("/{id}/external-link")
     public ResponseEntity<?> deleteExternalLinkBySpeakerId(
             @PathVariable String id,
-            @RequestParam String url) {
+            @RequestParam String urlName) {
 
         try {
-            speakerService.deleteExternalLink(id, url);
+            speakerService.deleteExternalLink(id, urlName);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

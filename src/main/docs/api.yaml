@@ -848,7 +848,7 @@ paths:
         '409':
           description: Conflict
     delete:
-      summary: Delete an external link from a speaker by URL
+      summary: Delete an external link from a speaker by URL name
       tags:
         - Speakers
       security:
@@ -860,12 +860,11 @@ paths:
           schema:
             type: string
             format: uuid
-        - name: url
+        - name: urlName
           in: query
           required: true
           schema:
             type: string
-            format: uri
       responses:
         '204':
           description: External link deleted

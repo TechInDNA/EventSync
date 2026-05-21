@@ -45,7 +45,7 @@ public class DataValidator {
         }
     }
 
-    protected void validateString(String fieldName, String data){
+    public void validateString(String fieldName, String data){
         checkNullData(fieldName, data);
         final Matcher TEXT_MATCHER = TEXT_PATTERN.matcher(data);
 
