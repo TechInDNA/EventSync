@@ -79,6 +79,15 @@ public class SpeakerService {
     }
 
     @Transactional
+    public List<ExternalLinkDto> updateExternalLinkBySpeakerId(String id, String urlName, ExternalLinkDto externalLink) {
+        dataValidator.validateUUID(id);
+        dataValidator.validateString("url name", urlName);
+        dataValidator.validateExternalLink(externalLink);
+
+        return speakerRepository.updateExternalLinkBySpeakerId(UUID.fromString(id), urlName, externalLink);
+    }
+
+    @Transactional
     public void deleteExternalLink(String speakerId, String urlName) {
         dataValidator.validateUUID(speakerId);
         dataValidator.validateString("url name", urlName);
