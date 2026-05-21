@@ -83,3 +83,9 @@ CREATE INDEX IF NOT EXISTS idx_question_session_id ON
 CREATE INDEX IF NOT EXISTS idx_intervene_speaker_id ON
     eventsync_app.intervene(speaker_id);
 
+CREATE INDEX idx_external_link_user_id ON eventsync_app.external_link(user_id);
+
+CREATE INDEX idx_users_role ON eventsync_app.users("role");
+
+CREATE INDEX idx_users_role_name ON eventsync_app.users("role", last_name, first_name);
+
