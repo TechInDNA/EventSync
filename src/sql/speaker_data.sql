@@ -77,3 +77,14 @@ values
     ('LinkedIn', 'https://linkedin.com/in/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d'),
     ('Research Gate', 'https://researchgate.net/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d')
 on conflict (url) do nothing;
+
+-- Link speakers to sessions for GET /speakers/{id} endpoint testing
+insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
+values
+    ('11111111-1111-4111-8111-111111111111', 'c2d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f', '8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e', '09:00:00+02', '12:00:00+02'),
+    ('22222222-2222-4222-8222-222222222222', 'e4f5a6b7-c8d9-4e0f-1a2b-3c4d5e6f7a8b', '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b', '14:00:00+02', '16:00:00+02'),
+    ('33333333-3333-4333-8333-333333333333', 'f5a6b7c8-d9e0-4f1a-2b3c-4d5e6f7a8b9c', '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f', '10:00:00+02', '10:45:00+02'),
+    ('44444444-4444-4444-8444-444444444444', 'a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d', '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c', '10:00:00+02', '11:30:00+02'),
+    ('55555555-5555-4555-8555-555555555555', 'b7c8d9e0-f1a2-4b3c-5d6e-7f8a9b0c1d2e', '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d', '10:00:00+02', '12:00:00+02'),
+    ('66666666-6666-4666-8666-666666666666', 'c8d9e0f1-a2b3-4c5d-6e7f-8a9b0c1d2e3f', '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a', '09:00:00+02', '12:00:00+02')
+on conflict (id) do nothing;
