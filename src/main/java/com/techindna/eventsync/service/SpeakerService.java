@@ -1,8 +1,7 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.*;
-import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
-import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
+import com.techindna.eventsync.dto.speaker.*;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
@@ -10,6 +9,7 @@ import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -63,35 +63,12 @@ public class SpeakerService {
                 .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s not found.", id)));
     }
 
-    public List<ExternalLinkDto> addExternalLink(String id, ExternalLinkDto link) {
+    @Transactional
+    public List<ExternalLinkDto> addExternalLinkBySpeakerId(String id, ExternalLinkDto links) {
         dataValidator.validateUUID(id);
-        dataValidator.validateExternalLink(link);
+        dataValidator.validateExternalLink(links);
 
-        UUID speakerId = UUID.fromString(id);
-
-        if (!speakerRepository.speakerExists(speakerId)) {
-            throw new NotFoundException(String.format("Speaker ID %s not found.", id));
-        }
-
-        List<ExternalLinkDto> existingLinks = speakerRepository.getSpeakerExternalLinks(speakerId);
-
-        boolean nameConflict = existingLinks.stream()
-                .anyMatch(existing -> existing.getName().equals(link.getName()));
-        if (nameConflict) {
-            throw new ConflictException(
-                    String.format("A link with name '%s' already exists for this speaker.", link.getName())
-            );
-        }
-
-        boolean urlConflict = existingLinks.stream()
-                .anyMatch(existing -> existing.getUrl().equals(link.getUrl()));
-        if (urlConflict) {
-            throw new ConflictException(
-                    String.format("A link with URL '%s' already exists for this speaker.", link.getUrl())
-            );
-        }
-
-        return speakerRepository.insertExternalLink(speakerId, link);
+        return speakerRepository.addExternalLinksBySpeakerId(UUID.fromString(id), links);
     }
 
 }

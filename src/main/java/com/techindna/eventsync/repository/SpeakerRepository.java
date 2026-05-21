@@ -6,8 +6,10 @@ import com.techindna.eventsync.dto.speaker.SpeakerResponseDto;
 import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.mapper.ExternalLinkMapper;
 import com.techindna.eventsync.mapper.SpeakerMapper;
+import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
@@ -21,6 +23,8 @@ import java.util.UUID;
 @Repository
 public class SpeakerRepository {
     private static final String UNIQUE_VIOLATION_SQLSTATE = "23505";
+    private static final String FOREIGN_KEY_VIOLATION_SQLSTATE = "23503";
+
     private final DataSource dataSource;
 
     public SpeakerRepository(DataSource dataSource){
@@ -170,6 +174,9 @@ public class SpeakerRepository {
             if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
                 throw new ConflictException("One or more external links URL already exist.");
             }
+            if (FOREIGN_KEY_VIOLATION_SQLSTATE.equals(e.getSQLState())){
+                throw new NotFoundException(String.format("Speaker %s not found.", userId));
+            }
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
@@ -210,42 +217,41 @@ public class SpeakerRepository {
         }
     }
 
-    public boolean speakerExists(UUID id) {
-        final String query = """
-            SELECT id FROM eventsync_app.users WHERE id = ? AND "role" = 'speaker'
-            """;
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setObject(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
+    public List<ExternalLinkDto> getExternalLinksBySpeakerId(UUID speakerId) {
+        final String query =
+                """
+                select url as link_url, name as link_name from eventsync_app.external_links where user_id = ?;
+                """;
+
+        List<ExternalLinkDto> externalLinks = new ArrayList<>();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try(PreparedStatement ps = connection.prepareStatement(query)){
+            ps.setObject(1, speakerId);
+            try (ResultSet rs = ps.executeQuery()){
+                while (rs.next()) {
+                    externalLinks.add(ExternalLinkMapper.mapExternalLink(rs));
+                }
+                return externalLinks;
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
-    public List<ExternalLinkDto> getSpeakerExternalLinks(UUID userId) {
-        return getExternalLinksByUserId(userId);
-    }
 
-    public List<ExternalLinkDto> insertExternalLink(UUID userId, ExternalLinkDto link) {
-        final String insertLink = """
-            INSERT INTO eventsync_app.external_link(name, url, user_id)
-            VALUES (?, ?, ?)
-            """;
-        try (Connection conn = dataSource.getConnection();
-             PreparedStatement ps = conn.prepareStatement(insertLink)) {
-            ps.setString(1, link.getName());
-            ps.setString(2, link.getUrl());
-            ps.setObject(3, userId);
-            ps.executeUpdate();
-            return getExternalLinksByUserId(userId);
-        } catch (SQLException e) {
-            if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
-                throw new ConflictException("A link with this URL already exists.");
-            }
+    public List<ExternalLinkDto> addExternalLinksBySpeakerId(UUID id, ExternalLinkDto externalLink) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try {
+            insertExternalLinks(connection, id, List.of(externalLink));
+            return getExternalLinksBySpeakerId(id);
+        } catch (CannotGetJdbcConnectionException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 

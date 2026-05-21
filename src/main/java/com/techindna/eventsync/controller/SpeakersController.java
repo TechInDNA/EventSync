@@ -1,5 +1,6 @@
 package com.techindna.eventsync.controller;
 
+import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.speaker.PostSpeakersRequestDto;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
@@ -79,10 +80,10 @@ public class SpeakersController {
     }
 
     @PostMapping("/{id}/external-link")
-    public ResponseEntity<?> addExternalLink(@PathVariable String id, @RequestBody ExternalLinkDto request) {
+    public ResponseEntity<?> addExternalLinkBySpeakerId(@PathVariable String id, @RequestBody ExternalLinkDto request) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(speakerService.addExternalLink(id, request));
+                    .body(speakerService.addExternalLinkBySpeakerId(id, request));
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());

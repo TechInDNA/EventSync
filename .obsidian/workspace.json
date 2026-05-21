@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -994.2535205464777,
-                  "y": -1441.9754571394394,
-                  "zoom": -1.0174580888848233
+                  "x": -936.246823740475,
+                  "y": 925.8859544005827,
+                  "zoom": -0.24724482704209536
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -189,6 +189,8 @@
   },
   "active": "73a6c18bdf4f9108",
   "lastOpenFiles": [
+    "src/main/java/com/techindna/eventsync/repository/SpeakerRepository.java~",
+    "src/main/java/com/techindna/eventsync/service/SpeakerService.java~",
     "target_old/classes/com/techindna/eventsync/entity/enums/Role.class",
     "target_old/classes/com/techindna/eventsync/dto/rooms/RoomRequestDto.class",
     "target_old/classes/com/techindna/eventsync/dto/events/PutEventRequestDto.class",
@@ -198,8 +200,6 @@
     "target_old/classes/com/techindna/eventsync/dto/events/EventRequestDto.class",
     "target_old/classes/com/techindna/eventsync/validator/DataValidator.class",
     "target_old/classes/com/techindna/eventsync/service/SpeakerService.class",
-    "target_old/classes/com/techindna/eventsync/service/SessionService.class",
-    "target_old/classes/com/techindna/eventsync/service/RoomService.class",
     "src/main/docs/test/Bienvenue.md",
     "src/eventsync/Bienvenue.md"
   ]
