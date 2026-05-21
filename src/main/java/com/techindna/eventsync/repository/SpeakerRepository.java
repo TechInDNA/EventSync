@@ -1,6 +1,7 @@
 package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.dto.ExternalLinkDto;
+import com.techindna.eventsync.dto.speaker.SpeakerDetailResponseDto;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
 import com.techindna.eventsync.dto.speaker.SpeakerResponseDto;
 import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
@@ -9,7 +10,6 @@ import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.mapper.ExternalLinkMapper;
 import com.techindna.eventsync.mapper.SpeakerMapper;
-import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
@@ -26,9 +26,11 @@ public class SpeakerRepository {
     private static final String FOREIGN_KEY_VIOLATION_SQLSTATE = "23503";
 
     private final DataSource dataSource;
+    private final SessionRepository sessionRepository;
 
-    public SpeakerRepository(DataSource dataSource){
+    public SpeakerRepository(DataSource dataSource, SessionRepository sessionRepository){
         this.dataSource = dataSource;
+        this.sessionRepository = sessionRepository;
     }
 
     private static String getAllSpeakerQuery(){
@@ -220,9 +222,13 @@ public class SpeakerRepository {
     private List<ExternalLinkDto> getExternalLinks(UUID id, Connection connection) {
         final String query =
                 """
-                   select name as link_name, url as link_url                                        \s
-                   from eventsync_app.external_link                                                 \s
-                   where user_id = ?
+                   select 
+                       name as link_name,
+                       url as link_url
+                   from
+                       eventsync_app.external_link
+                   where
+                       user_id = ?
                 """;
         try (PreparedStatement ps = connection.prepareStatement(query)){
             List<ExternalLinkDto> externalLinks = new ArrayList<>();
@@ -259,6 +265,50 @@ public class SpeakerRepository {
                 throw new NotFoundException(String.format("Speaker %s not found.", id));
             }
             throw new RuntimeException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+    }
+
+    public Optional<SpeakerDetailResponseDto> findSpeakerById(UUID id) {
+        final String speakerWithLinksQuery = """
+            select
+                u.id, u.first_name, u.last_name, u.email,
+                u.profile_picture, u.bio,
+                el.name as link_name,
+                el.url as link_url
+            from eventsync_app.users u
+            left join eventsync_app.external_link el on el.user_id = u.id
+            where u.id = ? and u."role" = 'speaker'
+            """;
+
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = connection.prepareStatement(speakerWithLinksQuery)) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                SpeakerDetailResponseDto speaker = null;
+                List<ExternalLinkDto> externalLinks = new ArrayList<>();
+
+                while (rs.next()) {
+                    if (speaker == null) {
+                        speaker = SpeakerMapper.mapSpeakerDetailResponse(rs);
+                    }
+                    if (rs.getString("link_name") != null) {
+                        externalLinks.add(ExternalLinkMapper.mapExternalLink(rs));
+                    }
+                }
+
+                if (speaker == null) {
+                    return Optional.empty();
+                }
+                speaker.setExternalLinks(externalLinks.isEmpty() ? null : externalLinks);
+                speaker.setSessions(sessionRepository.findSessionsBySpeakerId(connection, id));
+
+                return Optional.of(speaker);
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }

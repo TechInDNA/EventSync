@@ -2,11 +2,14 @@ package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.dto.events.EventSessionResponseDto;
+import com.techindna.eventsync.dto.speaker.SessionForSpeakerDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.mapper.EventMapper;
+import com.techindna.eventsync.mapper.RoomMapper;
 import com.techindna.eventsync.mapper.SessionMapper;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
@@ -359,6 +362,48 @@ public class SessionRepository {
         }
     }
 
+    public List<SessionForSpeakerDto> findSessionsBySpeakerId(Connection connection, UUID speakerId) {
+        final String query = """
+            select
+                s.id, s.title, s.description,
+                s.start_date, s.end_date,
+                r.id as room_id, r.name as room_name,
+                s.capacity,
+                e.id as event_id, e.title as event_title,
+                e.description as event_description,
+                e.start_date as event_start_date,
+                e.end_date as event_end_date,
+                e.location, e.created_at
+            from eventsync_app.sessions s
+            join eventsync_app.rooms r on s.room_id = r.id
+            join eventsync_app.events e on s.event_id = e.id
+            join eventsync_app.intervene i on i.session_id = s.id
+            where i.speaker_id = ?
+            order by s.start_date
+            """;
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, speakerId);
+            List<SessionForSpeakerDto> sessions = new ArrayList<>();
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    SessionForSpeakerDto session = new SessionForSpeakerDto();
+
+                    SessionMapper.mapCommonSessionFields(rs, session);
+                    session.setRoom(RoomMapper.mapResultSetToRoom(rs));
+                    session.setEvent(EventMapper.mapResultSetToEventWithAlias(rs));
+                    session.setLive(Instant.now().isAfter(session.getStartDate()) && Instant.now().isBefore(session.getEndDate()));
+
+                    sessions.add(session);
+                }
+            }
+            return sessions.isEmpty() ? null : sessions;
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
     public List<EventSessionResponseDto> findSessionsByEventId(Connection connection, UUID eventId) {
         final String query = """
             select s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
@@ -374,7 +419,7 @@ public class SessionRepository {
                 while (rs.next()) {
                     sessions.add(SessionMapper.mapResultSetToEventSessionDto(rs));
                 }
-                return sessions.isEmpty() ? null : sessions;
+            return sessions;
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
