@@ -78,4 +78,14 @@ public class SpeakerService {
         return speakerRepository.addExternalLinksBySpeakerId(UUID.fromString(id), links);
     }
 
+    @Transactional
+    public void deleteExternalLink(String speakerId, String url) {
+        dataValidator.validateUUID(speakerId);
+        dataValidator.checkNullData("url", url);
+        dataValidator.validateUrl(url);
+        speakerRepository.deleteExternalLinkBySpeakerId(UUID.fromString(speakerId), url)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("Speaker %s or external link with URL %s not found.", speakerId, url)));
+    }
+
 }

@@ -116,6 +116,26 @@ public class SpeakersController {
         }
     }
 
+    @DeleteMapping("/{id}/external-link")
+    public ResponseEntity<?> deleteExternalLinkBySpeakerId(
+            @PathVariable String id,
+            @RequestParam String url) {
+
+        try {
+            speakerService.deleteExternalLink(id, url);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
     @DeleteMapping(value = {"/{id}"})
     public ResponseEntity<?> deleteSpeaker(@PathVariable String id) {
         try {
