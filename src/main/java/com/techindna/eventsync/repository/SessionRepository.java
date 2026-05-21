@@ -398,7 +398,7 @@ public class SessionRepository {
                     sessions.add(session);
                 }
             }
-            return sessions;
+            return sessions.isEmpty() ? null : sessions;
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
@@ -419,7 +419,7 @@ public class SessionRepository {
                 while (rs.next()) {
                     sessions.add(SessionMapper.mapResultSetToEventSessionDto(rs));
                 }
-                return sessions.isEmpty() ? null : sessions;
+            return sessions;
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
