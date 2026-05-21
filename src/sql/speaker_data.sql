@@ -32,6 +32,19 @@ values
     ('a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d', 'Mia', 'Harris', 'mia.speaker@eventsync.com', 'AI researcher exploring natural language processing and computer vision.', 'https://i.pravatar.cc/150?img=15', 'speaker')
 on conflict (id) do nothing;
 
+-- Speakers for testing POST /speakers/{id}/external-link endpoint
+-- (45047c18 has no links, be8bfef5 has one link)
+insert into eventsync_app.users (id, first_name, last_name, email, bio, profile_picture, "role")
+values
+    ('45047c18-1984-4d1e-bcbc-a7407c227292', 'Alice', 'External', 'alice.external@eventsync.com', 'Speaker without external links for testing POST external-link endpoint.', null, 'speaker'),
+    ('be8bfef5-d76f-4b54-a7aa-8209b17b5a54', 'Bob', 'External', 'bob.external@eventsync.com', 'Speaker with an existing external link for testing POST external-link endpoint.', null, 'speaker')
+on conflict (id) do nothing;
+
+insert into eventsync_app.external_link (name, url, user_id)
+values
+    ('Website', 'https://bobexternal.dev', 'be8bfef5-d76f-4b54-a7aa-8209b17b5a54')
+on conflict (url) do nothing;
+
 -- External links for testing GET /speakers endpoint
 insert into eventsync_app.external_link (name, url, user_id)
 values
