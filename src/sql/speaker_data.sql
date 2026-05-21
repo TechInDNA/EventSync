@@ -78,13 +78,35 @@ values
     ('Research Gate', 'https://researchgate.net/miaharris', 'a2b3c4d5-e6f7-4a8b-9c0d-1e2f3a4b5c6d')
 on conflict (url) do nothing;
 
+-- Event and room for speaker session testing (self-contained, not dependent on other seed files)
+insert into eventsync_app.events (id, title, description, start_date, end_date, location)
+values
+    ('cdd5887b-ce3e-4e24-9de1-7b09b2a83e87', 'Speaker Test Event', 'Event for testing GET /speakers/{id} with sessions', '2026-06-15 09:00:00', '2026-06-17 18:00:00', 'Speaker Hall')
+on conflict (id) do nothing;
+
+insert into eventsync_app.rooms (id, name)
+values
+    ('27a2b9bf-065b-481c-a129-6ec1df7bccef', 'Speaker Test Room')
+on conflict (id) do nothing;
+
+-- Sessions for speakers (each speaker gets their own session)
+insert into eventsync_app.sessions (id, title, description, start_date, end_date, room_id, capacity, event_id)
+values
+    ('2c72c072-6ba4-4399-9f4a-a1cdf699d34b', 'Backend Best Practices', 'Session with Charlie Brown', '2026-06-15 10:00:00', '2026-06-15 11:00:00', '27a2b9bf-065b-481c-a129-6ec1df7bccef', 50, 'cdd5887b-ce3e-4e24-9de1-7b09b2a83e87'),
+    ('b47b54d4-0137-45ad-8810-53b1fb4dc168', 'Mobile Development Trends', 'Session with Eve Davis', '2026-06-15 11:00:00', '2026-06-15 12:00:00', '27a2b9bf-065b-481c-a129-6ec1df7bccef', 40, 'cdd5887b-ce3e-4e24-9de1-7b09b2a83e87'),
+    ('3be42989-8854-48e2-a3d0-da6379a962b0', 'Blockchain Fundamentals', 'Session with Frank Garcia', '2026-06-15 13:00:00', '2026-06-15 14:00:00', '27a2b9bf-065b-481c-a129-6ec1df7bccef', 30, 'cdd5887b-ce3e-4e24-9de1-7b09b2a83e87'),
+    ('d3b3bf8e-2627-42b8-b9e5-8f96869d052c', 'Product Management 101', 'Session with Grace Lopez', '2026-06-15 14:00:00', '2026-06-15 15:00:00', '27a2b9bf-065b-481c-a129-6ec1df7bccef', 45, 'cdd5887b-ce3e-4e24-9de1-7b09b2a83e87'),
+    ('213e44a1-d6c9-48b4-8a6e-1b7a53caec84', 'Cloud Infrastructure Talk', 'Session with Henry Martinez', '2026-06-16 09:00:00', '2026-06-16 10:00:00', '27a2b9bf-065b-481c-a129-6ec1df7bccef', 60, 'cdd5887b-ce3e-4e24-9de1-7b09b2a83e87'),
+    ('f9a5a12f-f734-4c4a-9286-6818f8e82fac', 'Software Quality Assurance', 'Session with Ivy Anderson', '2026-06-16 10:00:00', '2026-06-16 11:00:00', '27a2b9bf-065b-481c-a129-6ec1df7bccef', 35, 'cdd5887b-ce3e-4e24-9de1-7b09b2a83e87')
+on conflict (id) do nothing;
+
 -- Link speakers to sessions for GET /speakers/{id} endpoint testing
 insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
 values
-    ('7e5dbf7c-a5a0-43c4-9406-564b69bba987', 'c2d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f', '8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e', '09:00:00+02', '12:00:00+02'),
-    ('9e6d8267-060f-4432-9223-fc14a83ec747', 'e4f5a6b7-c8d9-4e0f-1a2b-3c4d5e6f7a8b', '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b', '14:00:00+02', '16:00:00+02'),
-    ('2fca8017-c2be-4142-8e2b-c257c2285b7b', 'f5a6b7c8-d9e0-4f1a-2b3c-4d5e6f7a8b9c', '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f', '10:00:00+02', '10:45:00+02'),
-    ('7b14f7e5-6425-4dc2-8305-e91a6163c3e8', 'a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d', '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c', '10:00:00+02', '11:30:00+02'),
-    ('3cdeaca9-9e93-4ecd-b8a0-4ef1b5ff7e0f', 'b7c8d9e0-f1a2-4b3c-5d6e-7f8a9b0c1d2e', '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d', '10:00:00+02', '12:00:00+02'),
-    ('4e970832-cf73-448c-aa95-ced3b1c200bb', 'c8d9e0f1-a2b3-4c5d-6e7f-8a9b0c1d2e3f', '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a', '09:00:00+02', '12:00:00+02')
+    ('7e5dbf7c-a5a0-43c4-9406-564b69bba987', 'c2d3e4f5-a6b7-4c8d-9e0f-1a2b3c4d5e6f', '2c72c072-6ba4-4399-9f4a-a1cdf699d34b', '10:00:00+02', '11:00:00+02'),
+    ('9e6d8267-060f-4432-9223-fc14a83ec747', 'e4f5a6b7-c8d9-4e0f-1a2b-3c4d5e6f7a8b', 'b47b54d4-0137-45ad-8810-53b1fb4dc168', '11:00:00+02', '12:00:00+02'),
+    ('2fca8017-c2be-4142-8e2b-c257c2285b7b', 'f5a6b7c8-d9e0-4f1a-2b3c-4d5e6f7a8b9c', '3be42989-8854-48e2-a3d0-da6379a962b0', '13:00:00+02', '14:00:00+02'),
+    ('7b14f7e5-6425-4dc2-8305-e91a6163c3e8', 'a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d', 'd3b3bf8e-2627-42b8-b9e5-8f96869d052c', '14:00:00+02', '15:00:00+02'),
+    ('3cdeaca9-9e93-4ecd-b8a0-4ef1b5ff7e0f', 'b7c8d9e0-f1a2-4b3c-5d6e-7f8a9b0c1d2e', '213e44a1-d6c9-48b4-8a6e-1b7a53caec84', '09:00:00+02', '10:00:00+02'),
+    ('4e970832-cf73-448c-aa95-ced3b1c200bb', 'c8d9e0f1-a2b3-4c5d-6e7f-8a9b0c1d2e3f', 'f9a5a12f-f734-4c4a-9286-6818f8e82fac', '10:00:00+02', '11:00:00+02')
 on conflict (id) do nothing;
