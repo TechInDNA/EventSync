@@ -56,6 +56,18 @@ public class EventMapper {
         return dto;
     }
 
+    public static Event mapResultSetToEventWithAlias(ResultSet rs) throws SQLException {
+        Event event = new Event();
+        event.setId(UUID.fromString(rs.getString("event_id")));
+        event.setTitle(rs.getString("event_title"));
+        event.setDescription(rs.getString("event_description"));
+        event.setStartDate(rs.getTimestamp("event_start_date").toInstant());
+        event.setEndDate(rs.getTimestamp("event_end_date").toInstant());
+        event.setLocation(rs.getString("location"));
+        event.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+        return event;
+    }
+
     public static EventRequestDto mapPutRequestToRequestDto(PutEventRequestDto request, String id) {
         EventRequestDto event = new EventRequestDto();
         event.setId(id);

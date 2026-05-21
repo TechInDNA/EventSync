@@ -63,6 +63,13 @@ public class SpeakerService {
                 .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s not found.", id)));
     }
 
+    @Transactional(readOnly = true)
+    public SpeakerDetailResponseDto getSpeakerById(String id) {
+        dataValidator.validateUUID(id);
+        return speakerRepository.findSpeakerById(UUID.fromString(id))
+                .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s does not exist.", id)));
+    }
+
     @Transactional
     public List<ExternalLinkDto> addExternalLinkBySpeakerId(String id, ExternalLinkDto links) {
         dataValidator.validateUUID(id);
