@@ -217,32 +217,48 @@ public class SpeakerRepository {
         }
     }
 
+    private List<ExternalLinkDto> getExternalLinks(UUID id, Connection connection) {
+        final String query =
+                """
+                   select name as link_name, url as link_url                                        \s
+                   from eventsync_app.external_link                                                 \s
+                   where user_id = ?
+                """;
+        try (PreparedStatement ps = connection.prepareStatement(query)){
+            List<ExternalLinkDto> externalLinks = new ArrayList<>();
+            ps.setObject(1, id);
+            try(ResultSet rs = ps.executeQuery()){
+                while (rs.next()) {
+                    externalLinks.add(ExternalLinkMapper.mapExternalLink(rs));
+                }
+            }
+            return externalLinks;
+
+        } catch (SQLException e){
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
     public List<ExternalLinkDto> addExternalLinksBySpeakerId(UUID id, ExternalLinkDto externalLink) {
         final String insertLink =
                 """
-                insert into eventsync_app.external_link(name, url, user_id)
-                values(?, ?, ?)
-                returning name as link_name, url as link_url
+                    insert into eventsync_app.external_link(name, url, user_id)
+                    values (?, ?, ?)
                 """;
-        List<ExternalLinkDto> insertedLinks = new ArrayList<>();
         Connection connection = DataSourceUtils.getConnection(dataSource);
 
         try (PreparedStatement ps = connection.prepareStatement(insertLink)) {
             ExternalLinkMapper.bindInsertExternalLinkParams(ps, externalLink, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    insertedLinks.add(ExternalLinkMapper.mapExternalLink(rs));
-                }
-            }
-            return insertedLinks;
+            ps.executeUpdate();
+            return getExternalLinks(id, connection);
         } catch (SQLException e){
             if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
-                throw new ConflictException("One or more external links URL already exist.");
+                throw new ConflictException("This URL already exists.");
             }
             if (FOREIGN_KEY_VIOLATION_SQLSTATE.equals(e.getSQLState())){
                 throw new NotFoundException(String.format("Speaker %s not found.", id));
             }
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
+            throw new RuntimeException("Database error: " + e.getMessage());
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }

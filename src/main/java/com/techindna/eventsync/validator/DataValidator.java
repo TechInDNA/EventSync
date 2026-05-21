@@ -176,6 +176,7 @@ public class DataValidator {
 
     public void validateExternalLink(ExternalLinkDto link) {
         validateString("name", link.getName());
+        checkNullData("url", link.getUrl());
         validateUrl(link.getUrl());
     }
 

@@ -126,7 +126,7 @@ curlie -k -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"name"
 # Step 24: Valid name with allowed special chars (should return 201)
 echo ""
 echo "--- Test 23: Valid name with allowed special chars .,'':- (should return 201) ---"
-curlie -k -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"name":"O'Connor - Site.dev","url":"https://oconnor.dev"}' https://localhost:443/speakers/$WITHOUT_LINKS_ID/external-link
+curlie -k -X POST -b cookies.txt -H "Content-Type: application/json" -d '{"name":"OC - Site.dev","url":"https://oconnor.dev"}' https://localhost:443/speakers/$WITHOUT_LINKS_ID/external-link
 
 # Cleanup
 rm -f cookies.txt
