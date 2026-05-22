@@ -45,7 +45,7 @@ public class AuthService {
         if (admin == null || !passwordEncoder.matches(password, admin.getPassword())) {
             int attempts = authRepository.incrementFailedAttempt(ipAddress);
             if (attempts >= MAX_ATTEMPT_LIMIT) {
-                throw new TooManyRequestException("Too many login failures. Your IP has been blocked.");
+                throw new TooManyRequestException("You are blocked due to too many failed login attempts.");
             }
             throw new UnauthorizedException(
                     String.format("Invalid credentials, %d attempts left.", MAX_ATTEMPT_LIMIT - attempts)
