@@ -12,8 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -24,9 +22,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final DataValidator dataValidator;
     private static final int MAX_ATTEMPT_LIMIT = 5;
-    private static final Duration RESET_DURATION = Duration.ofHours(12);
-    private int loggingAttempt = 0;
-    private Instant firstFailureTime = null;
 
     public AuthService(AuthRepository authRepository, TokenProvider tokenProvider, PasswordEncoder passwordEncoder, DataValidator dataValidator) {
         this.authRepository = authRepository;
@@ -35,30 +30,29 @@ public class AuthService {
         this.dataValidator = dataValidator;
     }
 
-    @Transactional(readOnly = true)
-    public Administrator logInByEmailAndPassword(String email, String password) {
+    @Transactional
+    public Administrator logInByEmailAndPassword(String email, String password, String ipAddress) {
         dataValidator.validateEmail(email);
         dataValidator.checkNullData("password", password);
 
-        if (firstFailureTime != null && Duration.between(firstFailureTime, Instant.now()).compareTo(RESET_DURATION) >= 0) {
-            loggingAttempt = 0;
-            firstFailureTime = null;
+        Optional<Integer> blacklisted = authRepository.findBlacklistedIp(ipAddress);
+        if (blacklisted.isPresent() && blacklisted.get() >= MAX_ATTEMPT_LIMIT) {
+            throw new UnauthorizedException("You are blocked due to too many failed login attempts.");
         }
 
-        if (loggingAttempt >= MAX_ATTEMPT_LIMIT) {
-            throw new TooManyRequestException("Too many login failures. Try again in 12 hours.");
-        }
+        Administrator admin = authRepository.findAdminDataByEmail(email).orElse(null);
 
-        Administrator admin = authRepository.findAdminDataByEmail(email)
-                .orElseThrow(() -> new UnauthorizedException("Invalid credentials."));
-
-        if (!passwordEncoder.matches(password, admin.getPassword())) {
-            loggingAttempt++;
-            if (loggingAttempt == 1) {
-                firstFailureTime = Instant.now();
+        if (admin == null || !passwordEncoder.matches(password, admin.getPassword())) {
+            int attempts = authRepository.incrementFailedAttempt(ipAddress);
+            if (attempts >= MAX_ATTEMPT_LIMIT) {
+                throw new TooManyRequestException("Too many login failures. Your IP has been blocked.");
             }
-            throw new UnauthorizedException("Invalid credentials.");
+            throw new UnauthorizedException(
+                    String.format("Invalid credentials, %d attempts left.", MAX_ATTEMPT_LIMIT - attempts)
+            );
         }
+
+        authRepository.deleteBlacklistedIp(ipAddress);
         return admin;
     }
 
