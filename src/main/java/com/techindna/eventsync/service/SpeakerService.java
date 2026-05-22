@@ -84,7 +84,8 @@ public class SpeakerService {
         dataValidator.validateString("url name", urlName);
         dataValidator.validateExternalLink(externalLink);
 
-        return speakerRepository.updateExternalLinkBySpeakerId(UUID.fromString(id), urlName, externalLink);
+        return speakerRepository.updateExternalLinkBySpeakerId(UUID.fromString(id), urlName, externalLink)
+                .orElseThrow(() -> new NotFoundException(String.format("External link name '%s' or speaker %s does not exist.", urlName, id)));
     }
 
     @Transactional

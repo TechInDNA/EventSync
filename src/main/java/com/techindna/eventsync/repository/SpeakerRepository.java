@@ -270,7 +270,7 @@ public class SpeakerRepository {
         }
     }
 
-    public List<ExternalLinkDto> updateExternalLinkBySpeakerId(UUID id, String urlName, ExternalLinkDto externalLink) {
+    public Optional<List<ExternalLinkDto>> updateExternalLinkBySpeakerId(UUID id, String urlName, ExternalLinkDto externalLink) {
         final String query =
                 """
                     update eventsync_app.external_link
@@ -282,19 +282,13 @@ public class SpeakerRepository {
 
         try {
             try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setString(1, externalLink.getName());
-                ps.setString(2, externalLink.getUrl());
-                ps.setObject(3, id);
+                ExternalLinkMapper.bindInsertExternalLinkParams(ps, externalLink, id);
                 ps.setString(4, urlName);
                 try (ResultSet rs = ps.executeQuery()) {
-                    if (!rs.next()) {
-                        throw new NotFoundException(
-                            String.format("External link with name '%s' for speaker %s not found.", urlName, id)
-                        );
-                    }
+                    return rs.next() ? Optional.of(getExternalLinks(id, connection))
+                            : Optional.empty();
                 }
             }
-            return getExternalLinks(id, connection);
         } catch (SQLException e) {
             if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
                 throw new ConflictException("This URL already exists.");
