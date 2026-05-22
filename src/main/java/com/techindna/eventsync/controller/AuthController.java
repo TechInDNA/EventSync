@@ -11,6 +11,7 @@ import com.techindna.eventsync.exception.TooManyRequestException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.mapper.AuthMapper;
 import com.techindna.eventsync.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -33,9 +34,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthLoginRequestDto request) {
+    public ResponseEntity<?> login(@RequestBody AuthLoginRequestDto request, HttpServletRequest servletRequest) {
         try{
-            Administrator admin = authService.logInByEmailAndPassword(request.getEmail(), request.getPassword());
+            String ipAddress = servletRequest.getRemoteAddr();
+            Administrator admin = authService.logInByEmailAndPassword(request.getEmail(), request.getPassword(), ipAddress);
             String token = authService.generateToken(admin);
 
             ResponseCookie jwtCookie = ResponseCookie.from("jwt", token)
