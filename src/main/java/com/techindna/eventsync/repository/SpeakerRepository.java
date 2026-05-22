@@ -270,6 +270,41 @@ public class SpeakerRepository {
         }
     }
 
+    public List<ExternalLinkDto> updateExternalLinkBySpeakerId(UUID id, String urlName, ExternalLinkDto externalLink) {
+        final String query =
+                """
+                    update eventsync_app.external_link
+                    set name = ?, url = ?
+                    where user_id = ? and name = ?
+                    returning id
+                """;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try {
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setString(1, externalLink.getName());
+                ps.setString(2, externalLink.getUrl());
+                ps.setObject(3, id);
+                ps.setString(4, urlName);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new NotFoundException(
+                            String.format("External link with name '%s' for speaker %s not found.", urlName, id)
+                        );
+                    }
+                }
+            }
+            return getExternalLinks(id, connection);
+        } catch (SQLException e) {
+            if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
+                throw new ConflictException("This URL already exists.");
+            }
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+    }
+
     public Optional<SpeakerDetailResponseDto> findSpeakerById(UUID id) {
         final String speakerWithLinksQuery = """
             select
