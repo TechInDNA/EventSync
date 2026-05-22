@@ -10,8 +10,6 @@ import com.techindna.eventsync.repository.AuthRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 
 @Service
@@ -30,7 +28,6 @@ public class AuthService {
         this.dataValidator = dataValidator;
     }
 
-    @Transactional
     public Administrator logInByEmailAndPassword(String email, String password, String ipAddress) {
         dataValidator.validateEmail(email);
         dataValidator.checkNullData("password", password);
