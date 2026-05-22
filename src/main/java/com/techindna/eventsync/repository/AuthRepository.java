@@ -18,6 +18,7 @@ import java.util.UUID;
 @Repository
 public class AuthRepository {
     private final DataSource dataSource;
+    private static final int MAX_ATTEMPT_LIMIT = 5;
 
     public AuthRepository(DataSource dataSource){
         this.dataSource = dataSource;
@@ -109,6 +110,71 @@ public class AuthRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public Optional<Integer> findBlacklistedIp(String ipAddress) {
+        final String query = """
+            SELECT failed_attempt
+            FROM eventsync_app.blacklisted_ip
+            WHERE ip_address = ?
+            """;
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, ipAddress);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(rs.getInt("failed_attempt"))
+                        : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
+        }
+    }
+
+    public int incrementFailedAttempt(String ipAddress) {
+        final String query = """
+            INSERT INTO eventsync_app.blacklisted_ip (ip_address, failed_attempt)
+            VALUES (?, 1)
+            ON CONFLICT (ip_address)
+            DO UPDATE SET failed_attempt = blacklisted_ip.failed_attempt + 1
+            WHERE blacklisted_ip.failed_attempt < ?
+            RETURNING failed_attempt
+            """;
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, ipAddress);
+            ps.setInt(2, MAX_ATTEMPT_LIMIT);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt("failed_attempt")
+                        : MAX_ATTEMPT_LIMIT;
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
+        }
+    }
+
+    public void deleteBlacklistedIp(String ipAddress) {
+        final String query = """
+            DELETE FROM eventsync_app.blacklisted_ip
+            WHERE ip_address = ?
+            """;
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, ipAddress);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 }
