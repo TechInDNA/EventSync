@@ -89,3 +89,9 @@ CREATE INDEX idx_users_role ON eventsync_app.users("role");
 
 CREATE INDEX idx_users_role_name ON eventsync_app.users("role", last_name, first_name);
 
+CREATE TABLE IF NOT EXISTS eventsync_app.blacklisted_ip(
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    ip_address varchar(50) UNIQUE NOT NULL,
+    failed_attempt int NOT NULL DEFAULT 1,
+    created_at timestamp DEFAULT now()
+);

@@ -1,6 +1,6 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.auth;
 
-import com.techindna.eventsync.entity.User;
+import com.techindna.eventsync.dto.UserResponseDto;
 
 public class AuthLoginResponseDto {
     private UserResponseDto user;

@@ -5,12 +5,11 @@ import com.techindna.eventsync.dto.AuthParticipantRequestDto;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.TooManyRequestException;
+import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.repository.AuthRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -21,9 +20,6 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final DataValidator dataValidator;
     private static final int MAX_ATTEMPT_LIMIT = 5;
-    private static final Duration RESET_DURATION = Duration.ofHours(12);
-    private int loggingAttempt = 0;
-    private Instant firstFailureTime = null;
 
     public AuthService(AuthRepository authRepository, TokenProvider tokenProvider, PasswordEncoder passwordEncoder, DataValidator dataValidator) {
         this.authRepository = authRepository;
@@ -32,28 +28,28 @@ public class AuthService {
         this.dataValidator = dataValidator;
     }
 
-    public Optional<Administrator> logInAdmin(String email, String password) {
+    public Administrator logInByEmailAndPassword(String email, String password, String ipAddress) {
         dataValidator.validateEmail(email);
         dataValidator.checkNullData("password", password);
 
-        if (firstFailureTime != null && Duration.between(firstFailureTime, Instant.now()).compareTo(RESET_DURATION) >= 0) {
-            loggingAttempt = 0;
-            firstFailureTime = null;
+        Optional<Integer> blacklisted = authRepository.findBlacklistedIp(ipAddress);
+        if (blacklisted.isPresent() && blacklisted.get() >= MAX_ATTEMPT_LIMIT) {
+            throw new UnauthorizedException("You are blocked due to too many failed login attempts.");
         }
 
-        if (loggingAttempt >= MAX_ATTEMPT_LIMIT) {
-            throw new TooManyRequestException("Too many login failures. Try again in 12 hours.");
-        }
+        Administrator admin = authRepository.findAdminDataByEmail(email).orElse(null);
 
-        Optional<Administrator> admin = authRepository.findAdminByEmail(email);
-
-        if (!passwordEncoder.matches(password, admin.map(Administrator::getPassword).orElse(null))) {
-            loggingAttempt++;
-            if (loggingAttempt == 1) {
-                firstFailureTime = Instant.now();
+        if (admin == null || !passwordEncoder.matches(password, admin.getPassword())) {
+            int attempts = authRepository.incrementFailedAttempt(ipAddress);
+            if (attempts >= MAX_ATTEMPT_LIMIT) {
+                throw new TooManyRequestException("You are blocked due to too many failed login attempts.");
             }
-            return Optional.empty();
+            throw new UnauthorizedException(
+                    String.format("Invalid credentials, %d attempts left.", MAX_ATTEMPT_LIMIT - attempts)
+            );
         }
+
+        authRepository.deleteBlacklistedIp(ipAddress);
         return admin;
     }
 

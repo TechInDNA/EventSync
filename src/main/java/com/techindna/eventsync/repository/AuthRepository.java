@@ -3,6 +3,7 @@ package com.techindna.eventsync.repository;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.mapper.AuthMapper;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -16,12 +17,13 @@ import java.util.UUID;
 @Repository
 public class AuthRepository {
     private final DataSource dataSource;
+    private static final int MAX_ATTEMPT_LIMIT = 5;
 
     public AuthRepository(DataSource dataSource){
         this.dataSource = dataSource;
     }
 
-    public Optional<Administrator> findAdminByEmail(String email) {
+    public Optional<Administrator> findAdminDataByEmail(String email) {
         String sql = """
             select
             id,
@@ -37,21 +39,14 @@ public class AuthRepository {
             and role = 'admin'
             """;
         try (
-                Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)
         ) {
-                ps.setString(1, email);
+            ps.setString(1, email);
+
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Administrator admin = new Administrator();
-                    admin.setId(UUID.fromString(rs.getString("id")));
-                    admin.setFirstName(rs.getString("first_name"));
-                    admin.setLastName(rs.getString("last_name"));
-                    admin.setPassword(rs.getString("password"));
-                    admin.setEmail(rs.getString("email"));
-                    return Optional.of(admin);
-                }
-                return Optional.empty();
+                return rs.next() ? Optional.of(AuthMapper.mapResultSetToAdministrator(rs))
+                        : Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
@@ -111,6 +106,68 @@ public class AuthRepository {
                 }
                 return Optional.empty();
             }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public Optional<Integer> findBlacklistedIp(String ipAddress) {
+        final String query = """
+            SELECT failed_attempt
+            FROM eventsync_app.blacklisted_ip
+            WHERE ip_address = ?
+            """;
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
+            ps.setString(1, ipAddress);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(rs.getInt("failed_attempt"))
+                        : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public int incrementFailedAttempt(String ipAddress) {
+        final String query = """
+            INSERT INTO eventsync_app.blacklisted_ip (ip_address, failed_attempt)
+            VALUES (?, 1)
+            ON CONFLICT (ip_address)
+            DO UPDATE SET failed_attempt = blacklisted_ip.failed_attempt + 1
+            WHERE blacklisted_ip.failed_attempt < ?
+            RETURNING failed_attempt
+            """;
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
+            ps.setString(1, ipAddress);
+            ps.setInt(2, MAX_ATTEMPT_LIMIT);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? rs.getInt("failed_attempt")
+                        : MAX_ATTEMPT_LIMIT;
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public void deleteBlacklistedIp(String ipAddress) {
+        final String query = """
+            DELETE FROM eventsync_app.blacklisted_ip
+            WHERE ip_address = ?
+            """;
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
+            ps.setString(1, ipAddress);
+            ps.executeUpdate();
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
