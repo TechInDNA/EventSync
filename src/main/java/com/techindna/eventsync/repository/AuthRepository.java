@@ -3,6 +3,8 @@ package com.techindna.eventsync.repository;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.mapper.AuthMapper;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -21,7 +23,7 @@ public class AuthRepository {
         this.dataSource = dataSource;
     }
 
-    public Optional<Administrator> findAdminByEmail(String email) {
+    public Optional<Administrator> findAdminDataByEmail(String email) {
         String sql = """
             select
             id,
@@ -36,25 +38,19 @@ public class AuthRepository {
             email = ?
             and role = 'admin'
             """;
-        try (
-                Connection connection = dataSource.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)
-        ) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
                 ps.setString(1, email);
+
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Administrator admin = new Administrator();
-                    admin.setId(UUID.fromString(rs.getString("id")));
-                    admin.setFirstName(rs.getString("first_name"));
-                    admin.setLastName(rs.getString("last_name"));
-                    admin.setPassword(rs.getString("password"));
-                    admin.setEmail(rs.getString("email"));
-                    return Optional.of(admin);
-                }
-                return Optional.empty();
+                return rs.next() ? Optional.of(AuthMapper.mapResultSetToAdministrator(rs))
+                        : Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 

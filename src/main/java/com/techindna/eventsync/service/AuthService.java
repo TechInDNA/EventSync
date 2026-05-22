@@ -5,10 +5,13 @@ import com.techindna.eventsync.dto.AuthParticipantRequestDto;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.TooManyRequestException;
+import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.repository.AuthRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Optional;
@@ -32,7 +35,8 @@ public class AuthService {
         this.dataValidator = dataValidator;
     }
 
-    public Optional<Administrator> logInAdmin(String email, String password) {
+    @Transactional(readOnly = true)
+    public Administrator logInByEmailAndPassword(String email, String password) {
         dataValidator.validateEmail(email);
         dataValidator.checkNullData("password", password);
 
@@ -45,14 +49,15 @@ public class AuthService {
             throw new TooManyRequestException("Too many login failures. Try again in 12 hours.");
         }
 
-        Optional<Administrator> admin = authRepository.findAdminByEmail(email);
+        Administrator admin = authRepository.findAdminDataByEmail(email)
+                .orElseThrow(() -> new UnauthorizedException("Invalid credentials."));
 
-        if (!passwordEncoder.matches(password, admin.map(Administrator::getPassword).orElse(null))) {
+        if (!passwordEncoder.matches(password, admin.getPassword())) {
             loggingAttempt++;
             if (loggingAttempt == 1) {
                 firstFailureTime = Instant.now();
             }
-            return Optional.empty();
+            throw new UnauthorizedException("Invalid credentials.");
         }
         return admin;
     }
