@@ -45,6 +45,32 @@ values
     ('Website', 'https://bobexternal.dev', 'be8bfef5-d76f-4b54-a7aa-8209b17b5a54')
 on conflict (url) do nothing;
 
+-- Test speakers for PUT /speakers/{id}/external-link endpoint
+-- (0fb7a6ca has one external link, 38d851f2 has no external link)
+insert into eventsync_app.users (id, first_name, last_name, email, bio, profile_picture, "role")
+values
+    ('0fb7a6ca-431a-46d6-a4bb-8e739979dbb5', 'Charlie', 'PutLink', 'charlie.putlink@eventsync.com', 'Speaker with an external link for testing PUT external-link endpoint.', null, 'speaker'),
+    ('38d851f2-b57c-4425-96b9-24aedbf39d42', 'Diana', 'PutLink', 'diana.putlink@eventsync.com', 'Speaker without external link for testing PUT external-link endpoint.', null, 'speaker')
+on conflict (id) do nothing;
+
+insert into eventsync_app.external_link (name, url, user_id)
+values
+    ('Website', 'https://charlieputlink.dev', '0fb7a6ca-431a-46d6-a4bb-8e739979dbb5'),
+    ('GitHub', 'https://github.com/charlieputlink', '0fb7a6ca-431a-46d6-a4bb-8e739979dbb5'),
+    ('LinkedIn', 'https://linkedin.com/in/charlieputlink', '0fb7a6ca-431a-46d6-a4bb-8e739979dbb5')
+on conflict (url) do nothing;
+
+-- Another test speaker with an external link for PUT /speakers/{id}/external-link endpoint
+insert into eventsync_app.users (id, first_name, last_name, email, bio, profile_picture, "role")
+values
+    ('7ed74711-3d25-4699-b961-cf0db6472b76', 'Eve', 'PutLink', 'eve.putlink@eventsync.com', 'Another speaker with an external link for testing PUT external-link endpoint.', null, 'speaker')
+on conflict (id) do nothing;
+
+insert into eventsync_app.external_link (name, url, user_id)
+values
+    ('Portfolio', 'https://eveputlink.dev', '7ed74711-3d25-4699-b961-cf0db6472b76')
+on conflict (url) do nothing;
+
 -- External links for testing GET /speakers endpoint
 insert into eventsync_app.external_link (name, url, user_id)
 values
