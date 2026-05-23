@@ -114,7 +114,7 @@ public class EventRepository {
         return queryBuilder;
     }
 
-    public Optional<Event> findEventByTitle(Connection connection, String title) {
+    public Optional<Event> findEventByTitle(String title) {
         final String query =
             """
             select
@@ -128,6 +128,8 @@ public class EventRepository {
             from eventsync_app.events
             where title = ?
             """;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setString(1, title);
             try (ResultSet rs = ps.executeQuery()) {
@@ -139,10 +141,12 @@ public class EventRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
-    public Optional<EventResponseDto> updateEvent(Connection connection, EventRequestDto request) {
+    public Optional<EventResponseDto> updateEvent(EventRequestDto request) {
         final String query =
             """
             update eventsync_app.events
@@ -155,6 +159,7 @@ public class EventRepository {
             where id = ?
             returning id, title, description, start_date, end_date, location, created_at
             """;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             EventMapper.mapRequestDtoToStatement(request, ps);
             ps.setObject(6, UUID.fromString(request.getId()));
@@ -167,6 +172,8 @@ public class EventRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 

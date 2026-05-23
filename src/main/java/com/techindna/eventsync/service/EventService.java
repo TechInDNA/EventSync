@@ -91,28 +91,23 @@ public class EventService {
                 request.getEndDate(),
                 request.getLocation()
         );
-
-        try (Connection connection = dataSource.getConnection()) {
-            Optional<Event> existing = eventRepository.findEventByTitle(connection, request.getTitle());
+            Optional<Event> existing = eventRepository.findEventByTitle(request.getTitle());
 
             if (existing.isPresent()) {
                 Event e = existing.get();
                 throw new ConflictException(String.format(
-                        "An event with title '%s' already exists (ID: %s, Location: %s, Creation date: %s)",
-                        e.getTitle(), e.getId(), e.getLocation(), e.getCreatedAt()));
+                        "An event with title '%s' already exists (ID: %s, Creation date: %s)",
+                        e.getTitle(), e.getId(), e.getCreatedAt()));
             }
 
             EventRequestDto eventRequest = EventMapper.mapPutRequestToRequestDto(request, id);
-            EventResponseDto response = eventRepository.updateEvent(connection, eventRequest)
+            EventResponseDto response = eventRepository.updateEvent(eventRequest)
                     .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", id)));
 
             List<EventSessionResponseDto> sessions = sessionRepository.findSessionsByEventId(UUID.fromString(id));
-            response.setSessions(sessions);
+            response.setSessions(sessions.isEmpty() ? null : sessions);
 
             return response;
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        }
     }
 
     public UUID deleteEventById(String id) {

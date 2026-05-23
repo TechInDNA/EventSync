@@ -212,7 +212,7 @@ public class SessionRepository {
 
             Room room = roomRepository.findRoomByName(sessionRequestDto.getRoomName())
                     .orElseThrow(() -> new NotFoundException("Room not found."));
-            Event event = eventRepository.findEventByTitle(connection, sessionRequestDto.getEventTitle())
+            Event event = eventRepository.findEventByTitle(sessionRequestDto.getEventTitle())
                     .orElseThrow(() -> new NotFoundException("Event not found."));
 
             ps.setString(1, sessionRequestDto.getTitle());
@@ -307,7 +307,7 @@ public class SessionRepository {
         ) {
             Room room = roomRepository.findRoomByName(sessionRequestDto.getRoomName())
                     .orElseThrow(() -> new NotFoundException("Room not found."));
-            Event event = eventRepository.findEventByTitle(connection, sessionRequestDto.getEventTitle())
+            Event event = eventRepository.findEventByTitle(sessionRequestDto.getEventTitle())
                     .orElseThrow(() -> new NotFoundException("Event not found."));
 
             ps.setString(1, sessionRequestDto.getTitle());
