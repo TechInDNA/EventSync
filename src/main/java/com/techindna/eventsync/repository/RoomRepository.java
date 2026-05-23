@@ -132,10 +132,9 @@ public class RoomRepository {
     public Optional<UUID> deleteRoomById(UUID id) {
         final String query = "DELETE FROM eventsync_app.rooms WHERE id = ? RETURNING id";
 
-        try (
-                Connection conn = dataSource.getConnection();
-                PreparedStatement ps = conn.prepareStatement(query)
-        ) {
+        Connection conn =  DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setObject(1, id);
             try(ResultSet rs = ps.executeQuery()){
                 return rs.next() ? Optional.of(UUID.fromString(rs.getString("id")))
@@ -143,6 +142,8 @@ public class RoomRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 

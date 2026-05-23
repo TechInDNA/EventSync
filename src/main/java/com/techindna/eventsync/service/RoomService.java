@@ -58,6 +58,7 @@ public class RoomService {
                 .orElseThrow(() -> new NotFoundException(String.format("Room %s not found.", id)));
     }
 
+    @Transactional
     public void deleteRoomById(String id) {
         dataValidator.validateUUID(id);
         roomRepository.deleteRoomById(UUID.fromString(id))
