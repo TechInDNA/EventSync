@@ -205,7 +205,7 @@ public class EventRepository {
         }
     }
 
-    public Optional<Event> findEventById(UUID id, Connection connection) {
+    public Optional<Event> findEventById(UUID id) {
         final String query =
             """
             select
@@ -219,6 +219,9 @@ public class EventRepository {
             from eventsync_app.events
             where id = ?
             """;
+
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -227,6 +230,8 @@ public class EventRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
