@@ -85,9 +85,9 @@ public class SessionService {
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", sessionId)));
 
         speakerRepository.findSpeakerById(speakerUuid)
-                .orElseThrow(() -> new NotFoundException(String.format("Speaker %s not found.", speakerId)));
+              .orElseThrow(() -> new NotFoundException(String.format("Speaker %s not found.", speakerId)));
 
-        checkSpeakerLinkAuthorization(speakerId);
+              checkSpeakerLinkAuthorization(speakerId);
 
         return sessionRepository.linkSpeakerToSession(sessionUuid, speakerUuid,
                 request.getStartTime(), request.getEndTime());

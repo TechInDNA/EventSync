@@ -92,23 +92,25 @@ public class SessionRepository {
     }
 
     public int countFilteredSessions(GetSessionRequestDto request) {
-        String query = """
+        final String query = """
                     SELECT COUNT(*) as total
                     FROM eventsync_app.sessions s
                     JOIN eventsync_app.rooms r ON s.room_id = r.id
                     JOIN eventsync_app.events e ON e.id = s.event_id
                 """ + buildFilterWhereClause(request);
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            setFilterParameters(ps, request, 1);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? rs.getInt("total") : 0;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try {
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                setFilterParameters(ps, request, 1);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next() ? rs.getInt("total") : 0;
+                }
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -126,74 +128,78 @@ public class SessionRepository {
                 where intervene.session_id = ?
                 """;
         final List<SpeakerInterventionDto> interventions = new ArrayList<>();
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ){
-            ps.setObject(1,sessionId);
-            try (ResultSet rs = ps.executeQuery()){
-                while (rs.next()){
-                    SpeakerInterventionDto intervention = new SpeakerInterventionDto();
-                    intervention.setFirstName(rs.getString("first_name"));
-                    intervention.setLastName(rs.getString("last_name"));
-                    intervention.setProfilePicture(rs.getString("profile_picture"));
-                    intervention.setBio(rs.getString("bio"));
-                    interventions.add(intervention);
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try {
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setObject(1, sessionId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        SpeakerInterventionDto intervention = new SpeakerInterventionDto();
+                        intervention.setFirstName(rs.getString("first_name"));
+                        intervention.setLastName(rs.getString("last_name"));
+                        intervention.setProfilePicture(rs.getString("profile_picture"));
+                        intervention.setBio(rs.getString("bio"));
+                        interventions.add(intervention);
+                    }
+                    return interventions;
                 }
-                return interventions;
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
     public List<SessionResponseDto> getAllSessions(GetSessionRequestDto request, PaginationRequestDto pagination){
         final String query = getAllSessionsQuery(request);
-        try(
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ){
-            int paramIndex = setFilterParameters(ps, request, 1);
-            ps.setInt(paramIndex++, pagination.getLimit());
-            ps.setInt(paramIndex, pagination.getOffset());
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try {
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                int paramIndex = setFilterParameters(ps, request, 1);
+                ps.setInt(paramIndex++, pagination.getLimit());
+                ps.setInt(paramIndex, pagination.getOffset());
 
-            Instant now = Instant.now();
-            List<SessionResponseDto> sessions = new ArrayList<>();
-            try (ResultSet rs = ps.executeQuery()){
-                while(rs.next()){
-                    SessionResponseDto session = new SessionResponseDto();
-                    session.setId(UUID.fromString(rs.getString("session_id")));
-                    session.setTitle(rs.getString("session_title"));
-                    session.setDescription(rs.getString("session_description"));
-                    session.setStartDate(rs.getTimestamp("session_start_date").toInstant());
-                    session.setEndDate(rs.getTimestamp("session_end_date").toInstant());
-                    session.setCapacity(rs.getInt("capacity"));
+                Instant now = Instant.now();
+                List<SessionResponseDto> sessions = new ArrayList<>();
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        SessionResponseDto session = new SessionResponseDto();
+                        session.setId(UUID.fromString(rs.getString("session_id")));
+                        session.setTitle(rs.getString("session_title"));
+                        session.setDescription(rs.getString("session_description"));
+                        session.setStartDate(rs.getTimestamp("session_start_date").toInstant());
+                        session.setEndDate(rs.getTimestamp("session_end_date").toInstant());
+                        session.setCapacity(rs.getInt("capacity"));
 
-                    Room room = new Room();
-                    room.setId(UUID.fromString(rs.getString("room_id")));
-                    room.setName(rs.getString("room_name"));
-                    session.setRoom(room);
+                        Room room = new Room();
+                        room.setId(UUID.fromString(rs.getString("room_id")));
+                        room.setName(rs.getString("room_name"));
+                        session.setRoom(room);
 
-                    Event event = new Event();
-                    event.setId(UUID.fromString(rs.getString("event_id")));
-                    event.setTitle(rs.getString("event_title"));
-                    event.setDescription(rs.getString("event_description"));
-                    event.setStartDate(rs.getTimestamp("event_start_date").toInstant());
-                    event.setEndDate(rs.getTimestamp("event_end_date").toInstant());
-                    session.setEvent(event);
+                        Event event = new Event();
+                        event.setId(UUID.fromString(rs.getString("event_id")));
+                        event.setTitle(rs.getString("event_title"));
+                        event.setDescription(rs.getString("event_description"));
+                        event.setStartDate(rs.getTimestamp("event_start_date").toInstant());
+                        event.setEndDate(rs.getTimestamp("event_end_date").toInstant());
+                        session.setEvent(event);
 
-                    session.setSpeakers(getInterventionById(session.getId()));
+                        session.setSpeakers(getInterventionById(session.getId()));
 
-                    Instant start = session.getStartDate();
-                    Instant end = session.getEndDate();
-                    session.setLive(now.isAfter(start) && now.isBefore(end));
+                        Instant start = session.getStartDate();
+                        Instant end = session.getEndDate();
+                        session.setLive(now.isAfter(start) && now.isBefore(end));
 
-                    sessions.add(session);
+                        sessions.add(session);
+                    }
+                    return sessions;
                 }
-                return sessions;
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -205,91 +211,96 @@ public class SessionRepository {
                 ON CONFLICT (title) DO NOTHING
                 RETURNING id, title, description, start_date, end_date, room_id, capacity, event_id
                 """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try {
             Room room = roomRepository.findRoomByName(sessionRequestDto.getRoomName())
                     .orElseThrow(() -> new NotFoundException("Room not found."));
             Event event = eventRepository.findEventByTitle(connection, sessionRequestDto.getEventTitle())
                     .orElseThrow(() -> new NotFoundException("Event not found."));
 
-            ps.setString(1, sessionRequestDto.getTitle());
-            ps.setString(2, sessionRequestDto.getDescription());
-            ps.setTimestamp(3, Timestamp.from(Instant.parse(sessionRequestDto.getStartDate())));
-            ps.setTimestamp(4, Timestamp.from(Instant.parse(sessionRequestDto.getEndDate())));
-            ps.setObject(5, room.getId());
-            ps.setInt(6, Integer.parseInt(sessionRequestDto.getCapacity()));
-            ps.setObject(7, event.getId());
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setString(1, sessionRequestDto.getTitle());
+                ps.setString(2, sessionRequestDto.getDescription());
+                ps.setTimestamp(3, Timestamp.from(Instant.parse(sessionRequestDto.getStartDate())));
+                ps.setTimestamp(4, Timestamp.from(Instant.parse(sessionRequestDto.getEndDate())));
+                ps.setObject(5, room.getId());
+                ps.setInt(6, Integer.parseInt(sessionRequestDto.getCapacity()));
+                ps.setObject(7, event.getId());
 
-            Instant now = Instant.now();
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    SessionResponseDto session = new SessionResponseDto();
-                    session.setId(UUID.fromString(rs.getString("id")));
-                    session.setTitle(rs.getString("title"));
-                    session.setDescription(rs.getString("description"));
-                    session.setStartDate(rs.getTimestamp("start_date").toInstant());
-                    session.setEndDate(rs.getTimestamp("end_date").toInstant());
-                    session.setCapacity(rs.getInt("capacity"));
-                    session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
+                Instant now = Instant.now();
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        SessionResponseDto session = new SessionResponseDto();
+                        session.setId(UUID.fromString(rs.getString("id")));
+                        session.setTitle(rs.getString("title"));
+                        session.setDescription(rs.getString("description"));
+                        session.setStartDate(rs.getTimestamp("start_date").toInstant());
+                        session.setEndDate(rs.getTimestamp("end_date").toInstant());
+                        session.setCapacity(rs.getInt("capacity"));
+                        session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
 
-                    session.setEvent(event);
+                        session.setEvent(event);
 
-                    session.setRoom(room);
+                        session.setRoom(room);
 
-                    session.setSpeakers(getInterventionById(session.getId()).isEmpty() ? null : getInterventionById(session.getId()));
+                        session.setSpeakers(getInterventionById(session.getId()).isEmpty() ? null : getInterventionById(session.getId()));
 
-                    return Optional.of(session);
+                        return Optional.of(session);
+                    }
+                    return Optional.empty();
                 }
-                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
     public Optional<Session> findSessionById(UUID id) {
         final String query = "SELECT id, title FROM eventsync_app.sessions WHERE id = ?";
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            ps.setObject(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Session session = new Session();
-                    session.setId(UUID.fromString(rs.getString("id")));
-                    session.setTitle(rs.getString("title"));
-                    return Optional.of(session);
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try {
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setObject(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        Session session = new Session();
+                        session.setId(UUID.fromString(rs.getString("id")));
+                        session.setTitle(rs.getString("title"));
+                        return Optional.of(session);
+                    }
+                    return Optional.empty();
                 }
-                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
     public Optional<Session> findSessionByTitleExcludingId(String title, UUID excludeId) {
         final String query = "SELECT id, title FROM eventsync_app.sessions WHERE title = ? AND id != ?";
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            ps.setString(1, title);
-            ps.setObject(2, excludeId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Session session = new Session();
-                    session.setId(UUID.fromString(rs.getString("id")));
-                    session.setTitle(rs.getString("title"));
-                    return Optional.of(session);
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try {
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setString(1, title);
+                ps.setObject(2, excludeId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        Session session = new Session();
+                        session.setId(UUID.fromString(rs.getString("id")));
+                        session.setTitle(rs.getString("title"));
+                        return Optional.of(session);
+                    }
+                    return Optional.empty();
                 }
-                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -301,64 +312,68 @@ public class SessionRepository {
             WHERE id = ?
             RETURNING id, title, description, start_date, end_date, room_id, capacity, event_id
             """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try {
             Room room = roomRepository.findRoomByName(sessionRequestDto.getRoomName())
                     .orElseThrow(() -> new NotFoundException("Room not found."));
             Event event = eventRepository.findEventByTitle(connection, sessionRequestDto.getEventTitle())
                     .orElseThrow(() -> new NotFoundException("Event not found."));
 
-            ps.setString(1, sessionRequestDto.getTitle());
-            ps.setString(2, sessionRequestDto.getDescription());
-            ps.setTimestamp(3, Timestamp.from(Instant.parse(sessionRequestDto.getStartDate())));
-            ps.setTimestamp(4, Timestamp.from(Instant.parse(sessionRequestDto.getEndDate())));
-            ps.setObject(5, room.getId());
-            ps.setInt(6, Integer.parseInt(sessionRequestDto.getCapacity()));
-            ps.setObject(7, event.getId());
-            ps.setObject(8, id);
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setString(1, sessionRequestDto.getTitle());
+                ps.setString(2, sessionRequestDto.getDescription());
+                ps.setTimestamp(3, Timestamp.from(Instant.parse(sessionRequestDto.getStartDate())));
+                ps.setTimestamp(4, Timestamp.from(Instant.parse(sessionRequestDto.getEndDate())));
+                ps.setObject(5, room.getId());
+                ps.setInt(6, Integer.parseInt(sessionRequestDto.getCapacity()));
+                ps.setObject(7, event.getId());
+                ps.setObject(8, id);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                Instant now = Instant.now();
-                if (rs.next()) {
-                    SessionResponseDto session = new SessionResponseDto();
-                    session.setId(UUID.fromString(rs.getString("id")));
-                    session.setTitle(rs.getString("title"));
-                    session.setDescription(rs.getString("description"));
-                    session.setStartDate(rs.getTimestamp("start_date").toInstant());
-                    session.setEndDate(rs.getTimestamp("end_date").toInstant());
-                    session.setCapacity(rs.getInt("capacity"));
-                    session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
+                try (ResultSet rs = ps.executeQuery()) {
+                    Instant now = Instant.now();
+                    if (rs.next()) {
+                        SessionResponseDto session = new SessionResponseDto();
+                        session.setId(UUID.fromString(rs.getString("id")));
+                        session.setTitle(rs.getString("title"));
+                        session.setDescription(rs.getString("description"));
+                        session.setStartDate(rs.getTimestamp("start_date").toInstant());
+                        session.setEndDate(rs.getTimestamp("end_date").toInstant());
+                        session.setCapacity(rs.getInt("capacity"));
+                        session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
 
-                    session.setRoom(room);
+                        session.setRoom(room);
 
-                    session.setEvent(event);
+                        session.setEvent(event);
 
-                    session.setSpeakers(getInterventionById(session.getId()).isEmpty() ? null : getInterventionById(session.getId()));
+                        session.setSpeakers(getInterventionById(session.getId()).isEmpty() ? null : getInterventionById(session.getId()));
 
-                    return Optional.of(session);
+                        return Optional.of(session);
+                    }
+                    return Optional.empty();
                 }
-                return Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
     public Optional<UUID> deleteSessionById(UUID id) {
         final String query = "DELETE FROM eventsync_app.sessions WHERE id = ? RETURNING id";
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            ps.setObject(1, id);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? Optional.of(id) : Optional.empty();
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try {
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setObject(1, id);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next() ? Optional.of(id) : Optional.empty();
+                }
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
