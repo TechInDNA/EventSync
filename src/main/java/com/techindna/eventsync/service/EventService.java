@@ -11,6 +11,7 @@ import com.techindna.eventsync.repository.EventRepository;
 import com.techindna.eventsync.repository.SessionRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -51,23 +52,20 @@ public class EventService {
         }
     }
 
+    @Transactional(readOnly = true)
     public GetEventListResponseDto getAllEvents(String page, String size, String title, String location) {
         dataValidator.validatePageAndSize(page, size);
 
-        try (Connection connection = dataSource.getConnection()){
-            PaginationRequestDto pagination = new PaginationRequestDto(Integer.parseInt(page), Integer.parseInt(size));
-            List<Event> events = eventRepository
-                    .getAllEvents(pagination.getOffset(), pagination.getLimit(), title, location, connection);
+        PaginationRequestDto pagination = new PaginationRequestDto(Integer.parseInt(page), Integer.parseInt(size));
+        List<Event> events = eventRepository
+                .getAllEvents(pagination.getOffset(), pagination.getLimit(), title, location);
 
-            return new GetEventListResponseDto(
-                    events,
-                    eventRepository.countEvents(title, location, connection),
-                    pagination.getPage(),
-                    pagination.getSize()
-            );
-        } catch (SQLException e){
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        }
+        return new GetEventListResponseDto(
+                events,
+                eventRepository.countEvents(title, location),
+                pagination.getPage(),
+                pagination.getSize()
+        );
     }
 
     public EventResponseDto getEventById(String id) {

@@ -6,8 +6,10 @@ import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.mapper.EventMapper;
 import org.jspecify.annotations.NonNull;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,6 +21,12 @@ import java.util.UUID;
 
 @Repository
 public class EventRepository {
+    private final DataSource dataSource;
+
+    public EventRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     public Optional<EventResponseDto> saveEvent(EventRequestDto request, Connection connection){
         final String query =
                 """
@@ -47,12 +55,12 @@ public class EventRepository {
         }
     }
 
-    public List<Event> getAllEvents(int offset, int limit, String title, String location, Connection connection) {
+    public List<Event> getAllEvents(int offset, int limit, String title, String location) {
         final StringBuilder queryBuilder = getAllEventsQueryBuilder(title, location);
 
-        try (
-                PreparedStatement ps = connection.prepareStatement(queryBuilder.toString())
-        ) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = connection.prepareStatement(queryBuilder.toString())) {
             int paramIndex = 1;
             if (title != null && !title.isBlank()) {
                 ps.setString(paramIndex++, "%" + title + "%");
@@ -72,6 +80,8 @@ public class EventRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -158,7 +168,7 @@ public class EventRepository {
         }
     }
 
-    public int countEvents(String title, String location, Connection connection) {
+    public int countEvents(String title, String location) {
         StringBuilder queryBuilder = new StringBuilder(
             """
             select count(id) as total
@@ -174,9 +184,9 @@ public class EventRepository {
             queryBuilder.append(" and location ilike ?");
         }
 
-        try (
-                PreparedStatement ps = connection.prepareStatement(queryBuilder.toString())
-        ) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = connection.prepareStatement(queryBuilder.toString())) {
             int paramIndex = 1;
             if (title != null && !title.isBlank()) {
                 ps.setString(paramIndex++, "%" + title + "%");
@@ -190,6 +200,8 @@ public class EventRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
