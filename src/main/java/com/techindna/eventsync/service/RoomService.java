@@ -46,6 +46,7 @@ public class RoomService {
         return new GetRoomListResponseDto(rooms, roomRepository.countRooms(), pageVal, sizeVal);
     }
 
+    @Transactional
     public Room updateRoomById(String id, RoomRequestDto request) {
         dataValidator.validateUUID(id);
         dataValidator.validateRoomData(request);
