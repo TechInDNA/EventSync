@@ -3,6 +3,7 @@ package com.techindna.eventsync.repository;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.mapper.RoomMapper;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -33,10 +34,9 @@ public class RoomRepository {
         returning id as room_id, name as room_name
         """;
 
-        try (
-                Connection conn = dataSource.getConnection();
-                PreparedStatement ps = conn.prepareStatement(query)
-        ) {
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(RoomMapper.mapResultSetToRoom(rs))
@@ -44,6 +44,8 @@ public class RoomRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
