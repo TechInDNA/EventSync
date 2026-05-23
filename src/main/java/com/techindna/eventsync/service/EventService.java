@@ -55,7 +55,8 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public GetEventListResponseDto getAllEvents(String page, String size, String title, String location) {
+    public GetEventListResponseDto getAllEvents(String page, String size, String title, String location, String ipAddress) {
+        authService.checkClient(ipAddress);
         dataValidator.validatePageAndSize(page, size);
 
         PaginationRequestDto pagination = new PaginationRequestDto(Integer.parseInt(page), Integer.parseInt(size));
@@ -72,8 +73,8 @@ public class EventService {
 
     @Transactional(readOnly = true)
     public EventResponseDto getEventById(String id, String ipAddress) {
-        dataValidator.validateUUID(id);
         authService.checkClient(ipAddress);
+        dataValidator.validateUUID(id);
 
         Event event = eventRepository.findEventById(UUID.fromString(id))
                 .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", id)));
