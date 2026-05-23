@@ -37,6 +37,7 @@ public class EventService {
         this.authService = authService;
     }
 
+    @Transactional
     public EventResponseDto createEvent(EventRequestDto request){
         dataValidator.validateEventData(
                 request.getTitle(),
@@ -45,13 +46,8 @@ public class EventService {
                 request.getEndDate(),
                 request.getLocation()
         );
-
-        try (Connection connection = dataSource.getConnection()){
-            return eventRepository.saveEvent(request, connection)
-                    .orElseThrow(() -> new ConflictException(String.format("Event %s already exist.", request.getTitle())));
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        }
+        return eventRepository.saveEvent(request)
+                .orElseThrow(() -> new ConflictException(String.format("Event %s already exist.", request.getTitle())));
     }
 
     @Transactional(readOnly = true)

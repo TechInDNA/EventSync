@@ -27,7 +27,7 @@ public class EventRepository {
         this.dataSource = dataSource;
     }
 
-    public Optional<EventResponseDto> saveEvent(EventRequestDto request, Connection connection){
+    public Optional<EventResponseDto> saveEvent(EventRequestDto request){
         final String query =
                 """
                     insert into
@@ -36,9 +36,9 @@ public class EventRepository {
                     on conflict (title) do nothing
                     returning id, title, description, start_date, end_date, location, created_at
                 """;
-        try(
-                PreparedStatement ps = connection.prepareStatement(query)
-        ){
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try(PreparedStatement ps = connection.prepareStatement(query)){
             EventMapper.mapRequestDtoToStatement(request, ps);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -52,6 +52,8 @@ public class EventRepository {
         }
         catch (SQLException e){
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
