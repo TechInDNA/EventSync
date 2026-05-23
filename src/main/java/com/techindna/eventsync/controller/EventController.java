@@ -27,10 +27,14 @@ public class EventController {
             @RequestParam(required = false, defaultValue = "1") String page,
             @RequestParam(required = false, defaultValue = "10") String size,
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) String location) {
+            @RequestParam(required = false) String location,
+            HttpServletRequest servletRequest) {
         try {
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(eventService.getAllEvents(page, size, title, location));
+                    .body(eventService.getAllEvents(page, size, title, location, servletRequest.getRemoteAddr()));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
@@ -43,9 +47,8 @@ public class EventController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getEventById(@PathVariable String id, HttpServletRequest servletRequest) {
         try {
-            String ipAddress = servletRequest.getRemoteAddr();
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(eventService.getEventById(id, ipAddress));
+                    .body(eventService.getEventById(id, servletRequest.getRemoteAddr()));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
