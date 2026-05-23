@@ -3,6 +3,7 @@ package com.techindna.eventsync.controller;
 import com.techindna.eventsync.dto.rooms.RoomRequestDto;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.service.RoomService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,12 +39,16 @@ public class RoomController {
     @GetMapping
     public ResponseEntity<?> getAllRooms(
             @RequestParam(required = false, defaultValue = "1") String page,
-            @RequestParam(required = false, defaultValue = "10") String size) {
+            @RequestParam(required = false, defaultValue = "10") String size,
+            HttpServletRequest servletRequest) {
         try {
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(roomService.getAllRooms(page, size));
+                    .body(roomService.getAllRooms(page, size, servletRequest.getRemoteAddr()));
 
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());

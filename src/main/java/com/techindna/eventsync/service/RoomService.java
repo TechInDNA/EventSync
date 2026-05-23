@@ -18,10 +18,12 @@ import java.util.UUID;
 public class RoomService {
     private final DataValidator dataValidator;
     private final RoomRepository roomRepository;
+    private final AuthService authService;
 
-    public RoomService(RoomRepository roomRepository, DataValidator dataValidator) {
+    public RoomService(RoomRepository roomRepository, DataValidator dataValidator, AuthService authService) {
         this.roomRepository = roomRepository;
         this.dataValidator = dataValidator;
+        this.authService = authService;
     }
 
     @Transactional
@@ -32,7 +34,9 @@ public class RoomService {
                 .orElseThrow(() -> new ConflictException(String.format("Room '%s' already exists.", request.getName())));
     }
 
-    public GetRoomListResponseDto getAllRooms(String page, String size) {
+    @Transactional(readOnly = true)
+    public GetRoomListResponseDto getAllRooms(String page, String size, String ipAddress) {
+        authService.checkClient(ipAddress);
         dataValidator.validatePageAndSize(page, size);
 
         int pageVal = Integer.parseInt(page);

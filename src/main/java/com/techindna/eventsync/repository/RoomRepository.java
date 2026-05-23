@@ -58,10 +58,9 @@ public class RoomRepository {
         LIMIT ? OFFSET ?
         """;
 
-        try (
-                Connection conn = dataSource.getConnection();
-                PreparedStatement ps = conn.prepareStatement(query)
-        ) {
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, limit);
             ps.setInt(2, offset);
             try (ResultSet rs = ps.executeQuery()) {
@@ -73,20 +72,24 @@ public class RoomRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     public int countRooms() {
         final String query = "SELECT count(id) as total FROM eventsync_app.rooms";
 
-        try (
-                Connection conn = dataSource.getConnection();
-                PreparedStatement ps = conn.prepareStatement(query);
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = conn.prepareStatement(query);
                 ResultSet rs = ps.executeQuery()
         ) {
             return rs.next() ? rs.getInt("total") : 0;
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
