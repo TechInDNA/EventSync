@@ -1,6 +1,8 @@
 package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.GetSessionRequestDto;
+import com.techindna.eventsync.dto.LinkSpeakerRequestDto;
+import com.techindna.eventsync.dto.LinkSpeakerResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.SessionRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
@@ -111,5 +113,14 @@ public class SessionController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred, please try again later");
         }
+    }
+
+    @PostMapping("/{sessionId}/speaker/{speakerId}")
+    public ResponseEntity<LinkSpeakerResponseDto> linkSpeakerToSession(
+            @PathVariable String sessionId,
+            @PathVariable String speakerId,
+            @RequestBody LinkSpeakerRequestDto request) {
+        LinkSpeakerResponseDto response = sessionService.linkSpeakerToSession(sessionId, speakerId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

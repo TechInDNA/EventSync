@@ -425,4 +425,38 @@ public class SessionRepository {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
+
+    public LinkSpeakerResponseDto linkSpeakerToSession(UUID sessionId, UUID speakerId, String startTime, String endTime) {
+        final String query = """
+            INSERT INTO eventsync_app.intervene(speaker_id, session_id, start_time, end_time)
+            VALUES (?, ?, ?::timetz, ?::timetz)
+            RETURNING id, speaker_id, session_id, start_time, end_time
+            """;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try {
+            try (PreparedStatement ps = connection.prepareStatement(query)) {
+                ps.setObject(1, speakerId);
+                ps.setObject(2, sessionId);
+                ps.setString(3, startTime);
+                ps.setString(4, endTime);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        LinkSpeakerResponseDto response = new LinkSpeakerResponseDto();
+                        response.setId(UUID.fromString(rs.getString("id")));
+                        response.setSpeakerId(UUID.fromString(rs.getString("speaker_id")));
+                        response.setSessionId(UUID.fromString(rs.getString("session_id")));
+                        response.setStartTime(rs.getString("start_time"));
+                        response.setEndTime(rs.getString("end_time"));
+                        return response;
+                    }
+                    throw new InternalServerErrorException("Failed to link speaker to session");
+                }
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+    }
 }
