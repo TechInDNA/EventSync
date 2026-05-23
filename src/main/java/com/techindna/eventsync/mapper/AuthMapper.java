@@ -3,10 +3,11 @@ package com.techindna.eventsync.mapper;
 import com.techindna.eventsync.dto.ParticipantDto;
 import com.techindna.eventsync.dto.UserResponseDto;
 import com.techindna.eventsync.dto.auth.AuthLoginResponseDto;
-import com.techindna.eventsync.dto.AuthParticipantResponseDto;
+import com.techindna.eventsync.dto.auth.AuthParticipantResponseDto;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.entity.Participant;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -23,11 +24,19 @@ public class AuthMapper {
         return admin;
     }
 
-    public static AuthLoginResponseDto toAuthLoginResponse(Administrator admin, String token) {
-        AuthLoginResponseDto response = new AuthLoginResponseDto();
-        response.setUser(toUserResponseDto(admin));
-        response.setToken(token);
-        return response;
+    public static void mapParticipantQuery(PreparedStatement ps, String email, String firstName, String lastName) throws SQLException {
+        ps.setString(1, email);
+        ps.setString(2, firstName);
+        ps.setString(3, lastName);
+    }
+
+    public static Participant mapResultSetToParticipant(ResultSet rs) throws SQLException {
+        Participant p = new Participant();
+        p.setId(UUID.fromString(rs.getString("id")));
+        p.setFirstName(rs.getString("first_name"));
+        p.setLastName(rs.getString("last_name"));
+        p.setEmail(rs.getString("email"));
+        return p;
     }
 
     public static UserResponseDto toUserResponseDto(Administrator admin) {
@@ -38,13 +47,6 @@ public class AuthMapper {
         dto.setEmail(admin.getEmail());
         dto.setRole(admin.getRole());
         return dto;
-    }
-
-    public static AuthParticipantResponseDto toAuthParticipantResponse(Participant participant, String token) {
-        AuthParticipantResponseDto response = new AuthParticipantResponseDto();
-        response.setToken(token);
-        response.setParticipant(toParticipantDto(participant));
-        return response;
     }
 
     public static ParticipantDto toParticipantDto(Participant participant) {

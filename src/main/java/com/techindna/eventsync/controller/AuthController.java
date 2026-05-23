@@ -3,6 +3,8 @@ package com.techindna.eventsync.controller;
 import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.dto.auth.AuthLoginRequestDto;
 import com.techindna.eventsync.dto.auth.AuthLoginResponseDto;
+import com.techindna.eventsync.dto.auth.AuthParticipantRequestDto;
+import com.techindna.eventsync.dto.auth.AuthParticipantResponseDto;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.BadRequestException;
@@ -81,11 +83,7 @@ public class AuthController {
 
             String token = authService.generateParticipantToken(participant);
 
-            ParticipantDto p = new ParticipantDto();
-            p.setId(participant.getId());
-            p.setFirstName(participant.getFirstName());
-            p.setLastName(participant.getLastName());
-            p.setEmail(participant.getEmail());
+            ParticipantDto p = AuthMapper.toParticipantDto(participant);
 
             AuthParticipantResponseDto response = new AuthParticipantResponseDto();
             response.setToken(token);

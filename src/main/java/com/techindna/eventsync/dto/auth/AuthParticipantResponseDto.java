@@ -1,4 +1,6 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.auth;
+
+import com.techindna.eventsync.dto.ParticipantDto;
 
 public class AuthParticipantResponseDto {
     private String token;

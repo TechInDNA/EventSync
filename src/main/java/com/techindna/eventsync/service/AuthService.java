@@ -1,7 +1,7 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.config.TokenProvider;
-import com.techindna.eventsync.dto.AuthParticipantRequestDto;
+import com.techindna.eventsync.dto.auth.AuthParticipantRequestDto;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.TooManyRequestException;
@@ -60,6 +60,7 @@ public class AuthService {
         return tokenProvider.generateAccessToken(admin);
     }
 
+    @Transactional
     public Participant identifyOrRegisterParticipant(AuthParticipantRequestDto request) {
         dataValidator.validateParticipantData(request);
 
