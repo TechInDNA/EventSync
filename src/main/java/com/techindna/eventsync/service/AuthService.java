@@ -56,7 +56,7 @@ public class AuthService {
     public void checkClient(String ipAddress) {
         Optional<Integer> blacklisted = authRepository.findBlacklistedIp(ipAddress);
         if (blacklisted.isPresent() && blacklisted.get() >= MAX_ATTEMPT_LIMIT) {
-            throw new UnauthorizedException("You are not authorized to access this resource.");
+            throw new UnauthorizedException("You are not authorized to access this resource due to malicious behavior.");
         }
     }
 
