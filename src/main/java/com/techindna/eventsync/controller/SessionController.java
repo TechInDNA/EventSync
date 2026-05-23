@@ -1,12 +1,14 @@
 package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.GetSessionRequestDto;
+import com.techindna.eventsync.dto.LinkSpeakerRequestDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.SessionRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.SessionService;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.http.HttpStatus;
@@ -72,6 +74,27 @@ public class SessionController {
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
+    @PostMapping("/{sessionId}/speaker/{speakerId}")
+    public ResponseEntity<?> linkSpeakerToSession(
+            @PathVariable String sessionId,
+            @PathVariable String speakerId,
+            @RequestBody LinkSpeakerRequestDto request
+    ) {
+        try {
+            sessionService.linkSpeakerToSession(sessionId, speakerId, request);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Speaker linked to session");
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred, please try again later");

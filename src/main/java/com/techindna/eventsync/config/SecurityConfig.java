@@ -73,6 +73,7 @@ public class SecurityConfig {
 
                 .requestMatchers(HttpMethod.POST, "/sessions/*/questions/*/upvote").hasAnyRole("PARTICIPANT", "SPEAKER")
 
+                .requestMatchers(HttpMethod.POST, "/sessions/*/speaker/*").authenticated()
                 .requestMatchers(HttpMethod.DELETE,"/sessions/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.POST,"/sessions/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT,"/sessions/**").hasRole("ADMIN")

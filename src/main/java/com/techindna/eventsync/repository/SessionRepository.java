@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.OffsetTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -422,6 +423,33 @@ public class SessionRepository {
             return sessions;
             }
         } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public void linkSpeakerToSession(UUID sessionId, UUID speakerId, OffsetTime startTime, OffsetTime endTime) {
+        final String query = """
+            INSERT INTO eventsync_app.intervene(speaker_id, session_id, start_time, end_time)
+            VALUES (?, ?, ?, ?)
+            RETURNING id
+            """;
+        try (
+                Connection conn = dataSource.getConnection();
+                PreparedStatement ps = conn.prepareStatement(query)
+        ) {
+            ps.setObject(1, speakerId);
+            ps.setObject(2, sessionId);
+            ps.setObject(3, startTime);
+            ps.setObject(4, endTime);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new InternalServerErrorException("Failed to link speaker to session");
+                }
+            }
+        } catch (SQLException e) {
+            if ("23503".equals(e.getSQLState())) {
+                throw new NotFoundException("Session or speaker not found.");
+            }
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         }
     }
