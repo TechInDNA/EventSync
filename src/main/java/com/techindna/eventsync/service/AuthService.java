@@ -35,11 +35,7 @@ public class AuthService {
         dataValidator.validateEmail(email);
         dataValidator.checkNullData("password", password);
 
-        Optional<Integer> blacklisted = authRepository.findBlacklistedIp(ipAddress);
-        if (blacklisted.isPresent() && blacklisted.get() >= MAX_ATTEMPT_LIMIT) {
-            throw new UnauthorizedException("You are not authorized to access this resource.");
-        }
-
+        checkClient(ipAddress);
         Administrator admin = authRepository.findAdminDataByEmail(email).orElse(null);
 
         if (admin == null || !passwordEncoder.matches(password, admin.getPassword())) {
@@ -54,6 +50,14 @@ public class AuthService {
 
         authRepository.deleteBlacklistedIp(ipAddress);
         return admin;
+    }
+
+    @Transactional(readOnly = true)
+    public void checkClient(String ipAddress) {
+        Optional<Integer> blacklisted = authRepository.findBlacklistedIp(ipAddress);
+        if (blacklisted.isPresent() && blacklisted.get() >= MAX_ATTEMPT_LIMIT) {
+            throw new UnauthorizedException("You are not authorized to access this resource.");
+        }
     }
 
     public String generateToken(Administrator admin) {

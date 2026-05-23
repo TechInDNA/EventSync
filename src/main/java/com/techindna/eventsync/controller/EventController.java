@@ -8,6 +8,7 @@ import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.exception.UnauthorizedException;
 import com.techindna.eventsync.service.EventService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,12 +41,16 @@ public class EventController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getEventById(@PathVariable String id) {
+    public ResponseEntity<?> getEventById(@PathVariable String id, HttpServletRequest servletRequest) {
         try {
+            String ipAddress = servletRequest.getRemoteAddr();
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(eventService.getEventById(id));
+                    .body(eventService.getEventById(id, ipAddress));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(e.getMessage());
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

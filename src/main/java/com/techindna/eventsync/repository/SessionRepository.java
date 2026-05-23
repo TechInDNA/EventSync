@@ -404,7 +404,7 @@ public class SessionRepository {
         }
     }
 
-    public List<EventSessionResponseDto> findSessionsByEventId(Connection connection, UUID eventId) {
+    public List<EventSessionResponseDto> findSessionsByEventId(UUID eventId) {
         final String query = """
             select s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,
                    r.id as room_id, r.name as room_name
@@ -412,6 +412,8 @@ public class SessionRepository {
             left join eventsync_app.rooms r on r.id = s.room_id
             where s.event_id = ?
             """;
+
+        Connection connection = DataSourceUtils.getConnection(dataSource);
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setObject(1, eventId);
             try (ResultSet rs = ps.executeQuery()) {
@@ -423,6 +425,8 @@ public class SessionRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 }

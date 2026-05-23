@@ -26,13 +26,15 @@ public class EventService {
     private final SessionRepository sessionRepository;
     private final DataSource dataSource;
     private final DataValidator dataValidator;
+    private final AuthService authService;
 
     public EventService(EventRepository eventRepository, SessionRepository sessionRepository,
-                        DataSource dataSource, DataValidator dataValidator) {
+                        DataSource dataSource, DataValidator dataValidator, AuthService authService) {
         this.eventRepository = eventRepository;
         this.sessionRepository = sessionRepository;
         this.dataSource = dataSource;
         this.dataValidator = dataValidator;
+        this.authService = authService;
     }
 
     public EventResponseDto createEvent(EventRequestDto request){
@@ -68,21 +70,19 @@ public class EventService {
         );
     }
 
-    public EventResponseDto getEventById(String id) {
+    @Transactional(readOnly = true)
+    public EventResponseDto getEventById(String id, String ipAddress) {
         dataValidator.validateUUID(id);
-        try (Connection connection = dataSource.getConnection()) {
-            Event event = eventRepository.findEventById(UUID.fromString(id), connection)
-                    .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", id)));
+        authService.checkClient(ipAddress);
 
-            EventResponseDto response = EventMapper.mapEventToResponseDto(event);
+        Event event = eventRepository.findEventById(UUID.fromString(id))
+                .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", id)));
 
-            List<EventSessionResponseDto> sessions = sessionRepository.findSessionsByEventId(connection, UUID.fromString(id));
-            response.setSessions(sessions);
+        EventResponseDto response = EventMapper.mapEventToResponseDto(event);
+        List<EventSessionResponseDto> sessions = sessionRepository.findSessionsByEventId(UUID.fromString(id));
+        response.setSessions(sessions.isEmpty() ? null : sessions);
 
-            return response;
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        }
+        return response;
     }
 
     public EventResponseDto updateEventById(String id, PutEventRequestDto request) {
@@ -109,7 +109,7 @@ public class EventService {
             EventResponseDto response = eventRepository.updateEvent(connection, eventRequest)
                     .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", id)));
 
-            List<EventSessionResponseDto> sessions = sessionRepository.findSessionsByEventId(connection, UUID.fromString(id));
+            List<EventSessionResponseDto> sessions = sessionRepository.findSessionsByEventId(UUID.fromString(id));
             response.setSessions(sessions);
 
             return response;
