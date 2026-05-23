@@ -1,7 +1,12 @@
 package com.techindna.eventsync.repository;
 
-import com.techindna.eventsync.dto.*;
+import com.techindna.eventsync.dto.PaginationRequestDto;
 import com.techindna.eventsync.dto.events.EventSessionResponseDto;
+import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.LinkSpeakerResponseDto;
+import com.techindna.eventsync.dto.sessions.SessionRequestDto;
+import com.techindna.eventsync.dto.sessions.SessionResponseDto;
+import com.techindna.eventsync.dto.sessions.SpeakerInterventionDto;
 import com.techindna.eventsync.dto.speaker.SessionForSpeakerDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
@@ -134,12 +139,7 @@ public class SessionRepository {
                 ps.setObject(1, sessionId);
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
-                        SpeakerInterventionDto intervention = new SpeakerInterventionDto();
-                        intervention.setFirstName(rs.getString("first_name"));
-                        intervention.setLastName(rs.getString("last_name"));
-                        intervention.setProfilePicture(rs.getString("profile_picture"));
-                        intervention.setBio(rs.getString("bio"));
-                        interventions.add(intervention);
+                        interventions.add(SessionMapper.mapSpeakerIntervention(rs));
                     }
                     return interventions;
                 }
@@ -219,24 +219,13 @@ public class SessionRepository {
                     .orElseThrow(() -> new NotFoundException("Event not found."));
 
             try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setString(1, sessionRequestDto.getTitle());
-                ps.setString(2, sessionRequestDto.getDescription());
-                ps.setTimestamp(3, Timestamp.from(Instant.parse(sessionRequestDto.getStartDate())));
-                ps.setTimestamp(4, Timestamp.from(Instant.parse(sessionRequestDto.getEndDate())));
-                ps.setObject(5, room.getId());
-                ps.setInt(6, Integer.parseInt(sessionRequestDto.getCapacity()));
-                ps.setObject(7, event.getId());
+                SessionMapper.bindCreateParams(ps, sessionRequestDto, room.getId(), event.getId());
 
                 Instant now = Instant.now();
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
                         SessionResponseDto session = new SessionResponseDto();
-                        session.setId(UUID.fromString(rs.getString("id")));
-                        session.setTitle(rs.getString("title"));
-                        session.setDescription(rs.getString("description"));
-                        session.setStartDate(rs.getTimestamp("start_date").toInstant());
-                        session.setEndDate(rs.getTimestamp("end_date").toInstant());
-                        session.setCapacity(rs.getInt("capacity"));
+                        SessionMapper.mapCommonSessionFields(rs, session);
                         session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
 
                         session.setEvent(event);
@@ -320,25 +309,14 @@ public class SessionRepository {
                     .orElseThrow(() -> new NotFoundException("Event not found."));
 
             try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setString(1, sessionRequestDto.getTitle());
-                ps.setString(2, sessionRequestDto.getDescription());
-                ps.setTimestamp(3, Timestamp.from(Instant.parse(sessionRequestDto.getStartDate())));
-                ps.setTimestamp(4, Timestamp.from(Instant.parse(sessionRequestDto.getEndDate())));
-                ps.setObject(5, room.getId());
-                ps.setInt(6, Integer.parseInt(sessionRequestDto.getCapacity()));
-                ps.setObject(7, event.getId());
+                SessionMapper.bindCreateParams(ps, sessionRequestDto, room.getId(), event.getId());
                 ps.setObject(8, id);
 
                 try (ResultSet rs = ps.executeQuery()) {
                     Instant now = Instant.now();
                     if (rs.next()) {
                         SessionResponseDto session = new SessionResponseDto();
-                        session.setId(UUID.fromString(rs.getString("id")));
-                        session.setTitle(rs.getString("title"));
-                        session.setDescription(rs.getString("description"));
-                        session.setStartDate(rs.getTimestamp("start_date").toInstant());
-                        session.setEndDate(rs.getTimestamp("end_date").toInstant());
-                        session.setCapacity(rs.getInt("capacity"));
+                        SessionMapper.mapCommonSessionFields(rs, session);
                         session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
 
                         session.setRoom(room);
@@ -450,20 +428,11 @@ public class SessionRepository {
         Connection connection = DataSourceUtils.getConnection(dataSource);
         try {
             try (PreparedStatement ps = connection.prepareStatement(query)) {
-                ps.setObject(1, speakerId);
-                ps.setObject(2, sessionId);
-                ps.setString(3, startTime);
-                ps.setString(4, endTime);
+                SessionMapper.bindLinkSpeakerParams(ps, speakerId, sessionId, startTime, endTime);
 
                 try (ResultSet rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        LinkSpeakerResponseDto response = new LinkSpeakerResponseDto();
-                        response.setId(UUID.fromString(rs.getString("id")));
-                        response.setSpeakerId(UUID.fromString(rs.getString("speaker_id")));
-                        response.setSessionId(UUID.fromString(rs.getString("session_id")));
-                        response.setStartTime(rs.getString("start_time"));
-                        response.setEndTime(rs.getString("end_time"));
-                        return response;
+                        return SessionMapper.mapLinkSpeakerResponse(rs);
                     }
                     throw new InternalServerErrorException("Failed to link speaker to session");
                 }

@@ -1,6 +1,7 @@
 package com.techindna.eventsync.service;
 
-import com.techindna.eventsync.dto.*;
+import com.techindna.eventsync.dto.PaginationRequestDto;
+import com.techindna.eventsync.dto.sessions.*;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.exception.UnauthorizedException;
@@ -26,6 +27,7 @@ public class SessionService {
         this.dataValidator = dataValidator;
     }
 
+    @Transactional
     public SessionResponseDto createSession(SessionRequestDto sessionRequestDto) {
         dataValidator.validateSessionData(
                 sessionRequestDto.getTitle(),
@@ -40,6 +42,7 @@ public class SessionService {
                 .orElseThrow(() -> new ConflictException(String.format("Session with title '%s' already exists", sessionRequestDto.getTitle())));
     }
 
+    @Transactional(readOnly = true)
     public GetSessionListResponseDto getAllSessions(GetSessionRequestDto request, PaginationRequestDto pagination){
         dataValidator.validateSessionRequestData(request);
         return new GetSessionListResponseDto(
@@ -50,6 +53,7 @@ public class SessionService {
         );
     }
 
+    @Transactional
     public SessionResponseDto updateSession(UUID id, SessionRequestDto session) {
         dataValidator.validateSessionData(
                 session.getTitle(),
@@ -67,6 +71,7 @@ public class SessionService {
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
     }
 
+    @Transactional
     public void deleteSessionById(String id) {
         dataValidator.validateUUID(id);
         sessionRepository.deleteSessionById(UUID.fromString(id))

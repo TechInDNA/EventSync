@@ -1,10 +1,10 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.GetSessionRequestDto;
-import com.techindna.eventsync.dto.LinkSpeakerRequestDto;
-import com.techindna.eventsync.dto.LinkSpeakerResponseDto;
 import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.dto.SessionRequestDto;
+import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.LinkSpeakerRequestDto;
+import com.techindna.eventsync.dto.sessions.LinkSpeakerResponseDto;
+import com.techindna.eventsync.dto.sessions.SessionRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;

@@ -1,4 +1,4 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.sessions;
 
 public class SpeakerInterventionDto {
     private String firstName;
