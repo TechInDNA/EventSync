@@ -77,9 +77,11 @@ public class AuthController {
     }
 
     @PostMapping("/participant")
-    public ResponseEntity<?> identifyOrRegisterParticipant(@RequestBody AuthParticipantRequestDto request) {
+    public ResponseEntity<?> identifyOrRegisterParticipant(@RequestBody AuthParticipantRequestDto request, HttpServletRequest servletRequest) {
         try {
-            Participant participant = authService.identifyOrRegisterParticipant(request);
+
+            Participant participant = authService
+                    .identifyOrRegisterParticipant(request, servletRequest.getRemoteAddr());
 
             String token = authService.generateParticipantToken(participant);
 
@@ -92,6 +94,9 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (UnauthorizedException e){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -65,7 +65,8 @@ public class AuthService {
     }
 
     @Transactional
-    public Participant identifyOrRegisterParticipant(AuthParticipantRequestDto request) {
+    public Participant identifyOrRegisterParticipant(AuthParticipantRequestDto request, String ipAddress) {
+        checkClient(ipAddress);
         dataValidator.validateParticipantData(request);
 
         Optional<Participant> participant = authRepository.findParticipant(request.getEmail(), request.getFirstName(), request.getLastName());
