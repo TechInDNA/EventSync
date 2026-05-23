@@ -110,13 +110,10 @@ public class EventService {
             return response;
     }
 
+    @Transactional
     public UUID deleteEventById(String id) {
         dataValidator.validateUUID(id);
-        try (Connection connection = dataSource.getConnection()){
-            return eventRepository.deleteEventById(UUID.fromString(id), connection)
-                    .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", id)));
-        } catch (SQLException e){
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        }
+        return eventRepository.deleteEventById(UUID.fromString(id))
+                .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", id)));
     }
 }

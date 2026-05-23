@@ -244,11 +244,11 @@ public class EventRepository {
         }
     }
 
-    public Optional<UUID> deleteEventById(UUID id, Connection connection) {
+    public Optional<UUID> deleteEventById(UUID id) {
         final String query = "delete from eventsync_app.events where id = ? returning id";
-        try (
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setObject(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -258,6 +258,8 @@ public class EventRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
