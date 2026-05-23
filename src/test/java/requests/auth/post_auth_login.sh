@@ -2,9 +2,6 @@
 
 echo "Testing POST /auth/login"
 echo ""
-echo "NOTE: Blacklist persists in DB. To reset:"
-echo "  psql -d eventsync_db -U eventsync_manager -c \"DELETE FROM eventsync_app.blacklisted_ip;\""
-echo ""
 
 echo "==========  VALID LOGIN (200)  =========="
 echo "--- Test 1: Valid admin login (should return 200 + JWT cookie) ---"
@@ -40,11 +37,11 @@ echo ""
 echo "==========  RATE LIMITING  =========="
 echo "--- Failing 4 times (401, attempts left: 4,3,2,1) ---"
 for i in 4 3 2 1; do
-  curlie -k -s -H "Content-Type: application/json" -d '{"email": "admin@eventsync.com", "password": "wrong"}' https://localhost:443/auth/login > /dev/null 2>&1
+  curlie -k -H "Content-Type: application/json" -d '{"email": "admin@eventsync.com", "password": "wrong"}' https://localhost:443/auth/login && echo ""
 done
 
 echo ""
-echo "--- Test 8: 5th failure — blocked (should return 429) ---"
+echo "--- Test 8: 5th failure — blocked (should return 401) ---"
 curlie -k -H "Content-Type: application/json" -d '{"email": "admin@eventsync.com", "password": "wrong"}' https://localhost:443/auth/login
 
 echo ""

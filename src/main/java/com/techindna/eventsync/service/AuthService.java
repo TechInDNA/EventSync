@@ -10,6 +10,8 @@ import com.techindna.eventsync.repository.AuthRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Optional;
 
 @Service
@@ -28,13 +30,14 @@ public class AuthService {
         this.dataValidator = dataValidator;
     }
 
+    @Transactional(noRollbackFor = {UnauthorizedException.class, TooManyRequestException.class})
     public Administrator logInByEmailAndPassword(String email, String password, String ipAddress) {
         dataValidator.validateEmail(email);
         dataValidator.checkNullData("password", password);
 
         Optional<Integer> blacklisted = authRepository.findBlacklistedIp(ipAddress);
         if (blacklisted.isPresent() && blacklisted.get() >= MAX_ATTEMPT_LIMIT) {
-            throw new UnauthorizedException("You are blocked due to too many failed login attempts.");
+            throw new UnauthorizedException("You are not authorized to access this resource.");
         }
 
         Administrator admin = authRepository.findAdminDataByEmail(email).orElse(null);

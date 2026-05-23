@@ -4,6 +4,7 @@ import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.mapper.AuthMapper;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -38,10 +39,8 @@ public class AuthRepository {
             email = ?
             and role = 'admin'
             """;
-        try (
-                Connection conn = dataSource.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)
-        ) {
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -50,6 +49,8 @@ public class AuthRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
@@ -117,10 +118,8 @@ public class AuthRepository {
             FROM eventsync_app.blacklisted_ip
             WHERE ip_address = ?
             """;
-        try (
-                Connection conn = dataSource.getConnection();
-                PreparedStatement ps = conn.prepareStatement(query)
-        ) {
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, ipAddress);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -129,6 +128,8 @@ public class AuthRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
@@ -141,10 +142,8 @@ public class AuthRepository {
             WHERE blacklisted_ip.failed_attempt < ?
             RETURNING failed_attempt
             """;
-        try (
-                Connection conn = dataSource.getConnection();
-                PreparedStatement ps = conn.prepareStatement(query)
-        ) {
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, ipAddress);
             ps.setInt(2, MAX_ATTEMPT_LIMIT);
 
@@ -154,6 +153,8 @@ public class AuthRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
@@ -162,14 +163,14 @@ public class AuthRepository {
             DELETE FROM eventsync_app.blacklisted_ip
             WHERE ip_address = ?
             """;
-        try (
-                Connection conn = dataSource.getConnection();
-                PreparedStatement ps = conn.prepareStatement(query)
-        ) {
+        Connection conn =  DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, ipAddress);
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 }
