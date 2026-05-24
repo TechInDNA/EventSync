@@ -64,6 +64,17 @@ public class SessionMapper {
         ps.setObject(7, event.getId());
     }
 
+    public static SessionResponseDto mapToSessionResponseDto(ResultSet rs, Room room, Event event,
+                                                              List<SpeakerInterventionDto> speakers, Instant now) throws SQLException {
+        SessionResponseDto session = new SessionResponseDto();
+        mapCommonSessionFields(rs, session);
+        session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
+        session.setRoom(room);
+        session.setEvent(event);
+        session.setSpeakers(speakers == null || speakers.isEmpty() ? null : speakers);
+        return session;
+    }
+
     public static GetSessionRequestDto mapToGetSessionRequestDto(String roomName, String speakerName, String eventTitle, boolean isLive) {
         GetSessionRequestDto request = new GetSessionRequestDto();
         request.setRoomName(roomName);

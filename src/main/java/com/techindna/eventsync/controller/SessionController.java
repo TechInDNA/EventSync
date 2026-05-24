@@ -76,9 +76,8 @@ public class SessionController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateSession(@PathVariable String id, @RequestBody SessionRequestDto request) {
         try {
-            dataValidator.validateUUID(id);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(sessionService.updateSession(UUID.fromString(id), request));
+                    .body(sessionService.updateSession(id, request));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (NotFoundException e) {
