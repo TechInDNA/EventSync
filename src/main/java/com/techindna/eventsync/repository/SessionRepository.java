@@ -2,7 +2,10 @@ package com.techindna.eventsync.repository;
 
 import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.dto.events.EventSessionResponseDto;
+import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.SessionResponseDto;
 import com.techindna.eventsync.dto.speaker.SessionForSpeakerDto;
+import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
@@ -11,6 +14,7 @@ import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.mapper.EventMapper;
 import com.techindna.eventsync.mapper.RoomMapper;
 import com.techindna.eventsync.mapper.SessionMapper;
+import com.techindna.eventsync.mapper.SpeakerMapper;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
@@ -112,7 +116,7 @@ public class SessionRepository {
         }
     }
 
-    public List<SpeakerInterventionDto> getInterventionById(UUID sessionId){
+    public List<SpeakerInterventionDto> getInterventionById(UUID sessionId, Connection connection){
         final String query =
                 """
                 select
@@ -126,19 +130,11 @@ public class SessionRepository {
                 where intervene.session_id = ?
                 """;
         final List<SpeakerInterventionDto> interventions = new ArrayList<>();
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ){
+        try (PreparedStatement ps = connection.prepareStatement(query)){
             ps.setObject(1,sessionId);
             try (ResultSet rs = ps.executeQuery()){
                 while (rs.next()){
-                    SpeakerInterventionDto intervention = new SpeakerInterventionDto();
-                    intervention.setFirstName(rs.getString("first_name"));
-                    intervention.setLastName(rs.getString("last_name"));
-                    intervention.setProfilePicture(rs.getString("profile_picture"));
-                    intervention.setBio(rs.getString("bio"));
-                    interventions.add(intervention);
+                    interventions.add(SpeakerMapper.mapResultSetToSpeakerInterventionDto(rs));
                 }
                 return interventions;
             }
@@ -149,10 +145,9 @@ public class SessionRepository {
 
     public List<SessionResponseDto> getAllSessions(GetSessionRequestDto request, PaginationRequestDto pagination){
         final String query = getAllSessionsQuery(request);
-        try(
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ){
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try(PreparedStatement ps = connection.prepareStatement(query)){
             int paramIndex = setFilterParameters(ps, request, 1);
             ps.setInt(paramIndex++, pagination.getLimit());
             ps.setInt(paramIndex, pagination.getOffset());
@@ -161,32 +156,17 @@ public class SessionRepository {
             List<SessionResponseDto> sessions = new ArrayList<>();
             try (ResultSet rs = ps.executeQuery()){
                 while(rs.next()){
-                    SessionResponseDto session = new SessionResponseDto();
-                    session.setId(UUID.fromString(rs.getString("session_id")));
-                    session.setTitle(rs.getString("session_title"));
-                    session.setDescription(rs.getString("session_description"));
-                    session.setStartDate(rs.getTimestamp("session_start_date").toInstant());
-                    session.setEndDate(rs.getTimestamp("session_end_date").toInstant());
-                    session.setCapacity(rs.getInt("capacity"));
+                    SessionResponseDto session = SessionMapper.mapResultSetToSessionResponseDto(rs);
 
-                    Room room = new Room();
-                    room.setId(UUID.fromString(rs.getString("room_id")));
-                    room.setName(rs.getString("room_name"));
+                    Room room = RoomMapper.mapResultSetToRoom(rs);
                     session.setRoom(room);
 
-                    Event event = new Event();
-                    event.setId(UUID.fromString(rs.getString("event_id")));
-                    event.setTitle(rs.getString("event_title"));
-                    event.setDescription(rs.getString("event_description"));
-                    event.setStartDate(rs.getTimestamp("event_start_date").toInstant());
-                    event.setEndDate(rs.getTimestamp("event_end_date").toInstant());
+                    Event event = EventMapper.mapResultSetToEventWithAlias(rs);
                     session.setEvent(event);
 
-                    session.setSpeakers(getInterventionById(session.getId()));
+                    session.setSpeakers(getInterventionById(session.getId(), connection));
 
-                    Instant start = session.getStartDate();
-                    Instant end = session.getEndDate();
-                    session.setLive(now.isAfter(start) && now.isBefore(end));
+                    session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
 
                     sessions.add(session);
                 }
@@ -194,6 +174,8 @@ public class SessionRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -239,7 +221,7 @@ public class SessionRepository {
 
                     session.setRoom(room);
 
-                    session.setSpeakers(getInterventionById(session.getId()).isEmpty() ? null : getInterventionById(session.getId()));
+                    session.setSpeakers(getInterventionById(session.getId(), connection).isEmpty() ? null : getInterventionById(session.getId(), connection));
 
                     return Optional.of(session);
                 }
@@ -335,7 +317,7 @@ public class SessionRepository {
 
                     session.setEvent(event);
 
-                    session.setSpeakers(getInterventionById(session.getId()).isEmpty() ? null : getInterventionById(session.getId()));
+                    session.setSpeakers(getInterventionById(session.getId(), connection).isEmpty() ? null : getInterventionById(session.getId(), connection));
 
                     return Optional.of(session);
                 }

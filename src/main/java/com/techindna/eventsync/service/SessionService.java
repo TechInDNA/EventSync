@@ -1,6 +1,10 @@
 package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.*;
+import com.techindna.eventsync.dto.sessions.GetSessionListResponseDto;
+import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.SessionResponseDto;
+import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SessionRepository;
@@ -14,10 +18,12 @@ import java.util.UUID;
 public class SessionService {
     private final SessionRepository sessionRepository;
     private final DataValidator dataValidator;
+    private final AuthService authService;
 
-    public SessionService(SessionRepository sessionRepository, DataValidator dataValidator) {
+    public SessionService(SessionRepository sessionRepository, DataValidator dataValidator, AuthService authService) {
         this.sessionRepository = sessionRepository;
         this.dataValidator = dataValidator;
+        this.authService = authService;
     }
 
     public SessionResponseDto createSession(SessionRequestDto sessionRequestDto) {
@@ -34,8 +40,13 @@ public class SessionService {
                 .orElseThrow(() -> new ConflictException(String.format("Session with title '%s' already exists", sessionRequestDto.getTitle())));
     }
 
-    public GetSessionListResponseDto getAllSessions(GetSessionRequestDto request, PaginationRequestDto pagination){
+    @Transactional(readOnly = true)
+    public GetSessionListResponseDto getAllSessions(GetSessionRequestDto request, String page, String size, String ipAddress){
+        authService.checkClient(ipAddress);
+        dataValidator.validatePageAndSize(page, size);
         dataValidator.validateSessionRequestData(request);
+
+        PaginationRequestDto pagination = new PaginationRequestDto(Integer.parseInt(page), Integer.parseInt(size));
         return new GetSessionListResponseDto(
                 sessionRepository.getAllSessions(request, pagination),
                 sessionRepository.countFilteredSessions(request),

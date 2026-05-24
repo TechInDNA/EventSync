@@ -1,4 +1,6 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.sessions;
+
+import com.techindna.eventsync.dto.Meta;
 
 import java.util.List;
 
