@@ -244,28 +244,6 @@ public class SessionRepository {
         }
     }
 
-    public Optional<Session> findSessionByTitleExcludingId(String title, UUID excludeId) {
-        final String query = "SELECT id, title FROM eventsync_app.sessions WHERE title = ? AND id != ?";
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            ps.setString(1, title);
-            ps.setObject(2, excludeId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Session session = new Session();
-                    session.setId(UUID.fromString(rs.getString("id")));
-                    session.setTitle(rs.getString("title"));
-                    return Optional.of(session);
-                }
-                return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        }
-    }
-
     public Optional<SessionResponseDto> updateSessionById(UUID id, SessionRequestDto sessionRequestDto, Room room, Event event) {
         final String query =
             """
