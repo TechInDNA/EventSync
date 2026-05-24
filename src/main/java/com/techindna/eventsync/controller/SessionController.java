@@ -17,11 +17,9 @@ import java.util.UUID;
 @RequestMapping("/sessions")
 public class SessionController {
     private final SessionService sessionService;
-    private final DataValidator dataValidator;
 
-    public SessionController(SessionService sessionService, DataValidator dataValidator) {
+    public SessionController(SessionService sessionService) {
         this.sessionService = sessionService;
-        this.dataValidator = dataValidator;
     }
 
     @GetMapping
