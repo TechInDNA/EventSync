@@ -3,6 +3,7 @@ package com.techindna.eventsync.service;
 import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.dto.sessions.GetSessionListResponseDto;
 import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.SessionDetailResponseDto;
 import com.techindna.eventsync.dto.sessions.SessionResponseDto;
 import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.entity.Event;
@@ -10,12 +11,14 @@ import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.EventRepository;
+import com.techindna.eventsync.repository.QuestionRepository;
 import com.techindna.eventsync.repository.RoomRepository;
 import com.techindna.eventsync.repository.SessionRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,13 +28,15 @@ public class SessionService {
     private final AuthService authService;
     private final RoomRepository roomRepository;
     private final EventRepository eventRepository;
+    private final QuestionRepository questionRepository;
 
-    public SessionService(SessionRepository sessionRepository, DataValidator dataValidator, AuthService authService, RoomRepository roomRepository, EventRepository eventRepository) {
+    public SessionService(SessionRepository sessionRepository, DataValidator dataValidator, AuthService authService, RoomRepository roomRepository, EventRepository eventRepository, QuestionRepository questionRepository) {
         this.sessionRepository = sessionRepository;
         this.dataValidator = dataValidator;
         this.authService = authService;
         this.roomRepository = roomRepository;
         this.eventRepository = eventRepository;
+        this.questionRepository = questionRepository;
     }
 
     @Transactional
@@ -73,6 +78,15 @@ public class SessionService {
                 .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", session.getEventTitle())));
 
         return sessionRepository.updateSessionById(UUID.fromString(id), session, room, event)
+                .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
+    }
+
+    @Transactional(readOnly = true)
+    public SessionDetailResponseDto getSessionById(String id) {
+        dataValidator.validateUUID(id);
+
+        List<QuestionResponseDto> questions = questionRepository.getQuestionsBySessionId(UUID.fromString(id));
+        return sessionRepository.findSessionDetailById(UUID.fromString(id), questions)
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
     }
 
