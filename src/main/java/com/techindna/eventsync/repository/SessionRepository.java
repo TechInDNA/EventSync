@@ -184,15 +184,7 @@ public class SessionRepository {
                     eventsync_app.sessions(title, description, start_date, end_date, room_id, capacity, event_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (title) DO NOTHING
-                RETURNING
-                id as session_id,
-                title as session_title,
-                description as session_description,
-                start_date as session_start_date,
-                end_date as session_end_date,
-                room_id,
-                capacity,
-                event_id
+                RETURNING id, title, description, start_date, end_date, room_id, capacity, event_id
                 """;
 
         Connection connection = DataSourceUtils.getConnection(dataSource);
@@ -200,21 +192,9 @@ public class SessionRepository {
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             SessionMapper.mapPreparedStatement(ps, sessionRequestDto, room, event);
 
-            Instant now = Instant.now();
             try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    SessionResponseDto session = SessionMapper.mapResultSetToSessionResponseDto(rs);
-                    session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
-
-                    session.setEvent(event);
-
-                    session.setRoom(room);
-
-                    session.setSpeakers(null);
-
-                    return Optional.of(session);
-                }
-                return Optional.empty();
+                return rs.next() ? Optional.of(SessionMapper.mapToSessionResponseDto(rs, room, event, null, Instant.now()))
+                        : Optional.empty();
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
