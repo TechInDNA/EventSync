@@ -3,6 +3,7 @@ package com.techindna.eventsync.repository;
 import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.dto.events.EventSessionResponseDto;
 import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.SessionDetailResponseDto;
 import com.techindna.eventsync.dto.sessions.SessionResponseDto;
 import com.techindna.eventsync.dto.speaker.SessionForSpeakerDto;
 import com.techindna.eventsync.dto.speaker.SessionRequestDto;
@@ -138,6 +139,47 @@ public class SessionRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public Optional<SessionDetailResponseDto> findSessionDetailById(UUID id, List<QuestionResponseDto> questions) {
+        final String query = """
+            SELECT s.id as session_id, s.title as session_title,
+                   s.description as session_description,
+                   s.start_date as session_start_date,
+                   s.end_date as session_end_date,
+                   r.id as room_id, r.name as room_name,
+                   s.capacity,
+                   e.id as event_id, e.title as event_title,
+                   e.description as event_description,
+                   e.start_date as event_start_date,
+                   e.end_date as event_end_date,
+                   e.location, e.created_at
+            FROM eventsync_app.sessions s
+            LEFT JOIN eventsync_app.rooms r ON s.room_id = r.id
+            JOIN eventsync_app.events e ON e.id = s.event_id
+            WHERE s.id = ?
+        """;
+
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return Optional.empty();
+                }
+
+                List<SpeakerInterventionDto> speakers = getInterventionById(id, connection);
+                return Optional.of(
+                        SessionMapper.
+                                mapResultSetToSessionDetailResponseDto(rs, speakers, questions, Instant.now())
+                );
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
