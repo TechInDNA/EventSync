@@ -82,7 +82,8 @@ public class SessionService {
     }
 
     @Transactional(readOnly = true)
-    public SessionDetailResponseDto getSessionById(String id) {
+    public SessionDetailResponseDto getSessionById(String id, String ipAddress) {
+        authService.checkClient(ipAddress);
         dataValidator.validateUUID(id);
 
         List<QuestionResponseDto> questions = questionRepository.getQuestionsBySessionId(UUID.fromString(id));

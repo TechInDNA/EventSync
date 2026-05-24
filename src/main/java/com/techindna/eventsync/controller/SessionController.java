@@ -52,9 +52,12 @@ public class SessionController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getSessionById(@PathVariable String id) {
+    public ResponseEntity<?> getSessionById(@PathVariable String id, HttpServletRequest servletRequest) {
         try {
-            return ResponseEntity.ok(sessionService.getSessionById(id));
+            return ResponseEntity.ok(sessionService.getSessionById(id, servletRequest.getRemoteAddr()));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (NotFoundException e) {
