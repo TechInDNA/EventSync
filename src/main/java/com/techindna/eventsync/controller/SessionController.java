@@ -1,6 +1,7 @@
 package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.LinkSpeakerRequestDto;
 import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.mapper.SessionMapper;
@@ -82,6 +83,30 @@ public class SessionController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (ConflictException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
+    @PostMapping("/{sessionId}/speaker/{speakerId}")
+    public ResponseEntity<?> linkSpeakerToSession(
+            @PathVariable String sessionId,
+            @PathVariable String speakerId,
+            @RequestBody LinkSpeakerRequestDto request
+    ) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(sessionService.linkSpeakerToSession(sessionId, speakerId, request));
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred, please try again later");

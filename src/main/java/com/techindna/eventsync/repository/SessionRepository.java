@@ -3,6 +3,7 @@ package com.techindna.eventsync.repository;
 import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.dto.events.EventSessionResponseDto;
 import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.LinkSpeakerResponseDto;
 import com.techindna.eventsync.dto.sessions.SessionResponseDto;
 import com.techindna.eventsync.dto.speaker.SessionForSpeakerDto;
 import com.techindna.eventsync.dto.speaker.SessionRequestDto;
@@ -100,16 +101,16 @@ public class SessionRepository {
                     JOIN eventsync_app.events e ON e.id = s.event_id
                 """ + buildFilterWhereClause(request);
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
             setFilterParameters(ps, request, 1);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt("total") : 0;
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
@@ -330,6 +331,30 @@ public class SessionRepository {
             return sessions.isEmpty() ? null : sessions;
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public LinkSpeakerResponseDto linkSpeakerToSession(UUID sessionId, UUID speakerId, String startTime, String endTime) {
+        final String query =
+                """
+                INSERT INTO eventsync_app.intervene (speaker_id, session_id, start_time, end_time)
+                VALUES (?, ?, ?, ?)
+                RETURNING id, speaker_id, session_id, start_time, end_time
+                """;
+
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            SessionMapper.bindLinkSpeakerParams(ps, sessionId, speakerId, startTime, endTime);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return SessionMapper.mapLinkSpeakerResponse(rs);
+                }
+                throw new InternalServerErrorException("Failed to link speaker to session.");
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 

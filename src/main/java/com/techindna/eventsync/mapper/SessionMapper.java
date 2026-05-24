@@ -2,6 +2,7 @@ package com.techindna.eventsync.mapper;
 import com.techindna.eventsync.dto.SpeakerInterventionDto;
 import com.techindna.eventsync.dto.events.EventSessionResponseDto;
 import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.LinkSpeakerResponseDto;
 import com.techindna.eventsync.dto.sessions.SessionResponseDto;
 import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.entity.Event;
@@ -82,5 +83,22 @@ public class SessionMapper {
         request.setEventTitle(eventTitle);
         request.setLive(isLive);
         return request;
+    }
+
+    public static void bindLinkSpeakerParams(PreparedStatement ps, UUID sessionId, UUID speakerId, String startTime, String endTime) throws SQLException {
+        ps.setObject(1, speakerId);
+        ps.setObject(2, sessionId);
+        ps.setString(3, startTime);
+        ps.setString(4, endTime);
+    }
+
+    public static LinkSpeakerResponseDto mapLinkSpeakerResponse(ResultSet rs) throws SQLException {
+        LinkSpeakerResponseDto dto = new LinkSpeakerResponseDto();
+        dto.setId(UUID.fromString(rs.getString("id")));
+        dto.setSpeakerId(UUID.fromString(rs.getString("speaker_id")));
+        dto.setSessionId(UUID.fromString(rs.getString("session_id")));
+        dto.setStartTime(rs.getString("start_time"));
+        dto.setEndTime(rs.getString("end_time"));
+        return dto;
     }
 }
