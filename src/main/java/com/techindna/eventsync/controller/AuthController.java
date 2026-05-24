@@ -11,7 +11,7 @@ import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.TooManyRequestException;
 import com.techindna.eventsync.exception.UnauthorizedException;
-import com.techindna.eventsync.mapper.AuthMapper;
+import com.techindna.eventsync.mapper.UserMapper;
 import com.techindna.eventsync.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
@@ -51,7 +51,7 @@ public class AuthController {
                     .build();
 
             AuthLoginResponseDto response = new AuthLoginResponseDto();
-            UserResponseDto userDto = AuthMapper.toUserResponseDto(admin);
+            UserResponseDto userDto = UserMapper.toUserResponseDto(admin);
             response.setUser(userDto);
             response.setToken(token);
 
@@ -85,7 +85,7 @@ public class AuthController {
 
             String token = authService.generateParticipantToken(participant);
 
-            ParticipantDto p = AuthMapper.toParticipantDto(participant);
+            ParticipantDto p = UserMapper.toParticipantDto(participant);
 
             AuthParticipantResponseDto response = new AuthParticipantResponseDto();
             response.setToken(token);

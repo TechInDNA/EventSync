@@ -3,7 +3,7 @@ package com.techindna.eventsync.repository;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.entity.Participant;
 import com.techindna.eventsync.exception.InternalServerErrorException;
-import com.techindna.eventsync.mapper.AuthMapper;
+import com.techindna.eventsync.mapper.UserMapper;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
@@ -43,7 +43,7 @@ public class AuthRepository {
             ps.setString(1, email);
 
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? Optional.of(AuthMapper.mapResultSetToAdministrator(rs))
+                return rs.next() ? Optional.of(UserMapper.mapResultSetToAdministrator(rs))
                         : Optional.empty();
             }
         } catch (SQLException e) {
@@ -63,10 +63,10 @@ public class AuthRepository {
         Connection conn = DataSourceUtils.getConnection(dataSource);
 
         try (PreparedStatement ps = conn.prepareStatement(insertQuery)) {
-            AuthMapper.mapParticipantQuery(ps, firstName, lastName, email);
+            UserMapper.mapParticipantQuery(ps, firstName, lastName, email);
 
             try (ResultSet rs = ps.executeQuery()) {
-                return rs.next() ? AuthMapper.mapResultSetToParticipant(rs)
+                return rs.next() ? UserMapper.mapResultSetToParticipant(rs)
                         : new Participant();
             }
         } catch (SQLException e) {
@@ -85,10 +85,10 @@ public class AuthRepository {
         Connection conn =  DataSourceUtils.getConnection(dataSource);
 
         try (PreparedStatement ps = conn.prepareStatement(selectQuery)) {
-            AuthMapper.mapParticipantQuery(ps, email, firstName, lastName);
+            UserMapper.mapParticipantQuery(ps, email, firstName, lastName);
 
             try (ResultSet rs = ps.executeQuery()) {
-                    return rs.next() ? Optional.of(AuthMapper.mapResultSetToParticipant(rs))
+                    return rs.next() ? Optional.of(UserMapper.mapResultSetToParticipant(rs))
                             : Optional.empty();
             }
         } catch (SQLException e) {
