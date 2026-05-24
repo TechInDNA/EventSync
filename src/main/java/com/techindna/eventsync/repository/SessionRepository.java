@@ -90,7 +90,7 @@ public class SessionRepository {
                    e.end_date as event_end_date,
                    e.location, e.created_at
             FROM eventsync_app.sessions s
-            JOIN eventsync_app.rooms r ON s.room_id = r.id
+            LEFT JOIN eventsync_app.rooms r ON s.room_id = r.id
             JOIN eventsync_app.events e ON e.id = s.event_id
         """ + buildFilterWhereClause(request) + " ORDER BY s.id LIMIT ? OFFSET ?";
     }
@@ -99,7 +99,7 @@ public class SessionRepository {
         String query = """
                     SELECT COUNT(*) as total
                     FROM eventsync_app.sessions s
-                    JOIN eventsync_app.rooms r ON s.room_id = r.id
+                    LEFT JOIN eventsync_app.rooms r ON s.room_id = r.id
                     JOIN eventsync_app.events e ON e.id = s.event_id
                 """ + buildFilterWhereClause(request);
 
@@ -158,13 +158,13 @@ public class SessionRepository {
                 while(rs.next()){
                     SessionResponseDto session = SessionMapper.mapResultSetToSessionResponseDto(rs);
 
-                    Room room = RoomMapper.mapResultSetToRoom(rs);
-                    session.setRoom(room);
+                    session.setRoom(rs.getObject("room_id") != null ? RoomMapper.mapResultSetToRoom(rs) : null);
 
                     Event event = EventMapper.mapResultSetToEventWithAlias(rs);
                     session.setEvent(event);
 
-                    session.setSpeakers(getInterventionById(session.getId(), connection));
+                    List<SpeakerInterventionDto> speakers = getInterventionById(session.getId(), connection);
+                    session.setSpeakers(speakers.isEmpty() ? null : speakers);
 
                     session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
 
