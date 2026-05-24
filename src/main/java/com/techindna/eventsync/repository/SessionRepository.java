@@ -100,16 +100,17 @@ public class SessionRepository {
                     JOIN eventsync_app.events e ON e.id = s.event_id
                 """ + buildFilterWhereClause(request);
 
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
             setFilterParameters(ps, request, 1);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? rs.getInt("total") : 0;
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 
