@@ -2,10 +2,7 @@ package com.techindna.eventsync.controller;
 
 import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
 import com.techindna.eventsync.dto.speaker.SessionRequestDto;
-import com.techindna.eventsync.exception.BadRequestException;
-import com.techindna.eventsync.exception.ConflictException;
-import com.techindna.eventsync.exception.InternalServerErrorException;
-import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.mapper.SessionMapper;
 import com.techindna.eventsync.service.SessionService;
 import com.techindna.eventsync.validator.DataValidator;
@@ -45,6 +42,9 @@ public class SessionController {
                     .body(sessionService.getAllSessions(request, page, size, servletRequest.getRemoteAddr()));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(e.getMessage());
         } catch (InternalServerErrorException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
