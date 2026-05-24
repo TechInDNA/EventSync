@@ -13,7 +13,8 @@ mvn test                      # All JUnit tests
 
 - Create `.env` in project root (gitignored) with: `JWT_TOKEN`, `DB_URL`, `DB_USER`, `DB_PASSWORD`, `HTTPS_PASS`, `KEY_STORE=file:eventsync.p12`, `CORS_ALLOWED_ORIGINS`
 - `.env` loaded via `spring.config.import=optional:file:.env[.properties]`
-- `src/main/resources/application.properties` is **tracked by git** (the `.gitignore` entry is ineffective because the file was committed before the ignore rule). It contains the full SSL + port 443 config. To run HTTP on :8080, override `server.port` and remove SSL properties locally.
+- `src/main/resources/application.properties` is **tracked by git** (committed before the ignore rule was added). It contains the full SSL + port 443 config. To run HTTP on :8080, override `server.port` and remove SSL properties locally.
+- `.env` in this repo contains real secrets on disk — never commit or share it.
 
 ## Database (PostgreSQL)
 
@@ -38,6 +39,8 @@ All `*_data.sql` files use `ON CONFLICT ... DO NOTHING` — idempotent, safe to 
 - No unit tests exist
 - Manual API test scripts at `src/test/java/requests/**/*.sh` (require app running + [curlie](https://github.com/rs/curlie))
 - Auth-dependent scripts (events, sessions, speakers) use `cookies.txt` for JWT session — run `post_auth_login.sh` first
+- All test scripts hardcode `https://localhost:443` — they will not work on HTTP :8080 without editing
+- Login rate-limit: 5 failed attempts per IP → IP blacklisted until DB row is deleted (`eventsync_app.blacklisted_ip` table)
 
 ## Architecture
 
@@ -54,11 +57,16 @@ All `*_data.sql` files use `ON CONFLICT ... DO NOTHING` — idempotent, safe to 
 | `controller` | `Auth`, `Event`, `Session`, `Room`, `Question`, `Speakers` |
 | `service` | Business logic: `AuthService`, `EventService`, `SessionService`, `RoomService`, `SpeakerService`, `QuestionService` |
 | `repository` | JDBC repos for all entities |
-| `dto` | Request/response DTOs (flat, no nested package) |
-| `mapper` | Row mappers: `EventMapper`, `SessionMapper`, `RoomMapper` |
-| `entity` | Domain POJOs (`User`, `Event`, `Session`, `Room`, `Question`, `Participant`, `Administrator`, `ExternalLinks`) + `enums/Role` |
+| `dto` | Request/response DTOs (flat + sub-packages `auth/`, `events/`, `rooms/`, `sessions/`, `speaker/`) |
+| `mapper` | Row mappers: `EventMapper`, `ExternalLinkMapper`, `QuestionMapper`, `RoomMapper`, `SessionMapper`, `SpeakerMapper`, `UserMapper` |
+| `entity` | Domain POJOs (`User`, `Event`, `Session`, `Room`, `Question`, `Participant`, `Administrator`, `Speaker`, `ExternalLinks`) + `enums/Role` |
 | `validator` | `DataValidator` — validates page/size, UUID, session/speaker data |
 | `exception` | `BadRequestException` (400), `UnauthorizedException` (401), `NotFoundException` (404), `ConflictException` (409), `TooManyRequestException` (429), `InternalServerErrorException` (500) |
+
+## Gotchas
+
+- `sudo ./mvnw spring-boot:run` creates `target/` owned by root. A leftover `target-root-owned/` copy may already exist. Run `sudo rm -rf target/` before subsequent non-sudo builds.
+- Login rate-limit: 5 failed attempts per IP → IP blacklisted until the `eventsync_app.blacklisted_ip` row is manually deleted.
 
 ## Docs
 
