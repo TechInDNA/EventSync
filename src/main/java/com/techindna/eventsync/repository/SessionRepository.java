@@ -358,6 +358,34 @@ public class SessionRepository {
         }
     }
 
+    public Optional<String> updateSpeakerLink(UUID sessionId, UUID speakerId, String startTime, String endTime) {
+        final String query =
+            """
+            UPDATE eventsync_app.intervene
+            SET start_time = ?::timetz, end_time = ?::timetz
+            WHERE speaker_id = ? AND session_id = ?
+            RETURNING id
+            """;
+
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setString(1, startTime);
+            ps.setString(2, endTime);
+            ps.setObject(3, speakerId);
+            ps.setObject(4, sessionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of("Speaker link updated");
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+    }
+
     public List<EventSessionResponseDto> findSessionsByEventId(UUID eventId) {
         final String query = """
             select s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,

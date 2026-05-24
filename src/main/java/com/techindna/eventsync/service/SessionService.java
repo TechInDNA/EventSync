@@ -112,6 +112,29 @@ public class SessionService {
         return sessionRepository.linkSpeakerToSession(sessionUuid, speakerUuid, request.getStartTime(), request.getEndTime());
     }
 
+    @Transactional
+    public String updateSpeakerLink(String sessionId, String speakerId, LinkSpeakerRequestDto request, String ipAddress) {
+        authService.checkClient(ipAddress);
+        dataValidator.validateUUID(sessionId);
+        dataValidator.validateUUID(speakerId);
+        dataValidator.checkNullData("startTime", request.getStartTime());
+        dataValidator.checkNullData("endTime", request.getEndTime());
+
+        UUID sessionUuid = UUID.fromString(sessionId);
+        UUID speakerUuid = UUID.fromString(speakerId);
+
+        sessionRepository.findSessionById(sessionUuid)
+                .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", sessionId)));
+
+        speakerRepository.findSpeakerById(speakerUuid)
+                .orElseThrow(() -> new NotFoundException(String.format("Speaker %s not found.", speakerId)));
+
+        checkSpeakerLinkAuthorization(speakerUuid);
+
+        return sessionRepository.updateSpeakerLink(sessionUuid, speakerUuid, request.getStartTime(), request.getEndTime())
+                .orElseThrow(() -> new NotFoundException("Speaker link not found."));
+    }
+
     private void checkSpeakerLinkAuthorization(UUID speakerId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -128,6 +151,7 @@ public class SessionService {
         String currentUserId = authentication.getName();
         if (!currentUserId.equals(speakerId.toString())) {
             throw new UnauthorizedException("You are not authorized to link this speaker.");
+
         }
     }
 }
