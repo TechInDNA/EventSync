@@ -1,7 +1,9 @@
 package com.techindna.eventsync.mapper;
+import com.techindna.eventsync.dto.QuestionResponseDto;
 import com.techindna.eventsync.dto.SpeakerInterventionDto;
 import com.techindna.eventsync.dto.events.EventSessionResponseDto;
 import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.SessionDetailResponseDto;
 import com.techindna.eventsync.dto.sessions.SessionResponseDto;
 import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.entity.Event;
@@ -72,6 +74,25 @@ public class SessionMapper {
         session.setRoom(room);
         session.setEvent(event);
         session.setSpeakers(speakers == null || speakers.isEmpty() ? null : speakers);
+        return session;
+    }
+
+    public static SessionDetailResponseDto mapResultSetToSessionDetailResponseDto(ResultSet rs,
+                                                                                   List<SpeakerInterventionDto> speakers,
+                                                                                   List<QuestionResponseDto> questions,
+                                                                                   Instant now) throws SQLException {
+        SessionDetailResponseDto session = new SessionDetailResponseDto();
+        session.setId(UUID.fromString(rs.getString("session_id")));
+        session.setTitle(rs.getString("session_title"));
+        session.setDescription(rs.getString("session_description"));
+        session.setStartDate(rs.getTimestamp("session_start_date").toInstant());
+        session.setEndDate(rs.getTimestamp("session_end_date").toInstant());
+        session.setCapacity(rs.getInt("capacity"));
+        session.setRoom(rs.getObject("room_id") != null ? RoomMapper.mapResultSetToRoom(rs) : null);
+        session.setEvent(EventMapper.mapResultSetToEventWithAlias(rs));
+        session.setSpeakers(speakers.isEmpty() ? null : speakers);
+        session.setQuestions(questions.isEmpty() ? null : questions);
+        session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
         return session;
     }
 
