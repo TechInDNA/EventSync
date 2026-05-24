@@ -1,5 +1,10 @@
 package com.techindna.eventsync.mapper;
+import com.techindna.eventsync.dto.SpeakerInterventionDto;
 import com.techindna.eventsync.dto.events.EventSessionResponseDto;
+import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.sessions.SessionResponseDto;
+import com.techindna.eventsync.entity.Event;
+import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
 
 import java.sql.ResultSet;
@@ -33,5 +38,25 @@ public class SessionMapper {
         }
         session.setLive(Instant.now().isAfter(session.getStartDate()) && Instant.now().isBefore(session.getEndDate()));
         return session;
+    }
+
+    public static SessionResponseDto mapResultSetToSessionResponseDto(ResultSet rs) throws SQLException {
+        SessionResponseDto session = new SessionResponseDto();
+        session.setId(UUID.fromString(rs.getString("session_id")));
+        session.setTitle(rs.getString("session_title"));
+        session.setDescription(rs.getString("session_description"));
+        session.setStartDate(rs.getTimestamp("session_start_date").toInstant());
+        session.setEndDate(rs.getTimestamp("session_end_date").toInstant());
+        session.setCapacity(rs.getInt("capacity"));
+        return session;
+    }
+
+    public static GetSessionRequestDto mapToGetSessionRequestDto(String roomName, String speakerName, String eventTitle, boolean isLive) {
+        GetSessionRequestDto request = new GetSessionRequestDto();
+        request.setRoomName(roomName);
+        request.setSpeakerName(speakerName);
+        request.setEventTitle(eventTitle);
+        request.setLive(isLive);
+        return request;
     }
 }

@@ -1,7 +1,8 @@
-package com.techindna.eventsync.dto;
+package com.techindna.eventsync.dto.sessions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.techindna.eventsync.dto.SpeakerInterventionDto;
 import com.techindna.eventsync.entity.Session;
 
 import java.util.List;

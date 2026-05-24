@@ -1,6 +1,7 @@
 package com.techindna.eventsync.mapper;
 
 import com.techindna.eventsync.dto.ExternalLinkDto;
+import com.techindna.eventsync.dto.SpeakerInterventionDto;
 import com.techindna.eventsync.dto.speaker.SpeakerDetailResponseDto;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
 import com.techindna.eventsync.dto.speaker.SpeakerResponseDto;
@@ -66,6 +67,15 @@ public class SpeakerMapper {
         SpeakerDetailResponseDto speaker = new SpeakerDetailResponseDto();
         mapCommonFields(rs, speaker);
         return speaker;
+    }
+
+    public static SpeakerInterventionDto mapResultSetToSpeakerInterventionDto(ResultSet rs) throws SQLException {
+        SpeakerInterventionDto intervention = new SpeakerInterventionDto();
+        intervention.setFirstName(rs.getString("first_name"));
+        intervention.setLastName(rs.getString("last_name"));
+        intervention.setProfilePicture(rs.getString("profile_picture"));
+        intervention.setBio(rs.getString("bio"));
+        return intervention;
     }
 
     public static SpeakerResponseDto toSpeakerResponse(UUID id, SpeakerRequestDto dto, List<ExternalLinkDto> externalLinks) {

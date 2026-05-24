@@ -1,14 +1,15 @@
 package com.techindna.eventsync.controller;
 
-import com.techindna.eventsync.dto.GetSessionRequestDto;
-import com.techindna.eventsync.dto.PaginationRequestDto;
-import com.techindna.eventsync.dto.SessionRequestDto;
+import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
 import com.techindna.eventsync.exception.NotFoundException;
+import com.techindna.eventsync.mapper.SessionMapper;
 import com.techindna.eventsync.service.SessionService;
 import com.techindna.eventsync.validator.DataValidator;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,21 +34,15 @@ public class SessionController {
             @RequestParam(required = false) String speakerName,
             @RequestParam(required = false, defaultValue = "false") boolean isLive,
             @RequestParam(required = false) String eventTitle,
-            @RequestParam(required = false) String roomName
+            @RequestParam(required = false) String roomName,
+            HttpServletRequest servletRequest
     ) {
         try{
-            GetSessionRequestDto request = new GetSessionRequestDto();
-            request.setRoomName(roomName);
-            request.setSpeakerName(speakerName);
-            request.setEventTitle(eventTitle);
-            request.setLive(isLive);
-
-            dataValidator.validatePageAndSize(page, size);
-
-            PaginationRequestDto pagination = new PaginationRequestDto(Integer.parseInt(page), Integer.parseInt(size));
+            GetSessionRequestDto request = SessionMapper
+                    .mapToGetSessionRequestDto(roomName, speakerName, eventTitle, isLive);
 
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(sessionService.getAllSessions(request, pagination));
+                    .body(sessionService.getAllSessions(request, page, size, servletRequest.getRemoteAddr()));
         } catch (BadRequestException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
