@@ -62,12 +62,17 @@ public class SessionService {
         );
     }
 
-    public SessionResponseDto updateSession(UUID id, SessionRequestDto session) {
+    @Transactional
+    public SessionResponseDto updateSession(String id, SessionRequestDto session) {
+        dataValidator.validateUUID(id);
         dataValidator.validateSessionData(session);
-        if (sessionRepository.findSessionByTitleExcludingId(session.getTitle(), id).isPresent()){
-            throw new ConflictException(String.format("Session with title '%s' already exists.", session.getTitle()));
-        }
-        return sessionRepository.updateSessionById(id, session)
+
+        Room room = roomRepository.findRoomByName(session.getRoomName())
+                .orElseThrow(() -> new NotFoundException(String.format("Room %s not found.", session.getRoomName())));
+        Event event = eventRepository.findEventByTitle(session.getEventTitle())
+                .orElseThrow(() -> new NotFoundException(String.format("Event %s not found.", session.getEventTitle())));
+
+        return sessionRepository.updateSessionById(UUID.fromString(id), session, room, event)
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
     }
 

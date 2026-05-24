@@ -9,8 +9,8 @@ import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
+import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
-import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.mapper.EventMapper;
 import com.techindna.eventsync.mapper.RoomMapper;
 import com.techindna.eventsync.mapper.SessionMapper;
@@ -32,13 +32,10 @@ import java.util.UUID;
 @Repository
 public class SessionRepository {
     private final DataSource dataSource;
-    private final RoomRepository roomRepository;
-    private final EventRepository eventRepository;
+    private static final String UNIQUE_VIOLATION_SQLSTATE = "23505";
 
-    public SessionRepository(DataSource dataSource, RoomRepository roomRepository, EventRepository eventRepository) {
+    public SessionRepository(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.roomRepository = roomRepository;
-        this.eventRepository = eventRepository;
     }
 
     private String buildFilterWhereClause(GetSessionRequestDto request) {
@@ -247,29 +244,7 @@ public class SessionRepository {
         }
     }
 
-    public Optional<Session> findSessionByTitleExcludingId(String title, UUID excludeId) {
-        final String query = "SELECT id, title FROM eventsync_app.sessions WHERE title = ? AND id != ?";
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            ps.setString(1, title);
-            ps.setObject(2, excludeId);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    Session session = new Session();
-                    session.setId(UUID.fromString(rs.getString("id")));
-                    session.setTitle(rs.getString("title"));
-                    return Optional.of(session);
-                }
-                return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
-        }
-    }
-
-    public Optional<SessionResponseDto> updateSessionById(UUID id, SessionRequestDto sessionRequestDto) {
+    public Optional<SessionResponseDto> updateSessionById(UUID id, SessionRequestDto sessionRequestDto, Room room, Event event) {
         final String query =
             """
             UPDATE eventsync_app.sessions
@@ -277,48 +252,26 @@ public class SessionRepository {
             WHERE id = ?
             RETURNING id, title, description, start_date, end_date, room_id, capacity, event_id
             """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
-            Room room = roomRepository.findRoomByName(sessionRequestDto.getRoomName())
-                    .orElseThrow(() -> new NotFoundException("Room not found."));
-            Event event = eventRepository.findEventByTitle(sessionRequestDto.getEventTitle())
-                    .orElseThrow(() -> new NotFoundException("Event not found."));
+        Connection connection = DataSourceUtils.getConnection(dataSource);
 
-            ps.setString(1, sessionRequestDto.getTitle());
-            ps.setString(2, sessionRequestDto.getDescription());
-            ps.setTimestamp(3, Timestamp.from(Instant.parse(sessionRequestDto.getStartDate())));
-            ps.setTimestamp(4, Timestamp.from(Instant.parse(sessionRequestDto.getEndDate())));
-            ps.setObject(5, room.getId());
-            ps.setInt(6, Integer.parseInt(sessionRequestDto.getCapacity()));
-            ps.setObject(7, event.getId());
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            SessionMapper.mapPreparedStatement(ps, sessionRequestDto, room, event);
             ps.setObject(8, id);
 
             try (ResultSet rs = ps.executeQuery()) {
-                Instant now = Instant.now();
                 if (rs.next()) {
-                    SessionResponseDto session = new SessionResponseDto();
-                    session.setId(UUID.fromString(rs.getString("id")));
-                    session.setTitle(rs.getString("title"));
-                    session.setDescription(rs.getString("description"));
-                    session.setStartDate(rs.getTimestamp("start_date").toInstant());
-                    session.setEndDate(rs.getTimestamp("end_date").toInstant());
-                    session.setCapacity(rs.getInt("capacity"));
-                    session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
-
-                    session.setRoom(room);
-
-                    session.setEvent(event);
-
-                    session.setSpeakers(getInterventionById(session.getId(), connection).isEmpty() ? null : getInterventionById(session.getId(), connection));
-
-                    return Optional.of(session);
+                    final List<SpeakerInterventionDto> speakers = getInterventionById(id, connection);
+                    return Optional.of(SessionMapper.mapToSessionResponseDto(rs, room, event, speakers, Instant.now()));
                 }
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new InternalServerErrorException("Database error: " + e.getMessage());
+            if (e.getSQLState().equals(UNIQUE_VIOLATION_SQLSTATE)) {
+                throw new ConflictException(String.format("Session with title '%s' already exists.", sessionRequestDto.getTitle()));
+            }
+            throw new RuntimeException(e);
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 

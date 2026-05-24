@@ -30,25 +30,6 @@ values
     ('86ee1de3-b078-404e-9ee5-a55f2b3ff4a5', 'Session to Delete', 'Session for testing DELETE endpoint', '2026-06-15 10:00:00', '2026-06-15 12:00:00', 'c1c12204-4427-4add-b755-b681719d1685', 50, 'b3b958ac-bdd7-481a-b8f7-636d43794f83')
 on conflict (id) do nothing;
 
-
--- Room for testing PUT /sessions/{id} endpoint
-insert into eventsync_app.rooms (id, name)
-values
-    ('f1a1b2c3-d4e5-6789-0abc-def123456789', 'Session PUT Room')
-on conflict (id) do nothing;
-
--- Event for testing PUT /sessions/{id} endpoint
-insert into eventsync_app.events (id, title, description, start_date, end_date, location)
-values
-    ('a2b3c4d5-e6f7-8901-2345-6789abcdef01', 'Session PUT Event', 'Event for testing PUT session endpoint', '2026-07-01 09:00:00', '2026-07-01 18:00:00', 'PUT Test Location')
-on conflict (id) do nothing;
-
--- Session to update via PUT /sessions/{id}
-insert into eventsync_app.sessions (id, title, description, start_date, end_date, room_id, capacity, event_id)
-values
-    ('4e64d605-7a24-40aa-aea1-87c183fa4036', 'Session to Update via PUT', 'Session for testing PUT endpoint', '2026-06-15 10:00:00', '2026-06-15 12:00:00', 'f1a1b2c3-d4e5-6789-0abc-def123456789', 30, 'a2b3c4d5-e6f7-8901-2345-6789abcdef01')
-on conflict (id) do nothing;
-
 -- Room for testing DELETE session with cascade (intervene + question)
 insert into eventsync_app.rooms (id, name)
 values
@@ -141,4 +122,38 @@ on conflict (id) do nothing;
 insert into eventsync_app.sessions (id, title, description, start_date, end_date, room_id, capacity, event_id)
 values
     ('37df0f32-c10a-45a0-97d0-ab5955dc3a77', 'GET Sessions No Speaker', 'Session without any speaker for GET endpoint testing', '2026-07-10 14:00:00', '2026-07-10 15:00:00', '05135b86-f3b7-4a27-8736-8415fe95ddf8', 40, '8819ef47-f477-4133-9da2-d387cc7c9b1a')
+on conflict (id) do nothing;
+
+-- Test data for PUT /sessions/{id} endpoint (self-contained, independent of other seed files)
+
+-- Room for PUT session testing
+insert into eventsync_app.rooms (id, name)
+values
+    ('7a3b1c2d-4e5f-6a7b-8c9d-0e1f2a3b4c5d', 'PUT Session Room')
+on conflict (id) do nothing;
+
+-- Event for PUT session testing
+insert into eventsync_app.events (id, title, description, start_date, end_date, location)
+values
+    ('8b4c3d2e-5f6a-7b8c-9d0e-1f2a3b4c5d6e', 'PUT Session Event', 'Event for testing PUT session endpoint', '2026-06-15 09:00:00', '2026-06-15 18:00:00', 'PUT Test Location')
+on conflict (id) do nothing;
+
+-- Speakers (users with role 'speaker') for PUT session testing
+insert into eventsync_app.users (id, first_name, last_name, email, bio, profile_picture, "role")
+values
+    ('9c5d4e3f-6a7b-8c9d-0e1f-2a3b4c5d6e7f', 'Peter', 'Put', 'peter.put@eventsync.com', 'Speaker for PUT session endpoint testing.', 'https://i.pravatar.cc/150?img=30', 'speaker'),
+    ('0d6e5f4a-7b8c-9d0e-1f2a-3b4c5d6e7f8a', 'Paula', 'Put', 'paula.put@eventsync.com', 'Speaker for PUT session endpoint testing.', 'https://i.pravatar.cc/150?img=31', 'speaker')
+on conflict (id) do nothing;
+
+-- Session to update via PUT /sessions/{id} (attached to room, event, and speakers)
+insert into eventsync_app.sessions (id, title, description, start_date, end_date, room_id, capacity, event_id)
+values
+    ('1e7f6a5b-8c9d-0e1f-2a3b-4c5d6e7f8a9b', 'PUT Session to Update', 'Session for testing PUT endpoint', '2026-07-15 10:00:00', '2026-07-15 12:00:00', '7a3b1c2d-4e5f-6a7b-8c9d-0e1f2a3b4c5d', 60, '8b4c3d2e-5f6a-7b8c-9d0e-1f2a3b4c5d6e')
+on conflict (id) do nothing;
+
+-- Intervene records linking speakers to the PUT session
+insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
+values
+    ('2f8a7b6c-9d0e-1f2a-3b4c-5d6e7f8a9b0c', '9c5d4e3f-6a7b-8c9d-0e1f-2a3b4c5d6e7f', '1e7f6a5b-8c9d-0e1f-2a3b-4c5d6e7f8a9b', '10:00:00+02', '11:00:00+02'),
+    ('3a9b8c7d-0e1f-2a3b-4c5d-6e7f8a9b0c1d', '0d6e5f4a-7b8c-9d0e-1f2a-3b4c5d6e7f8a', '1e7f6a5b-8c9d-0e1f-2a3b-4c5d6e7f8a9b', '11:00:00+02', '12:00:00+02')
 on conflict (id) do nothing;
