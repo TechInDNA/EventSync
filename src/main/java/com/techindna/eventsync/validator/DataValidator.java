@@ -114,6 +114,7 @@ public class DataValidator {
         validateDate("endDate", request.getEndDate());
         validateString("eventTitle", request.getEventTitle());
         validateString("roomName", request.getRoomName());
+        checkNullData("capacity", request.getCapacity());
         final Matcher data = VALID_INTEGER.matcher(request.getCapacity());
         if (!data.matches()){
             throw new BadRequestException("The capacity parameter must be a digit greater than 0.");
