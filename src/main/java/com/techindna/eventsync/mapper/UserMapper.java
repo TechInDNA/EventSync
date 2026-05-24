@@ -2,8 +2,6 @@ package com.techindna.eventsync.mapper;
 
 import com.techindna.eventsync.dto.ParticipantDto;
 import com.techindna.eventsync.dto.UserResponseDto;
-import com.techindna.eventsync.dto.auth.AuthLoginResponseDto;
-import com.techindna.eventsync.dto.auth.AuthParticipantResponseDto;
 import com.techindna.eventsync.entity.Administrator;
 import com.techindna.eventsync.entity.Participant;
 
@@ -12,7 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class AuthMapper {
+public class UserMapper {
 
     public static Administrator mapResultSetToAdministrator(ResultSet rs) throws SQLException {
         Administrator admin = new Administrator();
@@ -46,6 +44,15 @@ public class AuthMapper {
         dto.setLastName(admin.getLastName());
         dto.setEmail(admin.getEmail());
         dto.setRole(admin.getRole());
+        return dto;
+    }
+
+    public static ParticipantDto mapResultSetToParticipantDto(ResultSet rs) throws SQLException {
+        ParticipantDto dto = new ParticipantDto();
+        dto.setId(UUID.fromString(rs.getString("user_id")));
+        dto.setFirstName(rs.getString("first_name"));
+        dto.setLastName(rs.getString("last_name"));
+        dto.setEmail(rs.getString("email"));
         return dto;
     }
 
