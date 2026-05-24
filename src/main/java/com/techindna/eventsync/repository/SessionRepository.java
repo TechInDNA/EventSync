@@ -179,49 +179,41 @@ public class SessionRepository {
         }
     }
 
-    public Optional<SessionResponseDto> createSession(SessionRequestDto sessionRequestDto) {
+
+    public Optional<SessionResponseDto> createSession(SessionRequestDto sessionRequestDto, Room room, Event event) {
         final String query =
                 """
-                INSERT INTO eventsync_app.sessions(title, description, start_date, end_date, room_id, capacity, event_id)
+                INSERT INTO
+                    eventsync_app.sessions(title, description, start_date, end_date, room_id, capacity, event_id)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT (title) DO NOTHING
-                RETURNING id, title, description, start_date, end_date, room_id, capacity, event_id
+                RETURNING
+                id as session_id,
+                title as session_title,
+                description as session_description,
+                start_date as session_start_date,
+                end_date as session_end_date,
+                room_id,
+                capacity,
+                event_id
                 """;
-        try (
-                Connection connection = dataSource.getConnection();
-                PreparedStatement ps = connection.prepareStatement(query)
-        ) {
 
-            Room room = roomRepository.findRoomByName(sessionRequestDto.getRoomName())
-                    .orElseThrow(() -> new NotFoundException("Room not found."));
-            Event event = eventRepository.findEventByTitle(sessionRequestDto.getEventTitle())
-                    .orElseThrow(() -> new NotFoundException("Event not found."));
+        Connection connection = DataSourceUtils.getConnection(dataSource);
 
-            ps.setString(1, sessionRequestDto.getTitle());
-            ps.setString(2, sessionRequestDto.getDescription());
-            ps.setTimestamp(3, Timestamp.from(Instant.parse(sessionRequestDto.getStartDate())));
-            ps.setTimestamp(4, Timestamp.from(Instant.parse(sessionRequestDto.getEndDate())));
-            ps.setObject(5, room.getId());
-            ps.setInt(6, Integer.parseInt(sessionRequestDto.getCapacity()));
-            ps.setObject(7, event.getId());
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            SessionMapper.mapPreparedStatement(ps, sessionRequestDto, room, event);
 
             Instant now = Instant.now();
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    SessionResponseDto session = new SessionResponseDto();
-                    session.setId(UUID.fromString(rs.getString("id")));
-                    session.setTitle(rs.getString("title"));
-                    session.setDescription(rs.getString("description"));
-                    session.setStartDate(rs.getTimestamp("start_date").toInstant());
-                    session.setEndDate(rs.getTimestamp("end_date").toInstant());
-                    session.setCapacity(rs.getInt("capacity"));
+                    SessionResponseDto session = SessionMapper.mapResultSetToSessionResponseDto(rs);
                     session.setLive(now.isAfter(session.getStartDate()) && now.isBefore(session.getEndDate()));
 
                     session.setEvent(event);
 
                     session.setRoom(room);
 
-                    session.setSpeakers(getInterventionById(session.getId(), connection).isEmpty() ? null : getInterventionById(session.getId(), connection));
+                    session.setSpeakers(null);
 
                     return Optional.of(session);
                 }
@@ -229,6 +221,8 @@ public class SessionRepository {
             }
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 

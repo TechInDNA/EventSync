@@ -3,6 +3,7 @@ package com.techindna.eventsync.validator;
 import com.techindna.eventsync.dto.auth.AuthParticipantRequestDto;
 import com.techindna.eventsync.dto.ExternalLinkDto;
 import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
+import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
 import com.techindna.eventsync.dto.rooms.RoomRequestDto;
 import com.techindna.eventsync.exception.BadRequestException;
@@ -105,15 +106,16 @@ public class DataValidator {
         validateString("name", request.getName());
     }
 
-    public void validateSessionData(String title, String description, String startDate, String endDate, String roomName, String eventTitle, String capacity) {
-        lengthValidation("title", 50, title);
-        validateString("title", title);
-        validateString("description", description);
-        validateDate("startDate", startDate);
-        validateDate("endDate", endDate);
-        validateString("eventTitle", eventTitle);
-        validateString("roomName", roomName);
-        final Matcher data = VALID_INTEGER.matcher(capacity);
+    public void validateSessionData(SessionRequestDto request) {
+        lengthValidation("title", 50, request.getTitle());
+        validateString("title", request.getTitle());
+        validateString("description", request.getDescription());
+        validateDate("startDate", request.getStartDate());
+        validateDate("endDate", request.getEndDate());
+        validateString("eventTitle", request.getEventTitle());
+        validateString("roomName", request.getRoomName());
+        checkNullData("capacity", request.getCapacity());
+        final Matcher data = VALID_INTEGER.matcher(request.getCapacity());
         if (!data.matches()){
             throw new BadRequestException("The capacity parameter must be a digit greater than 0.");
         }

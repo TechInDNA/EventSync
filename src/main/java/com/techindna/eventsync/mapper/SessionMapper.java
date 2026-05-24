@@ -3,12 +3,15 @@ import com.techindna.eventsync.dto.SpeakerInterventionDto;
 import com.techindna.eventsync.dto.events.EventSessionResponseDto;
 import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
 import com.techindna.eventsync.dto.sessions.SessionResponseDto;
+import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -49,6 +52,16 @@ public class SessionMapper {
         session.setEndDate(rs.getTimestamp("session_end_date").toInstant());
         session.setCapacity(rs.getInt("capacity"));
         return session;
+    }
+
+    public static void mapPreparedStatement(PreparedStatement ps, SessionRequestDto dto, Room room, Event event) throws SQLException {
+        ps.setString(1, dto.getTitle());
+        ps.setString(2, dto.getDescription());
+        ps.setTimestamp(3, Timestamp.from(Instant.parse(dto.getStartDate())));
+        ps.setTimestamp(4, Timestamp.from(Instant.parse(dto.getEndDate())));
+        ps.setObject(5, room.getId());
+        ps.setInt(6, Integer.parseInt(dto.getCapacity()));
+        ps.setObject(7, event.getId());
     }
 
     public static GetSessionRequestDto mapToGetSessionRequestDto(String roomName, String speakerName, String eventTitle, boolean isLive) {
