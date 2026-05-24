@@ -76,6 +76,7 @@ public class SessionService {
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
     }
 
+    @Transactional
     public void deleteSessionById(String id) {
         dataValidator.validateUUID(id);
         sessionRepository.deleteSessionById(UUID.fromString(id))
