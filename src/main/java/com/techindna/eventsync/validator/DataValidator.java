@@ -64,7 +64,7 @@ public class DataValidator {
         }
     }
 
-    private void  validateDate(String fieldName, String date){
+    public void  validateDate(String fieldName, String date){
         checkNullData(fieldName, date);
         final Matcher DATE_MATCHER = VALID_DATE.matcher(date);
 
@@ -78,14 +78,6 @@ public class DataValidator {
             throw new BadRequestException("Invalid date.");
         }
 
-    }
-
-    public void validateTime(String fieldName, String time){
-        checkNullData(fieldName, time);
-        final Matcher TIME_MATCHER = VALID_TIME.matcher(time);
-        if (!TIME_MATCHER.matches()){
-            throw new BadRequestException(String.format("Invalid time format for %s: expected HH:mm:ss+HH (e.g. 10:00:00+02).", fieldName));
-        }
     }
 
     public void  validateEventData(String title, String description, String startDate, String endDate, String location){

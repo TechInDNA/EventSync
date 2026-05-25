@@ -25,7 +25,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.time.OffsetTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -367,8 +366,8 @@ public class SessionRepository {
         try (PreparedStatement ps = connection.prepareStatement(query)) {
             ps.setObject(1, speakerId);
             ps.setObject(2, sessionId);
-            ps.setObject(3, OffsetTime.parse(startTime));
-            ps.setObject(4, OffsetTime.parse(endTime));
+            ps.setObject(3, Instant.parse(startTime));
+            ps.setObject(4, Instant.parse(endTime));
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() ? Optional.of(UUID.fromString(rs.getString("id")))
                         : Optional.empty();
