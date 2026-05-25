@@ -108,8 +108,8 @@ public class SessionService {
     public String addSpeakerToSession(String sessionId, String speakerId, SessionSpeakerInputDto input) {
         dataValidator.validateUUID(sessionId);
         dataValidator.validateUUID(speakerId);
-        dataValidator.validateDate("startTime", input.getStartTime());
-        dataValidator.validateDate("endTime", input.getEndTime());
+        dataValidator.validateTime("startTime", input.getStartTime());
+        dataValidator.validateTime("endTime", input.getEndTime());
 
         UUID sessionUUID = UUID.fromString(sessionId);
         UUID speakerUUID = UUID.fromString(speakerId);
