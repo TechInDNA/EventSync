@@ -54,7 +54,8 @@ CREATE TABLE IF NOT EXISTS eventsync_app.intervene(
     speaker_id uuid NOT NULL REFERENCES eventsync_app.users(id) ON DELETE CASCADE,
     session_id uuid NOT NULL REFERENCES eventsync_app.sessions(id) ON DELETE CASCADE,
     start_time timestamp NOT NULL,
-    end_time timestamp NOT NULL
+    end_time timestamp NOT NULL,
+    UNIQUE (speaker_id, session_id)
 );
 
 CREATE TABLE IF NOT EXISTS eventsync_app.question(

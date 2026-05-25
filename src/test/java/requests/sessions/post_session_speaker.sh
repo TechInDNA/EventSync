@@ -25,54 +25,64 @@ echo ""
 echo "--- Test 2: Link Bob to Session A (second speaker, should return 201) ---"
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"2026-06-15T11:00:00Z","endTime":"2026-06-15T12:00:00Z"}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/550e8400-e29b-41d4-a716-446655440021
 
-# Step 4: Invalid sessionId UUID (should return 400)
+# Step 4: Duplicate speaker-session link (Charlie already linked in Test 1, should return 409)
 echo ""
-echo "--- Test 3: Invalid sessionId UUID format (should return 400) ---"
+echo "--- Test 3: Duplicate link - same speaker/session pair (should return 409) ---"
+curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"2026-06-15T10:00:00Z","endTime":"2026-06-15T11:00:00Z"}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/550e8400-e29b-41d4-a716-446655440022
+
+# Step 5: Duplicate speaker-session link (Bob from Test 2, different times - same pair, should return 409)
+echo ""
+echo "--- Test 4: Duplicate link - same pair different times (should return 409) ---"
+curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"2026-06-15T12:00:00Z","endTime":"2026-06-15T13:00:00Z"}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/550e8400-e29b-41d4-a716-446655440021
+
+# Step 6: Invalid sessionId UUID (should return 400)
+echo ""
+echo "--- Test 5: Invalid sessionId UUID format (should return 400) ---"
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"2026-06-15T10:00:00Z","endTime":"2026-06-15T11:00:00Z"}' https://localhost:443/sessions/not-a-uuid/speaker/550e8400-e29b-41d4-a716-446655440020
 
-# Step 5: Invalid speakerId UUID (should return 400)
+# Step 6: Invalid speakerId UUID (should return 400)
 echo ""
-echo "--- Test 4: Invalid speakerId UUID format (should return 400) ---"
+echo "--- Test 6: Invalid speakerId UUID format (should return 400) ---"
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"2026-06-15T10:00:00Z","endTime":"2026-06-15T11:00:00Z"}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/invalid-uuid
 
-# Step 6: Non-existent session (should return 404)
+# Step 7: Non-existent session (should return 404)
 echo ""
-echo "--- Test 5: Non-existent session (should return 404) ---"
+echo "--- Test 7: Non-existent session (should return 404) ---"
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"2026-06-15T10:00:00Z","endTime":"2026-06-15T11:00:00Z"}' https://localhost:443/sessions/00000000-0000-4000-8000-000000000000/speaker/550e8400-e29b-41d4-a716-446655440020
 
-# Step 7: Non-existent speaker (should return 404)
+# Step 8: Non-existent speaker (should return 404)
 echo ""
-echo "--- Test 6: Non-existent speaker (should return 404) ---"
+echo "--- Test 8: Non-existent speaker (should return 404) ---"
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"2026-06-15T10:00:00Z","endTime":"2026-06-15T11:00:00Z"}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/00000000-0000-4000-8000-000000000000
 
-# Step 8: No authentication (should return 401 or 403)
+# Step 9: No authentication (should return 401 or 403)
 echo ""
-echo "--- Test 7: No authentication (should return 401 or 403) ---"
+echo "--- Test 9: No authentication (should return 401 or 403) ---"
 curlie -k -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"2026-06-15T10:00:00Z","endTime":"2026-06-15T11:00:00Z"}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/550e8400-e29b-41d4-a716-446655440020
 
-# Step 9: Missing startTime (should return 400)
+# Step 10: Missing startTime (should return 400)
 echo ""
-echo "--- Test 8: Missing startTime (should return 400) ---"
+echo "--- Test 10: Missing startTime (should return 400) ---"
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"endTime":"2026-06-15T11:00:00Z"}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/550e8400-e29b-41d4-a716-446655440020
 
-# Step 10: Missing endTime (should return 400)
+# Step 11: Missing endTime (should return 400)
 echo ""
-echo "--- Test 9: Missing endTime (should return 400) ---"
+echo "--- Test 11: Missing endTime (should return 400) ---"
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"2026-06-15T10:00:00Z"}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/550e8400-e29b-41d4-a716-446655440020
 
-# Step 11: Empty startTime (should return 400)
+# Step 12: Empty startTime (should return 400)
 echo ""
-echo "--- Test 10: Empty startTime (should return 400) ---"
+echo "--- Test 12: Empty startTime (should return 400) ---"
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"","endTime":"2026-06-15T11:00:00Z"}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/550e8400-e29b-41d4-a716-446655440020
 
-# Step 12: Blank startTime (spaces only, should return 400)
+# Step 13: Blank startTime (spaces only, should return 400)
 echo ""
-echo "--- Test 11: Blank startTime (spaces only, should return 400) ---"
+echo "--- Test 13: Blank startTime (spaces only, should return 400) ---"
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"   ","endTime":"2026-06-15T11:00:00Z"}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/550e8400-e29b-41d4-a716-446655440020
 
-# Step 13: Empty endTime (should return 400)
+# Step 14: Empty endTime (should return 400)
 echo ""
-echo "--- Test 12: Empty endTime (should return 400) ---"
+echo "--- Test 14: Empty endTime (should return 400) ---"
 curlie -k -b cookies.txt -s -w "\nHTTP Status: %{http_code}\n" -H "Content-Type: application/json" -d '{"startTime":"2026-06-15T10:00:00Z","endTime":""}' https://localhost:443/sessions/550e8400-e29b-41d4-a716-446655440030/speaker/550e8400-e29b-41d4-a716-446655440020
 
 # Cleanup

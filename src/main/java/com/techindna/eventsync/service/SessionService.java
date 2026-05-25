@@ -114,8 +114,7 @@ public class SessionService {
         UUID sessionUUID = UUID.fromString(sessionId);
         UUID speakerUUID = UUID.fromString(speakerId);
 
-        sessionRepository.addSpeakerToSession(sessionUUID, speakerUUID, input.getStartTime(), input.getEndTime())
-                .orElseThrow(() -> new NotFoundException("Session or speaker not found."));
+        sessionRepository.addSpeakerToSession(sessionUUID, speakerUUID, input.getStartTime(), input.getEndTime());
         return String.format("Speaker %s linked to session %s.",  speakerUUID, sessionUUID);
     }
 }
