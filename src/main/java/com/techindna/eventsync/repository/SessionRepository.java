@@ -25,6 +25,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.OffsetTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -353,6 +354,29 @@ public class SessionRepository {
             return sessions.isEmpty() ? null : sessions;
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public Optional<UUID> addSpeakerToSession(UUID sessionId, UUID speakerId, String startTime, String endTime) {
+        final String query = """
+            INSERT INTO eventsync_app.intervene(speaker_id, session_id, start_time, end_time)
+            VALUES (?, ?, ?, ?)
+            RETURNING id
+            """;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, speakerId);
+            ps.setObject(2, sessionId);
+            ps.setObject(3, OffsetTime.parse(startTime));
+            ps.setObject(4, OffsetTime.parse(endTime));
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(UUID.fromString(rs.getString("id")))
+                        : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 

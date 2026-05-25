@@ -62,7 +62,7 @@ public class DataValidator {
         }
     }
 
-    private void  validateDate(String fieldName, String date){
+    public void  validateDate(String fieldName, String date){
         checkNullData(fieldName, date);
         final Matcher DATE_MATCHER = VALID_DATE.matcher(date);
 
