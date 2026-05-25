@@ -89,7 +89,7 @@ public class SessionController {
         }
     }
 
-    @PutMapping("/{sessionId}/speaker/{speakerId}")
+    @PutMapping(value = "/{sessionId}/speaker/{speakerId}", produces = org.springframework.http.MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> updateSpeakerLink(
             @PathVariable String sessionId,
             @PathVariable String speakerId,
@@ -97,8 +97,8 @@ public class SessionController {
         try {
             return ResponseEntity.status(HttpStatus.OK)
                     .body(sessionService.updateSpeakerLink(sessionId, speakerId, request));
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(e.getMessage());
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
