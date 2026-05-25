@@ -358,6 +358,26 @@ public class SessionRepository {
         }
     }
 
+    public boolean updateSpeakerLink(UUID sessionId, UUID speakerId, String startTime, String endTime) {
+        final String query = """
+            UPDATE eventsync_app.intervene
+            SET start_time = ?::timestamp, end_time = ?::timestamp
+            WHERE speaker_id = ? AND session_id = ?
+            """;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setTimestamp(1, Timestamp.from(Instant.parse(startTime)));
+            ps.setTimestamp(2, Timestamp.from(Instant.parse(endTime)));
+            ps.setObject(3, speakerId);
+            ps.setObject(4, sessionId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+    }
+
     public void addSpeakerToSession(UUID sessionId, UUID speakerId, String startTime, String endTime) {
         final String query = """
             INSERT INTO eventsync_app.intervene(speaker_id, session_id, start_time, end_time)

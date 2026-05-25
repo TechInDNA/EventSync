@@ -105,6 +105,25 @@ public class SessionService {
     }
 
     @Transactional
+    public String updateSpeakerLink(String sessionId, String speakerId, SessionSpeakerInputDto input) {
+
+        dataValidator.validateUUID(sessionId);
+        dataValidator.validateUUID(speakerId);
+        dataValidator.validateDate("startTime", input.getStartTime());
+        dataValidator.validateDate("endTime", input.getEndTime());
+
+        UUID sessionUUID = UUID.fromString(sessionId);
+        UUID speakerUUID = UUID.fromString(speakerId);
+
+        boolean updated = sessionRepository.updateSpeakerLink(sessionUUID, speakerUUID, input.getStartTime(), input.getEndTime());
+        if (!updated) {
+            throw new NotFoundException(String.format("Speakers %s is not linked to session %s.", speakerUUID, sessionUUID));
+        }
+
+        return "Speaker link updated.";
+    }
+
+    @Transactional
     public String addSpeakerToSession(String sessionId, String speakerId, SessionSpeakerInputDto input) {
         dataValidator.validateUUID(sessionId);
         dataValidator.validateUUID(speakerId);
