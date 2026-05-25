@@ -12,6 +12,7 @@ import com.techindna.eventsync.entity.Room;
 import com.techindna.eventsync.entity.Session;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.InternalServerErrorException;
+import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.mapper.EventMapper;
 import com.techindna.eventsync.mapper.RoomMapper;
 import com.techindna.eventsync.mapper.SessionMapper;
@@ -34,6 +35,7 @@ import java.util.UUID;
 public class SessionRepository {
     private final DataSource dataSource;
     private static final String UNIQUE_VIOLATION_SQLSTATE = "23505";
+    private static final String FK_VIOLATION_SQLSTATE = "23503";
 
     public SessionRepository(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -353,6 +355,31 @@ public class SessionRepository {
             return sessions.isEmpty() ? null : sessions;
         } catch (SQLException e) {
             throw new InternalServerErrorException("Database error: " + e.getMessage());
+        }
+    }
+
+    public void addSpeakerToSession(UUID sessionId, UUID speakerId, String startTime, String endTime) {
+        final String query = """
+            INSERT INTO eventsync_app.intervene(speaker_id, session_id, start_time, end_time)
+            VALUES (?, ?, ?, ?)
+            """;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, speakerId);
+            ps.setObject(2, sessionId);
+            ps.setTimestamp(3, Timestamp.from(Instant.parse(startTime)));
+            ps.setTimestamp(4, Timestamp.from(Instant.parse(endTime)));
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            if (FK_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
+                throw new NotFoundException(String.format("Speaker %s or session %s not found", speakerId, sessionId));
+            }
+            if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
+                throw new ConflictException(String.format("Speaker %s already linked to session %s.", speakerId, sessionId));
+            }
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
     }
 

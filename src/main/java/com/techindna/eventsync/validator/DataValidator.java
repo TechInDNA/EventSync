@@ -10,6 +10,7 @@ import com.techindna.eventsync.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
+import java.time.OffsetTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -22,6 +23,7 @@ public class DataValidator {
     private static final Pattern VALID_INTEGER = Pattern.compile("^[1-9][0-9]*$");
     private static final Pattern UUID_PATTERN = Pattern.compile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
     private static final Pattern VALID_DATE = Pattern.compile("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$");
+    private static final Pattern VALID_TIME = Pattern.compile("^\\d{2}:\\d{2}:\\d{2}[+-]\\d{2}$");
     private static final Pattern VALID_EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_.-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z]+){1,2}$");
 
     protected void lengthValidation(String fieldName, int limit, String data){
@@ -62,7 +64,7 @@ public class DataValidator {
         }
     }
 
-    private void  validateDate(String fieldName, String date){
+    public void  validateDate(String fieldName, String date){
         checkNullData(fieldName, date);
         final Matcher DATE_MATCHER = VALID_DATE.matcher(date);
 

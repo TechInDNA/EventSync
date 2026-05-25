@@ -15,9 +15,9 @@
               "state": {
                 "file": "src/main/docs/mcd.canvas",
                 "viewState": {
-                  "x": -2293.345891451098,
-                  "y": -1021.6983349679515,
-                  "zoom": -0.6031917338471336
+                  "x": -1550.7964476751986,
+                  "y": -273.26731737445596,
+                  "zoom": -0.3644203653832996
                 }
               },
               "icon": "lucide-layout-dashboard",
@@ -81,8 +81,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300,
-    "collapsed": true
+    "width": 300
   },
   "right": {
     "id": "6f4d6d5bfe41f054",

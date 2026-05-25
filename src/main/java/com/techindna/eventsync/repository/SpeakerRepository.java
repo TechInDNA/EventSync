@@ -368,6 +368,24 @@ public class SpeakerRepository {
         }
     }
 
+    public boolean existsSpeakerById(UUID id) {
+        final String query = """
+            SELECT 1 FROM eventsync_app.users
+            WHERE id = ? AND "role" = 'speaker'
+            """;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+    }
+
     public Optional<UUID> deleteSpeakerById(UUID id) {
         final String query = """
                                 DELETE FROM

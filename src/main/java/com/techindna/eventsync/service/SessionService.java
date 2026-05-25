@@ -5,20 +5,24 @@ import com.techindna.eventsync.dto.sessions.GetSessionListResponseDto;
 import com.techindna.eventsync.dto.sessions.GetSessionRequestDto;
 import com.techindna.eventsync.dto.sessions.SessionDetailResponseDto;
 import com.techindna.eventsync.dto.sessions.SessionResponseDto;
+import com.techindna.eventsync.dto.sessions.SessionSpeakerInputDto;
 import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.entity.Event;
 import com.techindna.eventsync.entity.Room;
+import com.techindna.eventsync.exception.BadRequestException;
 import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.EventRepository;
 import com.techindna.eventsync.repository.QuestionRepository;
 import com.techindna.eventsync.repository.RoomRepository;
 import com.techindna.eventsync.repository.SessionRepository;
+import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.DataValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -29,14 +33,16 @@ public class SessionService {
     private final RoomRepository roomRepository;
     private final EventRepository eventRepository;
     private final QuestionRepository questionRepository;
+    private final SpeakerRepository speakerRepository;
 
-    public SessionService(SessionRepository sessionRepository, DataValidator dataValidator, AuthService authService, RoomRepository roomRepository, EventRepository eventRepository, QuestionRepository questionRepository) {
+    public SessionService(SessionRepository sessionRepository, DataValidator dataValidator, AuthService authService, RoomRepository roomRepository, EventRepository eventRepository, QuestionRepository questionRepository, SpeakerRepository speakerRepository) {
         this.sessionRepository = sessionRepository;
         this.dataValidator = dataValidator;
         this.authService = authService;
         this.roomRepository = roomRepository;
         this.eventRepository = eventRepository;
         this.questionRepository = questionRepository;
+        this.speakerRepository = speakerRepository;
     }
 
     @Transactional
@@ -96,5 +102,19 @@ public class SessionService {
         dataValidator.validateUUID(id);
         sessionRepository.deleteSessionById(UUID.fromString(id))
                 .orElseThrow(() -> new NotFoundException(String.format("Session %s not found.", id)));
+    }
+
+    @Transactional
+    public String addSpeakerToSession(String sessionId, String speakerId, SessionSpeakerInputDto input) {
+        dataValidator.validateUUID(sessionId);
+        dataValidator.validateUUID(speakerId);
+        dataValidator.validateDate("startTime", input.getStartTime());
+        dataValidator.validateDate("endTime", input.getEndTime());
+
+        UUID sessionUUID = UUID.fromString(sessionId);
+        UUID speakerUUID = UUID.fromString(speakerId);
+
+        sessionRepository.addSpeakerToSession(sessionUUID, speakerUUID, input.getStartTime(), input.getEndTime());
+        return String.format("Speaker %s linked to session %s.",  speakerUUID, sessionUUID);
     }
 }
