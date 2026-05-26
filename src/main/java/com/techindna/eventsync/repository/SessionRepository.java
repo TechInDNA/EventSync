@@ -408,6 +408,27 @@ public class SessionRepository {
         }
     }
 
+    public Optional<UUID> removeSpeakerFromSession(UUID sessionId, UUID speakerId) {
+        final String query = """
+        DELETE FROM eventsync_app.intervene
+        WHERE speaker_id = ? AND session_id = ?
+        RETURNING id
+        """;
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            ps.setObject(1, speakerId);
+            ps.setObject(2, sessionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() ? Optional.of(UUID.fromString(rs.getString("id")))
+                        : Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
+        }
+    }
+
     public List<EventSessionResponseDto> findSessionsByEventId(UUID eventId) {
         final String query = """
             select s.id, s.title, s.description, s.start_date, s.end_date, s.capacity,

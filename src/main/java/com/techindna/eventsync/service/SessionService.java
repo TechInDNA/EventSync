@@ -59,7 +59,7 @@ public class SessionService {
     }
 
     @Transactional(readOnly = true)
-    public GetSessionListResponseDto getAllSessions(GetSessionRequestDto request, String page, String size, String ipAddress){
+    public GetSessionListResponseDto getAllSessions(GetSessionRequestDto request, String page, String size, String ipAddress) {
         authService.checkClient(ipAddress);
         dataValidator.validatePageAndSize(page, size);
         dataValidator.validateSessionRequestData(request);
@@ -131,6 +131,18 @@ public class SessionService {
         UUID speakerUUID = UUID.fromString(speakerId);
 
         sessionRepository.addSpeakerToSession(sessionUUID, speakerUUID, input.getStartTime(), input.getEndTime());
-        return String.format("Speaker %s linked to session %s.",  speakerUUID, sessionUUID);
+        return String.format("Speaker %s linked to session %s.", speakerUUID, sessionUUID);
+    }
+
+    @Transactional
+    public void removeSpeakerFromSession(String sessionId, String speakerId) {
+        dataValidator.validateUUID(sessionId);
+        dataValidator.validateUUID(speakerId);
+
+        UUID sessionUUID = UUID.fromString(sessionId);
+        UUID speakerUUID = UUID.fromString(speakerId);
+
+        sessionRepository.removeSpeakerFromSession(sessionUUID, speakerUUID)
+                .orElseThrow(() -> new NotFoundException(String.format("Session %s or Speaker %s not found.", sessionId, speakerId)));
     }
 }
