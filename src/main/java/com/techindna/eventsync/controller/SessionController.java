@@ -89,6 +89,26 @@ public class SessionController {
         }
     }
 
+    @PutMapping(value = "/{sessionId}/speaker/{speakerId}", produces = org.springframework.http.MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<?> updateSpeakerLink(
+            @PathVariable String sessionId,
+            @PathVariable String speakerId,
+            @RequestBody SessionSpeakerInputDto request) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(sessionService.updateSpeakerLink(sessionId, speakerId, request));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
     @PostMapping("/{sessionId}/speaker/{speakerId}")
     public ResponseEntity<?> addSpeakerToSession(
             @PathVariable String sessionId,
