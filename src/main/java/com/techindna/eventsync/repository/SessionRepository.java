@@ -358,11 +358,11 @@ public class SessionRepository {
         }
     }
 
-    public boolean updateSpeakerLink(UUID sessionId, UUID speakerId, String startTime, String endTime) {
+    public void updateSpeakerLink(UUID sessionId, UUID speakerId, String startTime, String endTime) {
         final String query = """
             UPDATE eventsync_app.intervene
-            SET start_time = ?::timestamp, end_time = ?::timestamp
-            WHERE speaker_id = ? AND session_id = ?
+            SET start_time = ?, end_time = ?
+            WHERE speaker_id = ? AND session_id = ? RETURNING id
             """;
         Connection connection = DataSourceUtils.getConnection(dataSource);
         try (PreparedStatement ps = connection.prepareStatement(query)) {
@@ -370,8 +370,15 @@ public class SessionRepository {
             ps.setTimestamp(2, Timestamp.from(Instant.parse(endTime)));
             ps.setObject(3, speakerId);
             ps.setObject(4, sessionId);
-            return ps.executeUpdate() > 0;
+            ps.executeUpdate();
+
         } catch (SQLException e) {
+            if (FK_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
+                throw new NotFoundException(String.format("Speaker %s or session %s not found", speakerId, sessionId));
+            }
+            if (UNIQUE_VIOLATION_SQLSTATE.equals(e.getSQLState())) {
+                throw new ConflictException(String.format("Speaker %s already linked to session %s.", speakerId, sessionId));
+            }
             throw new InternalServerErrorException("Database error: " + e.getMessage());
         } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
