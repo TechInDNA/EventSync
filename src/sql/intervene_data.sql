@@ -1,4 +1,4 @@
--- Test data for POST /sessions/{sessionId}/speaker/{speakerId} endpoint
+-- Test data for POST and PUT /sessions/{sessionId}/speaker/{speakerId} endpoints
 -- Self-contained: uses completely unique IDs (no conflicts with other seed files)
 
 -- Rooms
@@ -46,4 +46,15 @@ on conflict (id) do nothing;
 insert into eventsync_app.sessions (id, title, description, start_date, end_date, room_id, capacity, event_id)
 values
     ('550e8400-e29b-41d4-a716-446655440032', 'Intervene Test Session C', 'Session for negative test cases', '2026-08-01 14:00:00', '2026-08-01 16:00:00', '550e8400-e29b-41d4-a716-446655440001', 30, '550e8400-e29b-41d4-a716-446655440012')
+on conflict (id) do nothing;
+
+-- Session D: has Charlie already linked; used for testing PUT intervene (update existing link)
+insert into eventsync_app.sessions (id, title, description, start_date, end_date, room_id, capacity, event_id)
+values
+    ('550e8400-e29b-41d4-a716-446655440033', 'Intervene Test Session D', 'Session with speaker for PUT intervene testing', '2026-06-20 10:00:00', '2026-06-20 16:00:00', '550e8400-e29b-41d4-a716-446655440001', 50, '550e8400-e29b-41d4-a716-446655440010')
+on conflict (id) do nothing;
+
+insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
+values
+    ('550e8400-e29b-41d4-a716-446655440042', '550e8400-e29b-41d4-a716-446655440022', '550e8400-e29b-41d4-a716-446655440033', '2026-06-20 14:00:00', '2026-06-20 15:00:00')
 on conflict (id) do nothing;

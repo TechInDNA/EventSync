@@ -6,13 +6,10 @@ import com.techindna.eventsync.dto.speaker.SessionRequestDto;
 import com.techindna.eventsync.exception.*;
 import com.techindna.eventsync.mapper.SessionMapper;
 import com.techindna.eventsync.service.SessionService;
-import com.techindna.eventsync.validator.DataValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/sessions")
@@ -89,7 +86,7 @@ public class SessionController {
         }
     }
 
-    @PutMapping(value = "/{sessionId}/speaker/{speakerId}", produces = org.springframework.http.MediaType.TEXT_PLAIN_VALUE)
+    @PutMapping("/{sessionId}/speaker/{speakerId}")
     public ResponseEntity<?> updateSpeakerLink(
             @PathVariable String sessionId,
             @PathVariable String speakerId,
@@ -99,6 +96,9 @@ public class SessionController {
                     .body(sessionService.updateSpeakerLink(sessionId, speakerId, request));
         } catch (UnauthorizedException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(e.getMessage());
         } catch (NotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)

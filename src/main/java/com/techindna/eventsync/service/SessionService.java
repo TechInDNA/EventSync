@@ -115,12 +115,9 @@ public class SessionService {
         UUID sessionUUID = UUID.fromString(sessionId);
         UUID speakerUUID = UUID.fromString(speakerId);
 
-        boolean updated = sessionRepository.updateSpeakerLink(sessionUUID, speakerUUID, input.getStartTime(), input.getEndTime());
-        if (!updated) {
-            throw new NotFoundException(String.format("Speakers %s is not linked to session %s.", speakerUUID, sessionUUID));
-        }
-
-        return "Speaker link updated.";
+        sessionRepository.updateSpeakerLink(sessionUUID, speakerUUID, input.getStartTime(), input.getEndTime())
+                .orElseThrow(() -> new NotFoundException(String.format("Session %s or Speaker %s not found.", sessionId, speakerId)));
+        return String.format("Speaker schedule updated for %s session.", sessionId);
     }
 
     @Transactional
