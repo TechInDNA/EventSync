@@ -15,167 +15,143 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/speakers")
 public class SpeakersController {
-    private final SpeakerService speakerService;
+  private final SpeakerService speakerService;
 
-    public SpeakersController(SpeakerService speakerService){
-        this.speakerService = speakerService;
+  public SpeakersController(SpeakerService speakerService) {
+    this.speakerService = speakerService;
+  }
+
+  @GetMapping
+  public ResponseEntity<?> getAllSpeakers(
+      @RequestParam(required = false, defaultValue = "1") String page,
+      @RequestParam(required = false, defaultValue = "10") String size,
+      @RequestParam(required = false) String search) {
+    try {
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(speakerService.getAllSpeakers(page, size, search));
+
+    } catch (BadRequestException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An unexpected error occurred, please try again later");
     }
+  }
 
-    @GetMapping
-    public ResponseEntity<?> getAllSpeakers(
-            @RequestParam(required = false, defaultValue = "1") String page,
-            @RequestParam(required = false, defaultValue = "10") String size,
-            @RequestParam(required = false) String search) {
-        try {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(speakerService.getAllSpeakers(page, size, search));
-
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred, please try again later");
-        }
+  @PostMapping
+  public ResponseEntity<?> createSpeaker(@RequestBody PostSpeakersRequestDto request) {
+    try {
+      return ResponseEntity.status(HttpStatus.CREATED).body(speakerService.createSpeaker(request));
+    } catch (BadRequestException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (ConflictException e) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An unexpected error occurred, please try again later");
     }
+  }
 
-    @PostMapping
-    public ResponseEntity<?> createSpeaker(@RequestBody PostSpeakersRequestDto request) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(speakerService.createSpeaker(request));
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        } catch (ConflictException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred, please try again later");
-        }
+  @GetMapping("/{id}")
+  public ResponseEntity<?> getSpeakerById(@PathVariable String id) {
+    try {
+      return ResponseEntity.status(HttpStatus.OK).body(speakerService.getSpeakerById(id));
+    } catch (BadRequestException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (NotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An unexpected error occurred, please try again later");
     }
+  }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getSpeakerById(@PathVariable String id) {
-        try {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(speakerService.getSpeakerById(id));
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred, please try again later");
-        }
+  @PutMapping("/{id}")
+  public ResponseEntity<?> updateSpeaker(
+      @PathVariable String id, @RequestBody SpeakerRequestDto request) {
+    try {
+
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(speakerService.updateSpeakerById(id, request));
+
+    } catch (NotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (ConflictException e) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    } catch (BadRequestException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An unexpected error occurred, please try again later");
     }
+  }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateSpeaker(@PathVariable String id, @RequestBody SpeakerRequestDto request) {
-        try {
-
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(speakerService.updateSpeakerById(id, request));
-
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        } catch (ConflictException e){
-            return ResponseEntity.status(HttpStatus.CONFLICT).
-                    body(e.getMessage());
-        }
-        catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred, please try again later");
-        }
+  @PostMapping("/{id}/external-link")
+  public ResponseEntity<?> addExternalLinkBySpeakerId(
+      @PathVariable String id, @RequestBody ExternalLinkDto request) {
+    try {
+      return ResponseEntity.status(HttpStatus.CREATED)
+          .body(speakerService.addExternalLinkBySpeakerId(id, request));
+    } catch (NotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (ConflictException e) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    } catch (BadRequestException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An unexpected error occurred, please try again later");
     }
+  }
 
-    @PostMapping("/{id}/external-link")
-    public ResponseEntity<?> addExternalLinkBySpeakerId(@PathVariable String id, @RequestBody ExternalLinkDto request) {
-        try {
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(speakerService.addExternalLinkBySpeakerId(id, request));
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        } catch (ConflictException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(e.getMessage());
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred, please try again later");
-        }
+  @PutMapping("/{id}/external-link")
+  public ResponseEntity<?> updateExternalLinkBySpeakerId(
+      @PathVariable String id, @RequestParam String urlName, @RequestBody ExternalLinkDto request) {
+
+    try {
+      return ResponseEntity.status(HttpStatus.OK)
+          .body(speakerService.updateExternalLinkBySpeakerId(id, urlName, request));
+    } catch (NotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (ConflictException e) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    } catch (BadRequestException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An unexpected error occurred, please try again later");
     }
+  }
 
-    @PutMapping("/{id}/external-link")
-    public ResponseEntity<?> updateExternalLinkBySpeakerId(
-            @PathVariable String id,
-            @RequestParam String urlName,
-            @RequestBody ExternalLinkDto request) {
+  @DeleteMapping("/{id}/external-link")
+  public ResponseEntity<?> deleteExternalLinkBySpeakerId(
+      @PathVariable String id, @RequestParam String urlName) {
 
-        try {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(speakerService.updateExternalLinkBySpeakerId(id, urlName, request));
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        } catch (ConflictException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(e.getMessage());
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred, please try again later");
-        }
+    try {
+      speakerService.deleteExternalLink(id, urlName);
+      return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    } catch (NotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (BadRequestException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An unexpected error occurred, please try again later");
     }
+  }
 
-    @DeleteMapping("/{id}/external-link")
-    public ResponseEntity<?> deleteExternalLinkBySpeakerId(
-            @PathVariable String id,
-            @RequestParam String urlName) {
-
-        try {
-            speakerService.deleteExternalLink(id, urlName);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred, please try again later");
-        }
+  @DeleteMapping(value = {"/{id}"})
+  public ResponseEntity<?> deleteSpeaker(@PathVariable String id) {
+    try {
+      speakerService.deleteSpeaker(id);
+      return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    } catch (NotFoundException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    } catch (BadRequestException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An unexpected error occurred, please try again later");
     }
-
-    @DeleteMapping(value = {"/{id}"})
-    public ResponseEntity<?> deleteSpeaker(@PathVariable String id) {
-        try {
-            speakerService.deleteSpeaker(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }catch (NotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(e.getMessage());
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred, please try again later");
-        }
-
-    }
-
+  }
 }

@@ -1,76 +1,76 @@
 package com.techindna.eventsync.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.time.Instant;
 import java.util.UUID;
 
 public class QuestionResponseDto {
-    private UUID id;
-    private String title;
-    private String content;
-    private ParticipantDto participant;
-    private int upvotes;
-    @JsonProperty("isAnonymous")
-    private boolean isAnonymous;
-    private Instant createdAt;
+  private UUID id;
+  private String title;
+  private String content;
+  private ParticipantDto participant;
+  private int upvotes;
 
-    public UUID getId() {
-        return id;
-    }
+  @JsonProperty("isAnonymous")
+  private boolean isAnonymous;
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+  private Instant createdAt;
 
-    public String getTitle() {
-        return title;
-    }
+  public UUID getId() {
+    return id;
+  }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+  public void setId(UUID id) {
+    this.id = id;
+  }
 
-    public String getContent() {
-        return content;
-    }
+  public String getTitle() {
+    return title;
+  }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
+  public void setTitle(String title) {
+    this.title = title;
+  }
 
-    public ParticipantDto getParticipant() {
-        return participant;
-    }
+  public String getContent() {
+    return content;
+  }
 
-    public void setParticipant(ParticipantDto participant) {
-        this.participant = participant;
-    }
+  public void setContent(String content) {
+    this.content = content;
+  }
 
-    public int getUpvotes() {
-        return upvotes;
-    }
+  public ParticipantDto getParticipant() {
+    return participant;
+  }
 
-    public void setUpvotes(int upvotes) {
-        this.upvotes = upvotes;
-    }
+  public void setParticipant(ParticipantDto participant) {
+    this.participant = participant;
+  }
 
-    @JsonProperty("isAnonymous")
-    public boolean isAnonymous() {
-        return isAnonymous;
-    }
+  public int getUpvotes() {
+    return upvotes;
+  }
 
-    @JsonProperty("isAnonymous")
-    public void setAnonymous(boolean anonymous) {
-        isAnonymous = anonymous;
-    }
+  public void setUpvotes(int upvotes) {
+    this.upvotes = upvotes;
+  }
 
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
+  @JsonProperty("isAnonymous")
+  public boolean isAnonymous() {
+    return isAnonymous;
+  }
 
-    public void setCreatedAt(Instant createdAt) {
-        this.createdAt = createdAt;
-    }
+  @JsonProperty("isAnonymous")
+  public void setAnonymous(boolean anonymous) {
+    isAnonymous = anonymous;
+  }
 
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Instant createdAt) {
+    this.createdAt = createdAt;
+  }
 }

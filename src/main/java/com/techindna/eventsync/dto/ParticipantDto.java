@@ -5,9 +5,9 @@ import com.techindna.eventsync.entity.User;
 import com.techindna.eventsync.entity.enums.Role;
 
 public class ParticipantDto extends User {
-    @Override
-    @JsonIgnore
-    public Role getRole() {
-        return null;
-    }
+  @Override
+  @JsonIgnore
+  public Role getRole() {
+    return null;
+  }
 }

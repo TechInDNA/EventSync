@@ -2,99 +2,110 @@ package com.techindna.eventsync.service;
 
 import com.techindna.eventsync.dto.*;
 import com.techindna.eventsync.dto.speaker.*;
-import com.techindna.eventsync.exception.ConflictException;
 import com.techindna.eventsync.exception.NotFoundException;
 import com.techindna.eventsync.repository.SpeakerRepository;
 import com.techindna.eventsync.validator.DataValidator;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.UUID;
-
 @Service
 public class SpeakerService {
-    private final SpeakerRepository speakerRepository;
-    private final DataValidator dataValidator;
+  private final SpeakerRepository speakerRepository;
+  private final DataValidator dataValidator;
 
-    public SpeakerService(SpeakerRepository speakerRepository, DataValidator dataValidator){
-        this.speakerRepository = speakerRepository;
-        this.dataValidator = dataValidator;
-    }
+  public SpeakerService(SpeakerRepository speakerRepository, DataValidator dataValidator) {
+    this.speakerRepository = speakerRepository;
+    this.dataValidator = dataValidator;
+  }
 
-    @Transactional(readOnly = true)
-    public GetSpeakerListResponseDto getAllSpeakers(String page, String size, String search){
-        dataValidator.validatePageAndSize(page, size);
-        dataValidator.validateSpeakerSearch(search);
+  @Transactional(readOnly = true)
+  public GetSpeakerListResponseDto getAllSpeakers(String page, String size, String search) {
+    dataValidator.validatePageAndSize(page, size);
+    dataValidator.validateSpeakerSearch(search);
 
-        int pageVal = Integer.parseInt(page);
-        int sizeVal = Integer.parseInt(size);
-        PaginationRequestDto pagination = new PaginationRequestDto(pageVal, sizeVal);
+    int pageVal = Integer.parseInt(page);
+    int sizeVal = Integer.parseInt(size);
+    PaginationRequestDto pagination = new PaginationRequestDto(pageVal, sizeVal);
 
-        return new GetSpeakerListResponseDto(
-                speakerRepository.getAllSpeakers(pagination.getOffset(), pagination.getLimit(), search),
-                speakerRepository.countSpeakers(search),
-                pageVal,
-                sizeVal
-        );
-    }
+    return new GetSpeakerListResponseDto(
+        speakerRepository.getAllSpeakers(pagination.getOffset(), pagination.getLimit(), search),
+        speakerRepository.countSpeakers(search),
+        pageVal,
+        sizeVal);
+  }
 
-    @Transactional
-    public SpeakerResponseDto createSpeaker(PostSpeakersRequestDto postSpeakersRequestDto){
+  @Transactional
+  public SpeakerResponseDto createSpeaker(PostSpeakersRequestDto postSpeakersRequestDto) {
 
-        dataValidator.validateSpeakerData(postSpeakersRequestDto);
-        dataValidator.validateExternalLinks(postSpeakersRequestDto.getExternalLinks());
+    dataValidator.validateSpeakerData(postSpeakersRequestDto);
+    dataValidator.validateExternalLinks(postSpeakersRequestDto.getExternalLinks());
 
-        return speakerRepository.createSpeaker(postSpeakersRequestDto, postSpeakersRequestDto.getExternalLinks());
-    }
+    return speakerRepository.createSpeaker(
+        postSpeakersRequestDto, postSpeakersRequestDto.getExternalLinks());
+  }
 
-    @Transactional
-    public UpdateSpeakerResponseDto updateSpeakerById(String id, SpeakerRequestDto request) {
-        dataValidator.validateUUID(id);
-        dataValidator.validateSpeakerData(request);
-        return speakerRepository.updateSpeakerById(UUID.fromString(id), request)
-                .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s does not exist.", id)));
-    }
+  @Transactional
+  public UpdateSpeakerResponseDto updateSpeakerById(String id, SpeakerRequestDto request) {
+    dataValidator.validateUUID(id);
+    dataValidator.validateSpeakerData(request);
+    return speakerRepository
+        .updateSpeakerById(UUID.fromString(id), request)
+        .orElseThrow(
+            () -> new NotFoundException(String.format("Speaker ID %s does not exist.", id)));
+  }
 
-    @Transactional
-    public void deleteSpeaker(String id) {
-        dataValidator.validateUUID(String.valueOf(id));
-        speakerRepository.deleteSpeakerById(UUID.fromString(id))
-                .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s not found.", id)));
-    }
+  @Transactional
+  public void deleteSpeaker(String id) {
+    dataValidator.validateUUID(String.valueOf(id));
+    speakerRepository
+        .deleteSpeakerById(UUID.fromString(id))
+        .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s not found.", id)));
+  }
 
-    @Transactional(readOnly = true)
-    public SpeakerDetailResponseDto getSpeakerById(String id) {
-        dataValidator.validateUUID(id);
-        return speakerRepository.findSpeakerById(UUID.fromString(id))
-                .orElseThrow(() -> new NotFoundException(String.format("Speaker ID %s does not exist.", id)));
-    }
+  @Transactional(readOnly = true)
+  public SpeakerDetailResponseDto getSpeakerById(String id) {
+    dataValidator.validateUUID(id);
+    return speakerRepository
+        .findSpeakerById(UUID.fromString(id))
+        .orElseThrow(
+            () -> new NotFoundException(String.format("Speaker ID %s does not exist.", id)));
+  }
 
-    @Transactional
-    public List<ExternalLinkDto> addExternalLinkBySpeakerId(String id, ExternalLinkDto links) {
-        dataValidator.validateUUID(id);
-        dataValidator.validateExternalLink(links);
+  @Transactional
+  public List<ExternalLinkDto> addExternalLinkBySpeakerId(String id, ExternalLinkDto links) {
+    dataValidator.validateUUID(id);
+    dataValidator.validateExternalLink(links);
 
-        return speakerRepository.addExternalLinksBySpeakerId(UUID.fromString(id), links);
-    }
+    return speakerRepository.addExternalLinksBySpeakerId(UUID.fromString(id), links);
+  }
 
-    @Transactional
-    public List<ExternalLinkDto> updateExternalLinkBySpeakerId(String id, String urlName, ExternalLinkDto externalLink) {
-        dataValidator.validateUUID(id);
-        dataValidator.validateString("url name", urlName);
-        dataValidator.validateExternalLink(externalLink);
+  @Transactional
+  public List<ExternalLinkDto> updateExternalLinkBySpeakerId(
+      String id, String urlName, ExternalLinkDto externalLink) {
+    dataValidator.validateUUID(id);
+    dataValidator.validateString("url name", urlName);
+    dataValidator.validateExternalLink(externalLink);
 
-        return speakerRepository.updateExternalLinkBySpeakerId(UUID.fromString(id), urlName, externalLink)
-                .orElseThrow(() -> new NotFoundException(String.format("External link name '%s' or speaker %s does not exist.", urlName, id)));
-    }
+    return speakerRepository
+        .updateExternalLinkBySpeakerId(UUID.fromString(id), urlName, externalLink)
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    String.format(
+                        "External link name '%s' or speaker %s does not exist.", urlName, id)));
+  }
 
-    @Transactional
-    public void deleteExternalLink(String speakerId, String urlName) {
-        dataValidator.validateUUID(speakerId);
-        dataValidator.validateString("url name", urlName);
-        speakerRepository.deleteExternalLinkBySpeakerId(UUID.fromString(speakerId), urlName)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("Speaker %s or URL name %s not found.", speakerId, urlName)));
-    }
-
+  @Transactional
+  public void deleteExternalLink(String speakerId, String urlName) {
+    dataValidator.validateUUID(speakerId);
+    dataValidator.validateString("url name", urlName);
+    speakerRepository
+        .deleteExternalLinkBySpeakerId(UUID.fromString(speakerId), urlName)
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    String.format("Speaker %s or URL name %s not found.", speakerId, urlName)));
+  }
 }

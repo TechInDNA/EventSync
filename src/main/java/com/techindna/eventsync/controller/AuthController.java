@@ -23,84 +23,79 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final AuthService authService;
-    private static final int COOKIE_MAX_AGE = 43200;
+  private final AuthService authService;
+  private static final int COOKIE_MAX_AGE = 43200;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+  public AuthController(AuthService authService) {
+    this.authService = authService;
+  }
+
+  @PostMapping("/login")
+  public ResponseEntity<?> login(
+      @RequestBody AuthLoginRequestDto request, HttpServletRequest servletRequest) {
+    try {
+      String ipAddress = servletRequest.getRemoteAddr();
+      Administrator admin =
+          authService.logInByEmailAndPassword(request.getEmail(), request.getPassword(), ipAddress);
+      String token = authService.generateToken(admin);
+
+      ResponseCookie jwtCookie =
+          ResponseCookie.from("jwt", token)
+              .httpOnly(true)
+              .secure(true)
+              .path("/")
+              .maxAge(COOKIE_MAX_AGE)
+              .sameSite("Strict")
+              .build();
+
+      AuthLoginResponseDto response = new AuthLoginResponseDto();
+      UserResponseDto userDto = UserMapper.toUserResponseDto(admin);
+      response.setUser(userDto);
+      response.setToken(token);
+
+      return ResponseEntity.status(HttpStatus.OK)
+          .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+          .body(response);
+    } catch (TooManyRequestException e) {
+      return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(e.getMessage());
+    } catch (BadRequestException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (UnauthorizedException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An unexpected error occurred, please try again later");
     }
+  }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthLoginRequestDto request, HttpServletRequest servletRequest) {
-        try{
-            String ipAddress = servletRequest.getRemoteAddr();
-            Administrator admin = authService.logInByEmailAndPassword(request.getEmail(), request.getPassword(), ipAddress);
-            String token = authService.generateToken(admin);
+  @PostMapping("/participant")
+  public ResponseEntity<?> identifyOrRegisterParticipant(
+      @RequestBody AuthParticipantRequestDto request, HttpServletRequest servletRequest) {
+    try {
 
-            ResponseCookie jwtCookie = ResponseCookie.from("jwt", token)
-                    .httpOnly(true)
-                    .secure(true)
-                    .path("/")
-                    .maxAge(COOKIE_MAX_AGE)
-                    .sameSite("Strict")
-                    .build();
+      Participant participant =
+          authService.identifyOrRegisterParticipant(request, servletRequest.getRemoteAddr());
 
-            AuthLoginResponseDto response = new AuthLoginResponseDto();
-            UserResponseDto userDto = UserMapper.toUserResponseDto(admin);
-            response.setUser(userDto);
-            response.setToken(token);
+      String token = authService.generateParticipantToken(participant);
 
-            return ResponseEntity.status(HttpStatus.OK)
-                    .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                    .body(response);
-        } catch (TooManyRequestException e){
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .body(e.getMessage());
-        }
-        catch (BadRequestException e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        }
-        catch (UnauthorizedException e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(e.getMessage());
-        }
-        catch (InternalServerErrorException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred, please try again later");
-        }
+      ParticipantDto p = UserMapper.toParticipantDto(participant);
+
+      AuthParticipantResponseDto response = new AuthParticipantResponseDto();
+      response.setToken(token);
+      response.setParticipant(p);
+
+      return ResponseEntity.status(HttpStatus.OK).body(response);
+    } catch (BadRequestException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    } catch (UnauthorizedException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+    } catch (InternalServerErrorException e) {
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+          .body("An unexpected error occurred, please try again later");
     }
-
-    @PostMapping("/participant")
-    public ResponseEntity<?> identifyOrRegisterParticipant(@RequestBody AuthParticipantRequestDto request, HttpServletRequest servletRequest) {
-        try {
-
-            Participant participant = authService
-                    .identifyOrRegisterParticipant(request, servletRequest.getRemoteAddr());
-
-            String token = authService.generateParticipantToken(participant);
-
-            ParticipantDto p = UserMapper.toParticipantDto(participant);
-
-            AuthParticipantResponseDto response = new AuthParticipantResponseDto();
-            response.setToken(token);
-            response.setParticipant(p);
-
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (BadRequestException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
-        } catch (UnauthorizedException e){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(e.getMessage());
-        } catch (InternalServerErrorException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("An unexpected error occurred, please try again later");
-        }
-    }
+  }
 }

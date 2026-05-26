@@ -1,41 +1,39 @@
 package com.techindna.eventsync.entity;
 
-
 import com.techindna.eventsync.entity.enums.Role;
-
 import java.util.List;
 
 public class Speaker extends User {
-    private String bio;
-    private String profilePicture;
-    private List<ExternalLinks> externalLinks;
+  private String bio;
+  private String profilePicture;
+  private List<ExternalLinks> externalLinks;
 
-    @Override
-    public Role getRole() {
-        return Role.SPEAKER;
-    }
+  @Override
+  public Role getRole() {
+    return Role.SPEAKER;
+  }
 
-    public String getBio() {
-        return bio;
-    }
+  public String getBio() {
+    return bio;
+  }
 
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
+  public void setBio(String bio) {
+    this.bio = bio;
+  }
 
-    public String getProfilePicture() {
-        return profilePicture;
-    }
+  public String getProfilePicture() {
+    return profilePicture;
+  }
 
-    public void setProfilePicture(String profilePicture) {
-        this.profilePicture = profilePicture;
-    }
+  public void setProfilePicture(String profilePicture) {
+    this.profilePicture = profilePicture;
+  }
 
-    public List<ExternalLinks> getExternalLinks() {
-        return externalLinks;
-    }
+  public List<ExternalLinks> getExternalLinks() {
+    return externalLinks;
+  }
 
-    public void setExternalLinks(List<ExternalLinks> externalLinks) {
-        this.externalLinks = externalLinks;
-    }
+  public void setExternalLinks(List<ExternalLinks> externalLinks) {
+    this.externalLinks = externalLinks;
+  }
 }

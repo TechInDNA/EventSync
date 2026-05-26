@@ -6,7 +6,6 @@ import com.techindna.eventsync.dto.speaker.SpeakerDetailResponseDto;
 import com.techindna.eventsync.dto.speaker.SpeakerRequestDto;
 import com.techindna.eventsync.dto.speaker.SpeakerResponseDto;
 import com.techindna.eventsync.dto.speaker.UpdateSpeakerResponseDto;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,78 +14,85 @@ import java.util.UUID;
 
 public class SpeakerMapper {
 
-    private SpeakerMapper() {}
+  private SpeakerMapper() {}
 
-    public static void bindSearchParams(PreparedStatement ps, String search, int startIndex) throws SQLException {
-        String pattern = search != null ? "%" + search + "%" : null;
-        ps.setString(startIndex, pattern);
-        ps.setString(startIndex + 1, pattern);
-        ps.setString(startIndex + 2, pattern);
-    }
+  public static void bindSearchParams(PreparedStatement ps, String search, int startIndex)
+      throws SQLException {
+    String pattern = search != null ? "%" + search + "%" : null;
+    ps.setString(startIndex, pattern);
+    ps.setString(startIndex + 1, pattern);
+    ps.setString(startIndex + 2, pattern);
+  }
 
-    public static void bindUpdateSpeakerParams(PreparedStatement ps, SpeakerRequestDto dto) throws SQLException {
-        ps.setString(1, dto.getFirstName());
-        ps.setString(2, dto.getLastName());
-        ps.setString(3, dto.getEmail());
-        ps.setString(4, dto.getProfilePicture());
-        ps.setString(5, dto.getBio());
-    }
+  public static void bindUpdateSpeakerParams(PreparedStatement ps, SpeakerRequestDto dto)
+      throws SQLException {
+    ps.setString(1, dto.getFirstName());
+    ps.setString(2, dto.getLastName());
+    ps.setString(3, dto.getEmail());
+    ps.setString(4, dto.getProfilePicture());
+    ps.setString(5, dto.getBio());
+  }
 
-    public static UpdateSpeakerResponseDto toUpdateSpeakerResponse(UUID id, SpeakerRequestDto dto) {
-        UpdateSpeakerResponseDto response = new UpdateSpeakerResponseDto();
-        response.setId(id);
-        response.setFirstName(dto.getFirstName());
-        response.setLastName(dto.getLastName());
-        response.setEmail(dto.getEmail());
-        response.setProfilePicture(dto.getProfilePicture());
-        response.setBio(dto.getBio());
-        return response;
-    }
+  public static UpdateSpeakerResponseDto toUpdateSpeakerResponse(UUID id, SpeakerRequestDto dto) {
+    UpdateSpeakerResponseDto response = new UpdateSpeakerResponseDto();
+    response.setId(id);
+    response.setFirstName(dto.getFirstName());
+    response.setLastName(dto.getLastName());
+    response.setEmail(dto.getEmail());
+    response.setProfilePicture(dto.getProfilePicture());
+    response.setBio(dto.getBio());
+    return response;
+  }
 
-    public static UpdateSpeakerResponseDto mapUpdateSpeakerResponse(ResultSet rs, SpeakerRequestDto dto) throws SQLException {
-        UUID id = UUID.fromString(rs.getString("id"));
-        return toUpdateSpeakerResponse(id, dto);
-    }
+  public static UpdateSpeakerResponseDto mapUpdateSpeakerResponse(
+      ResultSet rs, SpeakerRequestDto dto) throws SQLException {
+    UUID id = UUID.fromString(rs.getString("id"));
+    return toUpdateSpeakerResponse(id, dto);
+  }
 
-    private static void mapCommonFields(ResultSet rs, SpeakerResponseDto speaker) throws SQLException {
-        speaker.setId(UUID.fromString(rs.getString("id")));
-        speaker.setFirstName(rs.getString("first_name"));
-        speaker.setLastName(rs.getString("last_name"));
-        speaker.setEmail(rs.getString("email"));
-        speaker.setProfilePicture(rs.getString("profile_picture"));
-        speaker.setBio(rs.getString("bio"));
-    }
+  private static void mapCommonFields(ResultSet rs, SpeakerResponseDto speaker)
+      throws SQLException {
+    speaker.setId(UUID.fromString(rs.getString("id")));
+    speaker.setFirstName(rs.getString("first_name"));
+    speaker.setLastName(rs.getString("last_name"));
+    speaker.setEmail(rs.getString("email"));
+    speaker.setProfilePicture(rs.getString("profile_picture"));
+    speaker.setBio(rs.getString("bio"));
+  }
 
-    public static SpeakerResponseDto mapSpeakerResponse(ResultSet rs) throws SQLException {
-        SpeakerResponseDto speaker = new SpeakerResponseDto();
-        mapCommonFields(rs, speaker);
-        return speaker;
-    }
+  public static SpeakerResponseDto mapSpeakerResponse(ResultSet rs) throws SQLException {
+    SpeakerResponseDto speaker = new SpeakerResponseDto();
+    mapCommonFields(rs, speaker);
+    return speaker;
+  }
 
-    public static SpeakerDetailResponseDto mapSpeakerDetailResponse(ResultSet rs) throws SQLException {
-        SpeakerDetailResponseDto speaker = new SpeakerDetailResponseDto();
-        mapCommonFields(rs, speaker);
-        return speaker;
-    }
+  public static SpeakerDetailResponseDto mapSpeakerDetailResponse(ResultSet rs)
+      throws SQLException {
+    SpeakerDetailResponseDto speaker = new SpeakerDetailResponseDto();
+    mapCommonFields(rs, speaker);
+    return speaker;
+  }
 
-    public static SpeakerInterventionDto mapResultSetToSpeakerInterventionDto(ResultSet rs) throws SQLException {
-        SpeakerInterventionDto intervention = new SpeakerInterventionDto();
-        intervention.setFirstName(rs.getString("first_name"));
-        intervention.setLastName(rs.getString("last_name"));
-        intervention.setProfilePicture(rs.getString("profile_picture"));
-        intervention.setBio(rs.getString("bio"));
-        return intervention;
-    }
+  public static SpeakerInterventionDto mapResultSetToSpeakerInterventionDto(ResultSet rs)
+      throws SQLException {
+    SpeakerInterventionDto intervention = new SpeakerInterventionDto();
+    intervention.setFirstName(rs.getString("first_name"));
+    intervention.setLastName(rs.getString("last_name"));
+    intervention.setProfilePicture(rs.getString("profile_picture"));
+    intervention.setBio(rs.getString("bio"));
+    return intervention;
+  }
 
-    public static SpeakerResponseDto toSpeakerResponse(UUID id, SpeakerRequestDto dto, List<ExternalLinkDto> externalLinks) {
-        SpeakerResponseDto speaker = new SpeakerResponseDto();
-        speaker.setId(id);
-        speaker.setFirstName(dto.getFirstName());
-        speaker.setLastName(dto.getLastName());
-        speaker.setEmail(dto.getEmail());
-        speaker.setProfilePicture(dto.getProfilePicture());
-        speaker.setBio(dto.getBio());
-        speaker.setExternalLinks(externalLinks);
-        return speaker;
-    }
+  public static SpeakerResponseDto toSpeakerResponse(
+      UUID id, SpeakerRequestDto dto, List<ExternalLinkDto> externalLinks) {
+    SpeakerResponseDto speaker = new SpeakerResponseDto();
+    speaker.setId(id);
+    speaker.setFirstName(dto.getFirstName());
+    speaker.setLastName(dto.getLastName());
+    speaker.setEmail(dto.getEmail());
+    speaker.setProfilePicture(dto.getProfilePicture());
+    speaker.setBio(dto.getBio());
+    speaker.setExternalLinks(externalLinks);
+    return speaker;
+  }
 }
