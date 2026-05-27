@@ -121,6 +121,7 @@ public class SessionRepository {
         final String query =
                 """
                 select
+                users.id
                 users.first_name,
                 users.last_name,
                 users.profile_picture,

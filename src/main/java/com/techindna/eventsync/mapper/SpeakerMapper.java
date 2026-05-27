@@ -71,6 +71,7 @@ public class SpeakerMapper {
 
     public static SpeakerInterventionDto mapResultSetToSpeakerInterventionDto(ResultSet rs) throws SQLException {
         SpeakerInterventionDto intervention = new SpeakerInterventionDto();
+        intervention.setId(UUID.fromString(rs.getString("id")));
         intervention.setFirstName(rs.getString("first_name"));
         intervention.setLastName(rs.getString("last_name"));
         intervention.setProfilePicture(rs.getString("profile_picture"));
