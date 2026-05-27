@@ -64,7 +64,7 @@ on conflict (id) do nothing;
 -- Intervene record linked to the cascade delete session
 insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
 values
-    ('aa11bb22-cc33-44dd-55ee-66ff77889900', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', '4d70c642-744e-41bf-9140-fae49af31269', '10:00:00+02', '11:00:00+02')
+    ('aa11bb22-cc33-44dd-55ee-66ff77889900', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', '4d70c642-744e-41bf-9140-fae49af31269', '2026-12-05 10:00:00', '2026-12-05 11:00:00')
 on conflict (id) do nothing;
 
 -- Question record linked to the cascade delete session
@@ -115,7 +115,7 @@ on conflict (id) do nothing;
 
 insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
 values
-    ('52ca3cf4-70d0-4385-bf83-a315ecfc9341', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', '13260746-bf49-43db-97c4-4a69b81b096a', '14:00:00+02', '15:00:00+02')
+    ('52ca3cf4-70d0-4385-bf83-a315ecfc9341', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', '13260746-bf49-43db-97c4-4a69b81b096a', '2026-06-15 14:00:00', '2026-06-15 15:00:00')
 on conflict (id) do nothing;
 
 -- Session attached to a room and multiple speakers
@@ -127,8 +127,8 @@ on conflict (id) do nothing;
 
 insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
 values
-    ('39a9ac90-42d0-42fb-bc43-c1f8e3ba2da2', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', 'c6e17cef-1314-4e12-87fa-61f52bdc616f', '12:00:00+02', '13:00:00+02'),
-    ('871939dd-c21c-41dd-8be2-06e2d65649cd', '4f17fb62-25cc-4758-a747-8f7df562d425', 'c6e17cef-1314-4e12-87fa-61f52bdc616f', '13:00:00+02', '14:00:00+02')
+    ('39a9ac90-42d0-42fb-bc43-c1f8e3ba2da2', 'af1bf5f5-96cd-4ad3-b06c-faa3bfdfe56e', 'c6e17cef-1314-4e12-87fa-61f52bdc616f', '2026-05-24 12:00:00', '2026-05-24 13:00:00'),
+    ('871939dd-c21c-41dd-8be2-06e2d65649cd', '4f17fb62-25cc-4758-a747-8f7df562d425', 'c6e17cef-1314-4e12-87fa-61f52bdc616f', '2026-05-24 13:00:00', '2026-05-24 14:00:00')
 on conflict (id) do nothing;
 
 -- Session attached to a room and an event, but no speaker (no intervene records)
@@ -167,8 +167,8 @@ on conflict (id) do nothing;
 -- Intervene records linking speakers to the PUT session
 insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
 values
-    ('2f8a7b6c-9d0e-1f2a-3b4c-5d6e7f8a9b0c', '9c5d4e3f-6a7b-8c9d-0e1f-2a3b4c5d6e7f', '1e7f6a5b-8c9d-0e1f-2a3b-4c5d6e7f8a9b', '10:00:00+02', '11:00:00+02'),
-    ('3a9b8c7d-0e1f-2a3b-4c5d-6e7f8a9b0c1d', '0d6e5f4a-7b8c-9d0e-1f2a-3b4c5d6e7f8a', '1e7f6a5b-8c9d-0e1f-2a3b-4c5d6e7f8a9b', '11:00:00+02', '12:00:00+02')
+    ('2f8a7b6c-9d0e-1f2a-3b4c-5d6e7f8a9b0c', '9c5d4e3f-6a7b-8c9d-0e1f-2a3b4c5d6e7f', '1e7f6a5b-8c9d-0e1f-2a3b-4c5d6e7f8a9b', '2026-07-15 10:00:00', '2026-07-15 11:00:00'),
+    ('3a9b8c7d-0e1f-2a3b-4c5d-6e7f8a9b0c1d', '0d6e5f4a-7b8c-9d0e-1f2a-3b4c5d6e7f8a', '1e7f6a5b-8c9d-0e1f-2a3b-4c5d6e7f8a9b', '2026-07-15 11:00:00', '2026-07-15 12:00:00')
 on conflict (id) do nothing;
 
 -- Test data for GET /sessions/{id} endpoint
@@ -212,8 +212,8 @@ on conflict (id) do nothing;
 -- Intervene records for session 1 (2 speakers)
 insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
 values
-    ('ac5dcc25-1e7e-402c-bca9-3cf58b4c9a62', 'ba7bd06f-9891-4c54-8684-7b51ff294374', '7d1b2c1f-2887-4b33-94f9-c3d204c4ab56', '10:00:00+02', '11:00:00+02'),
-    ('f14c3d15-cf61-4b7f-ae5e-1e635df67eae', 'a62eabcb-d660-45f3-8de7-23cbee9cc864', '7d1b2c1f-2887-4b33-94f9-c3d204c4ab56', '11:00:00+02', '12:00:00+02')
+    ('ac5dcc25-1e7e-402c-bca9-3cf58b4c9a62', 'ba7bd06f-9891-4c54-8684-7b51ff294374', '7d1b2c1f-2887-4b33-94f9-c3d204c4ab56', '2026-05-24 10:00:00', '2026-05-24 11:00:00'),
+    ('f14c3d15-cf61-4b7f-ae5e-1e635df67eae', 'a62eabcb-d660-45f3-8de7-23cbee9cc864', '7d1b2c1f-2887-4b33-94f9-c3d204c4ab56', '2026-05-24 11:00:00', '2026-05-24 12:00:00')
 on conflict (id) do nothing;
 
 -- Questions for session 1 (3 questions, 1 anonymous)
@@ -239,7 +239,7 @@ on conflict (id) do nothing;
 -- Intervene for session 3 (1 speaker)
 insert into eventsync_app.intervene (id, speaker_id, session_id, start_time, end_time)
 values
-    ('1732d798-c42a-4aa6-aacb-e02f5962c919', '547ac520-cdcc-4e78-b647-ef101d6e5ba8', 'e1fbfb54-3e09-4a00-bc64-9a6dc2112b73', '09:00:00+02', '10:00:00+02')
+    ('1732d798-c42a-4aa6-aacb-e02f5962c919', '547ac520-cdcc-4e78-b647-ef101d6e5ba8', 'e1fbfb54-3e09-4a00-bc64-9a6dc2112b73', '2026-05-26 09:00:00', '2026-05-26 10:00:00')
 on conflict (id) do nothing;
 
 -- Question for session 3 (1 question)
