@@ -58,6 +58,29 @@ public class RoomController {
         }
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getRoomById(@PathVariable String id, HttpServletRequest servletRequest) {
+        try {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(roomService.getRoomById(id, servletRequest.getRemoteAddr()));
+        } catch (BadRequestException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(e.getMessage());
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(e.getMessage());
+        } catch (ConflictException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(e.getMessage());
+        } catch (InternalServerErrorException e) {
+            return ResponseEntity.internalServerError()
+                    .body("An unexpected error occurred, please try again later");
+        }
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<?> updateRoom(@PathVariable String id, @RequestBody RoomRequestDto request) {
         try {

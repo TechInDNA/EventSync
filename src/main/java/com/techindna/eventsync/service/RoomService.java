@@ -64,4 +64,12 @@ public class RoomService {
         roomRepository.deleteRoomById(UUID.fromString(id))
                 .orElseThrow(() -> new NotFoundException(String.format("Room %s not found.", id)));
     }
+
+    @Transactional(readOnly = true)
+    public Room getRoomById(String id, String remoteAddr) {
+        dataValidator.validateUUID(id);
+        authService.checkClient(remoteAddr);
+        return roomRepository.findRoomById(UUID.fromString(id))
+                .orElseThrow(() -> new NotFoundException(String.format("Room %s not found.", id)));
+    }
 }

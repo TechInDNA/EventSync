@@ -147,4 +147,19 @@ public class RoomRepository {
         }
     }
 
+    public Optional<Room> findRoomById(UUID id) {
+        final String query = "select id as room_id, name as room_name from eventsync_app.rooms where id = ?";
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try (PreparedStatement ps = conn.prepareStatement(query)){
+            ps.setObject(1, id);
+            try(ResultSet rs = ps.executeQuery()){
+                return rs.next() ? Optional.of(RoomMapper.mapResultSetToRoom(rs)) : Optional.empty();
+            }
+        } catch (SQLException e){
+            throw new InternalServerErrorException("Database error: " + e.getMessage());
+        } finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
+        }
+    }
 }
